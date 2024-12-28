@@ -1,0 +1,45 @@
+<!-- home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Can Management</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Water Can Ticketing System</h1>
+        <form action="/add_dealer" method="POST" class="form">
+            <label for="dealer_id">Dealer ID:</label>
+            <input type="text" id="dealer_id" name="dealer_id" required autofocus>
+
+            <label for="water_can_count">Water Can Count:</label>
+            <input type="number" id="water_can_count" name="water_can_count" required>
+
+            <button type="submit" class="btn">Add Dealer</button>
+        </form>
+
+        <h2>Queue (Last 5 Entries)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Dealer ID</th>
+                    <th>Water Cans</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in queue %}
+                <tr>
+                    <td>{{ entry.dealer_id }}</td>
+                    <td>{{ entry.water_can_count }}</td>
+                    <td>{{ entry.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="/history">History</a>
+</body>
+</html>
