@@ -50,16 +50,36 @@ def add_dealer():
 
     return redirect(url_for('home'))
 
-@app.route('/history', methods=['GET', 'POST'])
+@app.route('/history', methods=['GET'])
 def history():
-    # Filter data if a dealer_id filter is applied
-    dealer_id_filter = request.args.get('dealer_id')
-    if dealer_id_filter:
-        filtered_data = Dealer.query.filter_by(dealer_id=dealer_id_filter).all()
-    else:
-        filtered_data = Dealer.query.order_by(Dealer.timestamp.desc()).all()
+    # Retrieve filter values from the request arguments
+    dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
 
-    return render_template('history.html', data=filtered_data)
+    # Start a query to fetch data from the database
+    query = Dealer.query
+
+    # Apply filters if provided
+    if dealer_id_filter:
+        query = query.filter(Dealer.dealer_id == dealer_id_filter)
+    
+    if date_from:
+        date_from_dt = datetime.strptime(date_from, '%Y-%m-%d')
+        query = query.filter(Dealer.timestamp >= date_from_dt)
+    
+    if date_to:
+        date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
+        query = query.filter(Dealer.timestamp <= date_to_dt)
+    
+    # Fetch filtered data
+    filtered_data = query.order_by(Dealer.timestamp.desc()).all()
+
+    # Render the history template and pass the filters to retain their values
+    return render_template('history.html', data=filtered_data, 
+                           dealer_id=dealer_id_filter, 
+                           date_from=date_from, 
+                           date_to=date_to)
 
 if __name__ == '__main__':
     # Initialize the database (create tables)

@@ -1,4 +1,3 @@
-
 <!-- history.html -->
 <!DOCTYPE html>
 <html lang="en">
@@ -13,10 +12,18 @@
         <h1>Dealer History</h1>
         <form method="GET" class="form">
             <label for="dealer_id">Filter by Dealer ID:</label>
-            <input type="text" id="dealer_id" name="dealer_id">
+            <input type="text" id="dealer_id" name="dealer_id" value="{{ dealer_id }}">
+        
+            <label for="date_from">From Date:</label>
+            <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
+        
+            <label for="date_to">To Date:</label>
+            <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+        
             <button type="submit" class="btn">Filter</button>
         </form>
-        <a href="/" class="back">Back</a>
+        <a href="/" class="back">Back</a>        
+
         <h2>All Entries</h2>
         <table>
             <thead>
@@ -41,4 +48,3 @@
     </div>
 </body>
 </html>
-
