@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dealers.db'
@@ -13,6 +14,7 @@ class Dealer(db.Model):
     dealer_id = db.Column(db.String(100), nullable=False)
     water_can_count = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now)
+    token_id = db.Column(db.Integer, nullable=False)  # Daily resetting token ID
 
     def __repr__(self):
         return f'<Dealer {self.dealer_id}>'
@@ -30,7 +32,18 @@ def add_dealer():
 
     if dealer_id and water_can_count.isdigit():
         water_can_count = int(water_can_count)
-        new_dealer = Dealer(dealer_id=dealer_id, water_can_count=water_can_count)
+
+         # Get the current date
+        today = datetime.now().date()
+
+        # Check the highest token_id for today's entries
+        max_token = db.session.query(func.max(Dealer.token_id)).filter(
+            func.date(Dealer.timestamp) == today).scalar()
+
+        token_id = (max_token or 0) + 1  # Increment token ID or start at 1
+
+        # Create a new dealer entry with token_id
+        new_dealer = Dealer(dealer_id=dealer_id, water_can_count=water_can_count, token_id=token_id)
 
         db.session.add(new_dealer)
         db.session.commit()
@@ -44,7 +57,7 @@ def history():
     if dealer_id_filter:
         filtered_data = Dealer.query.filter_by(dealer_id=dealer_id_filter).all()
     else:
-        filtered_data = Dealer.query.all()
+        filtered_data = Dealer.query.order_by(Dealer.timestamp.desc()).all()
 
     return render_template('history.html', data=filtered_data)
 

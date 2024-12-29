@@ -21,6 +21,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>Token ID</th>
                     <th>Dealer ID</th>
                     <th>Water Cans</th>
                     <th>Timestamp</th>
@@ -29,6 +30,7 @@
             <tbody>
                 {% for entry in data %}
                 <tr>
+                    <td>{{ entry.token_id }}</td>
                     <td>{{ entry.dealer_id }}</td>
                     <td>{{ entry.water_can_count }}</td>
                     <td>{{ entry.timestamp }}</td>
