@@ -25,6 +25,12 @@ def home():
     dealer_queue = Dealer.query.order_by(Dealer.timestamp.desc()).limit(5).all()
     return render_template('home.html', queue=dealer_queue)
 
+@app.route('/dashboard')
+def dashboard():
+    # Show the main page for entering dealer data and queue
+    dealer_queue = Dealer.query.order_by(Dealer.timestamp.desc()).limit(5).all()
+    return render_template('dashboard.html', queue=dealer_queue)
+
 @app.route('/add_dealer', methods=['POST'])
 def add_dealer():
     dealer_id = request.form.get('dealer_id')
