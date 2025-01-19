@@ -1,4 +1,4 @@
-# 1 -> VNC setup
+# 1 -> VNC setup (not required)
 sudo apt update
 sudo apt install tightvncserver
 vncserver
@@ -10,8 +10,8 @@ sudo pip install flask-sqlalchemy
 sudo pip install keyboard
 sudo pip install rpi_ws281x
 
-# 3 - > key mapping remove for numlock buttons and enter, backspace.
-- > 3.1 temporay remove gor for 3.2
+# 3 - > key mapping remove for numlock buttons and enter, backspace. (temporay remove. after reboot all the keys are enabled. startup disbale is handled in 4.)
+- > 3.1 
 run cmd in linux destop -> xev
 then press keys to identify the key code. like keycode 80.
 
@@ -24,7 +24,7 @@ xmodmap -e "keycode 10 ="
 to re enable all run
 setxkbmap
 
-set for all store in file 
+--> 3.2 set for all store in file 
 nano ~/.Xmodmap
 
 keycode 22 =
@@ -50,55 +50,7 @@ save and run
 chmod 644 ~/.Xmodmap
 xmodmap ~/.Xmodmap
 
--> 3.2 remove on startup
-sudo nano /etc/xdg/autostart/xmodmap-startup.sh
-------------------------------------------------
-#!/bin/bash
-# Disable specific keycodes
-xmodmap -e "keycode 22 ="
-xmodmap -e "keycode 104 ="
-xmodmap -e "keycode 106 ="
-xmodmap -e "keycode 63 ="
-xmodmap -e "keycode 82 ="
-xmodmap -e "keycode 86 ="
-xmodmap -e "keycode 91 ="
-xmodmap -e "keycode 77 ="
-xmodmap -e "keycode 79 ="
-xmodmap -e "keycode 80 ="
-xmodmap -e "keycode 81 ="
-xmodmap -e "keycode 83 ="
-xmodmap -e "keycode 84 ="
-xmodmap -e "keycode 85 ="
-xmodmap -e "keycode 87 ="
-xmodmap -e "keycode 88 ="
-xmodmap -e "keycode 89 ="
-xmodmap -e "keycode 90 ="
--------------------------------------------------
 
-sudo chmod +x /etc/xdg/autostart/xmodmap-startup.sh
-->3.3
-nano ~/.xprofile
--------------------------3wa
-# Disable specific keycodes on startup
-xmodmap -e "keycode 22 ="
-xmodmap -e "keycode 104 ="
-xmodmap -e "keycode 106 ="
-xmodmap -e "keycode 63 ="
-xmodmap -e "keycode 82 ="
-xmodmap -e "keycode 86 ="
-xmodmap -e "keycode 91 ="
-xmodmap -e "keycode 77 ="
-xmodmap -e "keycode 79 ="
-xmodmap -e "keycode 80 ="
-xmodmap -e "keycode 81 ="
-xmodmap -e "keycode 83 ="
-xmodmap -e "keycode 84 ="
-xmodmap -e "keycode 85 ="
-xmodmap -e "keycode 87 ="
-xmodmap -e "keycode 88 ="
-xmodmap -e "keycode 89 ="
-xmodmap -e "keycode 90 ="
-------------------------------
 
 # 4 - > setup lite weight browser (chromium will not work)
 sudo apt install midoria
@@ -106,17 +58,38 @@ sudo apt install midoria
 nano /home/lotusaqua/ticketmanagement/start_midori.sh
 -------------------------------------------------------
 #!/bin/bash
-sleep 10
+sleep 40
+xmodmap -e "keycode 22 ="
+xmodmap -e "keycode 104 ="
+xmodmap -e "keycode 106 ="
+xmodmap -e "keycode 63 ="
+xmodmap -e "keycode 82 ="
+xmodmap -e "keycode 86 ="
+xmodmap -e "keycode 91 ="
+xmodmap -e "keycode 77 ="
+xmodmap -e "keycode 79 ="
+xmodmap -e "keycode 80 ="
+xmodmap -e "keycode 81 ="
+xmodmap -e "keycode 83 ="
+xmodmap -e "keycode 84 ="
+xmodmap -e "keycode 85 ="
+xmodmap -e "keycode 87 ="
+xmodmap -e "keycode 88 ="
+xmodmap -e "keycode 89 ="
+xmodmap -e "keycode 90 ="
 midoria -e Fullscreen http://localhost/dashboard
 --------------------------------------------------------
+
 chmod +x /home/lotusaqua/ticketmanagement/start_midori.sh
+
 crontab -e
 include the below line last
 ---------------------------------------------------------------------
 @reboot export DISPLAY=:0 && /home/lotusaqua/ticketmanagement/start_midori.sh >> /home/lotusaqua/ticketmanagement/start_midori.log 2>&1
 -------------------------------------------------------------------
 
-# 3-> auto start Flask
+
+# 5 -> auto start Flask
 sudo nano /etc/systemd/system/flaskapp.service
 
 ----------------------------------------------
@@ -146,6 +119,5 @@ sudo systemctl daemon-reload
 
 sudo systemctl restart flaskapp
 
-#4 -> 
 
 
