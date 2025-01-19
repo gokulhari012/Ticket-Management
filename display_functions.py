@@ -1,6 +1,7 @@
 import keyboard
 from app import get_next_token_id, add_dealer_from_display, app
 from led_control import token_value_update, delear_value_update, water_can_count_update, clear_all_values, cursor_update_delear, cursor_update_water_can
+import time
 
 is_new_token = True
 cursor = "delear"
@@ -9,13 +10,19 @@ can_count = ""
 
 def display_token():
     global is_new_token
-    print("display")
+    print("new token")
     if is_new_token:
-        # token_id = get_next_token_id()
-        token_id = "012"
+        token_id = "001"
+        with app.app_context():
+            token_id = get_next_token_id()
         clear_all_values()
+        reset_values()
         token_value_update(token_id)
         is_new_token = False
+
+def reset_values():
+    global delear_no, can_count
+    delear_no, can_count = "", ""
 
 def token_close():
     global is_new_token
@@ -42,8 +49,8 @@ def on_release(key):
                         with app.app_context():
                             token_close()
                             cursor = "delear"
-                            cursor_update_delear()
                             print("token closed")
+                            display_token()
 
             elif key_name == "backspace":
                 print("Backspace key released")
@@ -82,11 +89,11 @@ def read_keyboard():
     keyboard.wait('esc')
 
 
-def main_loop():
+def main_program():
+    display_token()
     read_keyboard()
-    while True:
-        display_token()
 
 def start_display_functions():
-    main_loop()
+    time.sleep(5)
+    main_program()
 

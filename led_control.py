@@ -83,38 +83,35 @@ def clear_all_values():
 def token_value_update(value):
     global token_value
     token_value = value
-    clear_matrix()
     cursor_update_delear()
-    strip.show()
-    time.sleep(0.25)
 
 def delear_value_update(value):
     global delear_value
     value = "0" if value == "" else value
     delear_value = int(value)
-    clear_matrix()
     cursor_update_delear()
-    strip.show()
-    time.sleep(0.25)
 
 def water_can_count_update(value):
     global water_can_value
     value = "0" if value == "" else value
     water_can_value = int(value)
-    clear_matrix()
     cursor_update_water_can()
-    strip.show()
-    time.sleep(0.25)
 
 def cursor_update_delear():
+    clear_matrix()
     display_row(token_value, ROW_1, Color(0, 0, 255))  # blue
     display_row(delear_value, ROW_2, Color(255, 0, 0))  # red
     display_row(water_can_value, ROW_3, Color(0, 255, 0))  # green
+    strip.show()
+    time.sleep(0.25)
 
 def cursor_update_water_can():
+    clear_matrix()
     display_row(token_value, ROW_1, Color(0, 0, 255))  # blue
     display_row(delear_value, ROW_2, Color(0, 255, 0))  # green
     display_row(water_can_value, ROW_3, Color(255, 0, 0))  # red
+    strip.show()
+    time.sleep(0.25)
         
 # if __name__ == "__main__":
 #     main()
