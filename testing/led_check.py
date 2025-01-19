@@ -63,58 +63,23 @@ def clear_matrix():
         strip.setPixelColor(i, Color(0, 0, 0))
 
 # Main loop
-# def main():
-#     strip.setBrightness(128)  # Set brightness (0 to 255): Suggested 128 (50%)
-#     while True:
-#         clear_matrix()
-#         for i in range(1000):
-#             clear_matrix()  # Display digits in each row
-#             # displayRow(value, row number, colour)
-#             display_row(i, ROW_1, Color(255, 0, 0))  # Red
-#             display_row(999 - i, ROW_2, Color(0, 255, 0))  # Green
-#             display_row(i, ROW_3, Color(0, 0, 255))  # Blue
-#             strip.show()
-#             time.sleep(0.25)
+def main():
+    strip.setBrightness(128)  # Set brightness (0 to 255): Suggested 128 (50%)
+    while True:
+        clear_matrix()
+        for i in range(1000):
+            clear_matrix()  # Display digits in each row
+            # displayRow(value, row number, colour)
+            display_row(i, ROW_1, Color(255, 0, 0))  # Red
+            display_row(999 - i, ROW_2, Color(0, 255, 0))  # Green
+            display_row(i, ROW_3, Color(0, 0, 255))  # Blue
+            strip.show()
+            time.sleep(0.25)
 
 def clear_all_values():
     global token_value, delear_value, water_can_value
     token_value, delear_value, water_can_value = 0, 0, 0
 
-def token_value_update(value):
-    global token_value
-    token_value = value
-    clear_matrix()
-    cursor_update_delear()
-    strip.show()
-    time.sleep(0.25)
 
-def delear_value_update(value):
-    global delear_value
-    value = "0" if value == "" else value
-    delear_value = int(value)
-    clear_matrix()
-    cursor_update_delear()
-    strip.show()
-    time.sleep(0.25)
-
-def water_can_count_update(value):
-    global water_can_value
-    value = "0" if value == "" else value
-    water_can_value = int(value)
-    clear_matrix()
-    cursor_update_water_can()
-    strip.show()
-    time.sleep(0.25)
-
-def cursor_update_delear():
-    display_row(token_value, ROW_1, Color(0, 0, 255))  # blue
-    display_row(delear_value, ROW_2, Color(255, 0, 0))  # red
-    display_row(water_can_value, ROW_3, Color(0, 255, 0))  # green
-
-def cursor_update_water_can():
-    display_row(token_value, ROW_1, Color(0, 0, 255))  # blue
-    display_row(delear_value, ROW_2, Color(0, 255, 0))  # green
-    display_row(water_can_value, ROW_3, Color(255, 0, 0))  # red
-        
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

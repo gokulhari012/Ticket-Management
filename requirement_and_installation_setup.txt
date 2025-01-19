@@ -1,0 +1,84 @@
+# 1 -> VNC setup
+sudo apt update
+sudo apt install tightvncserver
+
+vncserver
+
+vncserver -kill :1
+
+Ip address for VNC client : ticketmanagement:1
+
+# 2-> python requirement
+sudo pip install flask-sqlalchemy
+sudo pip install keyboard
+sudo pip install rpi_ws281x
+
+# 3-> auto start
+sudo nano /etc/systemd/system/flaskapp.service
+
+----------------------------------------------
+[Unit]
+Description=Flask Web Application
+After=network.target
+
+[Service]
+User=pi
+# User=root               # Run as root (sudo)
+WorkingDirectory=/home/pi/myflaskapp  # Replace with your Flask app's directory
+ExecStart=/usr/bin/python3 /home/pi/myflaskapp/app.py  # Replace with your app's entry point
+Restart=always
+# Environment=PATH=/usr/bin:/usr/local/bin  # Ensure that the correct PATH is used
+
+[Install]
+WantedBy=multi-user.target
+
+----------------------------------------------
+
+sudo systemctl daemon-reload
+sudo systemctl enable flaskapp
+
+sudo systemctl start flaskapp
+
+# open browser
+nano /home/pi/start_browser.sh
+
+-------------------------------------
+#!/bin/bash
+# Wait for the system to be ready (optional, depending on your setup)
+sleep 10
+
+# Launch Chromium in full-screen mode and navigate to the Flask URL
+chromium-browser --noerrdialogs --kiosk http://localhost/dashboard
+----------------------------------------------
+
+chmod +x /home/pi/start_browser.sh
+
+sudo nano /etc/systemd/system/browser.service
+
+----------------------------------------------
+[Unit]
+Description=Open Chromium in Kiosk Mode
+After=flaskapp.service  # Ensure this starts after the Flask app
+
+[Service]
+User=pi
+ExecStart=/home/pi/start_browser.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+-----------------------------------------------
+
+sudo systemctl daemon-reload
+sudo systemctl enable browser.service
+sudo systemctl start browser.service
+
+sudo systemctl status browser.service
+
+sudo systemctl daemon-reload
+
+sudo systemctl restart flaskapp
+
+#4 -> 
+
+

@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
-from display_functions import start_display_functions
-
+from sqlalchemy import func, extract
+import threading
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dealers.db'
@@ -30,12 +29,21 @@ class Dealer(db.Model):
 def home():
     # Show the main page for entering dealer data and queue
     dealer_queue = Dealer.query.order_by(Dealer.timestamp.desc()).limit(5).all()
+    for dealer in dealer_queue:
+        # Assuming `timestamp` is a datetime object, you can format it as required
+        dealer.timestamp = dealer.timestamp.strftime("%Y-%m-%d %H:%M:%S")  # Format as hour:minute
+    
     return render_template('home.html', queue=dealer_queue)
 
 @app.route('/dashboard')
 def dashboard():
     # Show the main page for entering dealer data and queue
     dealer_queue = Dealer.query.order_by(Dealer.timestamp.desc()).limit(5).all()
+        # Format the timestamp to show only hours and minutes
+    for dealer in dealer_queue:
+        # Assuming `timestamp` is a datetime object, you can format it as required
+        dealer.timestamp = dealer.timestamp.strftime("%Y-%m-%d %H:%M")  # Format as hour:minute
+    
     return render_template('dashboard.html', queue=dealer_queue)
 
 @app.route('/add_dealer', methods=['POST'])
@@ -65,9 +73,10 @@ def add_dealer_from_display(dealer_id, water_can_count):
         db.session.commit()
 
 def get_next_token_id():
-    today = datetime.now().date()
+    today = datetime.today().date()
     # Get the last entry for today
-    last_entry = Dealer.query.filter_by(date=today).order_by(Dealer.id.desc()).first()
+    last_entry = Dealer.query.filter(func.date(Dealer.timestamp)==today).order_by(Dealer.id.desc()).first()
+    print(last_entry)
     last_token_id = last_entry.token_id if last_entry else 0
     # Increment the token ID, resetting to 1 every 50 counts
     token_id = (last_token_id % token_id_reset_value) + 1
@@ -98,6 +107,10 @@ def history():
     # Fetch filtered data
     filtered_data = query.order_by(Dealer.timestamp.desc()).all()
 
+    for dealer in filtered_data:
+        # Assuming `timestamp` is a datetime object, you can format it as required
+        dealer.timestamp = dealer.timestamp.strftime("%Y-%m-%d %H:%M:%S")  # Format as hour:minute
+    
     # Render the history template and pass the filters to retain their values
     return render_template('history.html', data=filtered_data, 
                            dealer_id=dealer_id_filter, 
@@ -109,6 +122,10 @@ if __name__ == '__main__':
     # Initialize the database (create tables)
     with app.app_context():
         db.create_all()
-    if is_rashberrypi:    
-        start_display_functions()
-    app.run(host='0.0.0.0', port=80, debug=False)
+    if is_rashberrypi: 
+        from display_functions import start_display_functions
+        t = threading.Thread(target=start_display_functions)
+        t.start()
+    app.run(host='0.0.0.0', port="80", debug=False)
+    if is_rashberrypi:
+        t.join()
