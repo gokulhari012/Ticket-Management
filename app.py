@@ -103,9 +103,11 @@ def history():
     if date_to:
         date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
         query = query.filter(Dealer.timestamp <= date_to_dt)
-    
-    # Fetch filtered data
+
     filtered_data = query.order_by(Dealer.timestamp.desc()).all()
+
+    if dealer_id_filter == "" and date_from == "" and date_to == "":
+        filtered_data = query.order_by(Dealer.timestamp.desc()).limit(20).all()
 
     for dealer in filtered_data:
         # Assuming `timestamp` is a datetime object, you can format it as required
