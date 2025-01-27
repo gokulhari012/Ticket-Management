@@ -7,15 +7,34 @@
     <title>Water Can Management</title>
     <link rel="stylesheet" href="/static/styles.css">
     <script>
-        // Set the page to refresh every 10 seconds
-        setInterval(function() {
-            location.reload();
-        }, 5000);  // 5000 ms = 5 seconds
+        // Display a pop-up alert with the error message
+        function showError(message) {
+            alert(message);
+        }
     </script>
 </head>
-<body class="dashboard">
+<body>
+    {% if error_message %}
+        <script>
+            // Call the function to show the error message
+            showError("{{ error_message }}");
+        </script>
+    {% endif %}
     <div class="container">
         <h1>Water Can Ticketing System</h1>
+        <form action="/add_dealer" method="POST" class="form">
+            <label for="token_no">Token No:</label>
+            <input type="text" id="token_no" name="token_no" value="{{token_no}}" required >
+            
+            <label for="dealer_id">Dealer ID:</label>
+            <input type="text" id="dealer_id" name="dealer_id" required autofocus>
+
+            <label for="water_can_count">Water Can Count:</label>
+            <input type="number" id="water_can_count" name="water_can_count" required>
+
+            <button type="submit" class="btn ">Add Dealer</button>
+        </form>
+
         <h2>Queue (Last 5 Entries)</h2>
         <table>
             <thead>
@@ -40,7 +59,6 @@
             </tbody>
         </table>
     </div>
-    <a href="/" class="back">Back</a>        
-
+    <a href="/" class="back">Back</a>   
 </body>
 </html>

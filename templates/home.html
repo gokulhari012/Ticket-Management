@@ -8,44 +8,12 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Water Can Ticketing System</h1>
-        <form action="/add_dealer" method="POST" class="form">
-            <label for="dealer_id">Dealer ID:</label>
-            <input type="text" id="dealer_id" name="dealer_id" required autofocus>
-
-            <label for="water_can_count">Water Can Count:</label>
-            <input type="number" id="water_can_count" name="water_can_count" required>
-
-            <button type="submit" class="btn">Add Dealer</button>
-        </form>
-
-        <h2>Queue (Last 5 Entries)</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Token ID</th>
-                    <th>Dealer ID</th>
-                    <th>Water Cans</th>
-                    <th>Timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for entry in queue %}
-                <tr>
-                    <td>{{ entry.token_id }}</td>
-                    <td>{{ entry.dealer_id }}</td>
-                    <td>{{ entry.water_can_count }}</td>
-                    <td>{{ entry.timestamp }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <h1 class="home">Home</h1>
+    <div class="home_window">
+        <a href="/data_entry">Data Entry</a><br>
+        <a href="/dashboard">Dashboard</a><br>
+        <a href="/history">History</a><br>
+        <a href="/inactive_dealers">Inactive Dealers</a><br>
     </div>
-    <div class="footer">
-        <a href="/history">History</a>
-        <a href="/dashboard">Dashboard</a>
-    </div>
-
 </body>
 </html>

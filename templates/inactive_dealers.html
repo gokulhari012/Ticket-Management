@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inactive Dealers</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Inactive Dealers</h1>
+        <form method="POST" class="form">
+            <label for="days">Days:</label>
+            <input type="number" id="days" name="days" value="{{days}}" required>
+            <button type="submit" class="btn">Find Inactive Dealers</button>
+        </form>
+
+        {% if inactive_dealers %}
+        <h2>Dealers Inactive for the Last {{ days }} Days</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Dealer ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dealer in inactive_dealers %}
+                <tr>
+                    <td>{{ dealer[0] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No dealers found inactive for the specified duration.</p>
+        {% endif %}
+    </div>
+    <a href="/" class="back">Back</a>        
+
+</body>
+</html>

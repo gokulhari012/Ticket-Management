@@ -10,6 +10,7 @@
 <body>
     <div class="container">
         <h1>Dealer History</h1>
+        
         <form method="GET" class="form">
             <label for="dealer_id">Filter by Dealer ID:</label>
             <input type="text" id="dealer_id" name="dealer_id" value="{{ dealer_id }}">
@@ -20,8 +21,25 @@
             <label for="date_to">To Date:</label>
             <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
         
-            <button type="submit" class="btn">Filter</button>
+            <input type="hidden" name="filter_type" value="{{ filter_type }}">
+
+            <button type="submit" name="filter_button" value="submit" class="btn">Filter</button>
         </form>
+        <!-- Filter buttons -->
+        <div class="filter-buttons">
+            <a href="/history?filter_type=1-day" class="filter-button {{ 'active' if filter_type == '1-day' else '' }}">1 Day</a>
+            <a href="/history?filter_type=1-month" class="filter-button {{ 'active' if filter_type == '1-month' else '' }}">1 Month</a>
+            <a href="/history?filter_type=all" class="filter-button {{ 'active' if filter_type == 'all' else '' }}">All</a>
+            <!-- <a href="/history?filter_type=all" class="filter-button">All</a> -->
+        </div>
+        
+         <!-- Show total cans -->
+         <div class="total-cans-card">
+            <h2>Total Cans</h2>
+            <div class="total-cans-number">{{ total_cans }}</div>
+        </div>
+        
+ 
         <a href="/" class="back">Back</a>        
 
         <h2>All Entries</h2>
@@ -31,7 +49,8 @@
                     <th>Token ID</th>
                     <th>Dealer ID</th>
                     <th>Water Cans</th>
-                    <th>Timestamp</th>
+                    <th>Date</th>
+                    <th>Time</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,7 +59,8 @@
                     <td>{{ entry.token_id }}</td>
                     <td>{{ entry.dealer_id }}</td>
                     <td>{{ entry.water_can_count }}</td>
-                    <td>{{ entry.timestamp }}</td>
+                    <td>{{ entry.formatted_date }}</td>
+                    <td>{{ entry.formatted_time }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

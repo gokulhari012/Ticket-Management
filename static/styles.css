@@ -38,22 +38,88 @@ h1, h2 {
 }
 
 .btn {
-    background-color: #007bff;
+    background-color: #03d35a;
     color: #fff;
     border: none;
     padding: 10px;
     border-radius: 4px;
     cursor: pointer;
+    font-size: medium;
+    height: 50px;
 }
 
 .btn:hover {
-    background-color: #0056b3;
+    background-color: rgb(1, 135, 41);
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
+}
+
+.filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-buttons .filter-button {
+    all: unset; 
+    padding: 10px 20px;
+    text-decoration: none;
+    background-color: #ffa502;
+    color: #fff;
+    border-radius: 5px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.filter-buttons .filter-button:hover {
+    background-color: #cf8702;
+    transform: scale(1.05);
+}
+
+.filter-buttons .filter-button:active {
+    transform: scale(0.95);
+}
+.filter-buttons .active {
+    background-color: #28a745; /* Green for active */
+    color: #fff;
+    border-color: #28a745;
+}
+
+.total-cans-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #007bff; /* Blue background for emphasis */
+    color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.total-cans-card h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.total-cans-card .total-cans-number {
+    margin-top: 10px;
+    font-size: 2.5rem; /* Larger font size for the number */
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle text shadow */
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 table th, table td {
@@ -92,6 +158,7 @@ a {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    transition: transform 0.2s, background-color 0.2s; /* Smooth animations */
   }
   
   a:hover {
@@ -104,25 +171,42 @@ a {
     transform: translateX(-50%) scale(0.9);
   }
 .back{
+    background-color: #f22c1a;
+    border: 2px solid #ff4000; /* Border to match the background color */
     top: 50px;
     left: 73%; 
 }
-.footer{
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+.back:hover {
+    background-color: #b30000; /* Darker background on hover */
+    border-color: #b30000; /* Darker border on hover */
 }
-.footer a{
+
+.home{
+    margin-top: 50px;
+}
+.home_window{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    border: 2px solid #c9c9ca; /* Set border width and color */
+    border-radius: 8px; /* Optional: Add rounded corners */
+    padding: 100px 150px;  ; /* Add padding for better spacing */
+    background-color: #f5f6fa; /* Optional: Set background color */
+    text-align: center; /* Align text and inline elements center */
+}
+.home_window a{
     position: relative;
     left: 0%;
-    margin-right: 20px;
     margin-bottom: 20px;
     transform: translateX(0%);
+    transition: transform 0.2s, background-color 0.2s; /* Smooth animations */
+    text-align: center; 
 }  
-.footer a:hover{
+.home_window a:hover{
     transform: scale(1.1);
 }
-.footer a:active {
+.home_window a:active {
     transform:  scale(0.9);
 }
 .dashboard .container{
@@ -132,3 +216,4 @@ a {
     font-size: 40px;
     width: 100%;
 }
+
