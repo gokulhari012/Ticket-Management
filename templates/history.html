@@ -6,8 +6,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dealer History</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <script>
+        function enableEdit(rowId) {
+            document.querySelector(`#dealer_id_${rowId}`).removeAttribute('readonly');
+            document.querySelector(`#water_can_${rowId}`).removeAttribute('readonly');
+            document.querySelector(`#update_${rowId}`).style.display = 'inline-block';
+            document.querySelector(`#password_${rowId}`).style.display = 'inline-block';
+        }
+    
+        function updateDealer(rowId) {
+            const dealerId = document.querySelector(`#dealer_id_${rowId}`).value;
+            const waterCanCount = document.querySelector(`#water_can_${rowId}`).value;
+            const password = document.querySelector(`#password_${rowId}`).value;
+    
+            fetch('/update_dealer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `dealer_id=${dealerId}&water_can_count=${waterCanCount}&dealer_record_id=${rowId}&password=${password}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === "success") window.location.reload();
+            })
+            .catch(error => console.error("Error:", error));
+        }
+        // Display a pop-up alert with the error message
+        function showMsg(message) {
+            alert(message);
+        }
+    
+    </script>
 </head>
 <body>
+    {% if msg %}
+        <script>
+            // Call the function to show the error message
+            showMsg("{{ msg }}");
+        </script>
+    {% endif %}
     <div class="container history_container">
         <h1>Dealer History</h1>
         
@@ -39,7 +76,25 @@
             <div class="total-cans-number">{{ total_cans }}</div>
         </div>
         
- 
+        <div class="export-options">
+            <form action="/export" method="get">
+                <input type="hidden" name="dealer_id" value="{{ request.args.get('dealer_id', '') }}">
+                <input type="hidden" name="date_from" value="{{ request.args.get('date_from', '') }}">
+                <input type="hidden" name="date_to" value="{{ request.args.get('date_to', '') }}">
+                <input type="hidden" name="filter_button" value="{{ request.args.get('filter_button', '') }}">
+                <input type="hidden" name="filter_type" value="{{ request.args.get('filter_type', '') }}">
+                <button type="submit" class="export-button">Export to Excel</button>
+            </form>
+            <form action="{{ url_for('send_email') }}" method="get" style="display: inline;">
+                <input class="export-input" type="email" name="email" placeholder="Enter Email" required>
+                <input type="hidden" name="dealer_id" value="{{ request.args.get('dealer_id', '') }}">
+                <input type="hidden" name="date_from" value="{{ request.args.get('date_from', '') }}">
+                <input type="hidden" name="date_to" value="{{ request.args.get('date_to', '') }}">
+                <input type="hidden" name="filter_button" value="{{ request.args.get('filter_button', '') }}">
+                <input type="hidden" name="filter_type" value="{{ request.args.get('filter_type', '') }}">
+                <button type="submit" class="export-button">Send Email</button>
+            </form>
+        </div>
         <a href="/" class="back">Back</a>        
 
         <h2>All Entries</h2>
@@ -71,33 +126,7 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
+    </div>    
 </body>
 </html>
 
-<script>
-    function enableEdit(rowId) {
-        document.querySelector(`#dealer_id_${rowId}`).removeAttribute('readonly');
-        document.querySelector(`#water_can_${rowId}`).removeAttribute('readonly');
-        document.querySelector(`#update_${rowId}`).style.display = 'inline-block';
-        document.querySelector(`#password_${rowId}`).style.display = 'inline-block';
-    }
-
-    function updateDealer(rowId) {
-        const dealerId = document.querySelector(`#dealer_id_${rowId}`).value;
-        const waterCanCount = document.querySelector(`#water_can_${rowId}`).value;
-        const password = document.querySelector(`#password_${rowId}`).value;
-
-        fetch('/update_dealer', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `dealer_id=${dealerId}&water_can_count=${waterCanCount}&dealer_record_id=${rowId}&password=${password}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.status === "success") window.location.reload();
-        })
-        .catch(error => console.error("Error:", error));
-    }
-</script>

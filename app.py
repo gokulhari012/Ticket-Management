@@ -1,20 +1,38 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,  send_file
 from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, extract
 import threading
+from flask_mail import Mail, Message
+import pandas as pd
+import os
+
+is_rashberrypi = False
+# is_rashberrypi = True
+
+debug_mode = not is_rashberrypi
 
 edit_password = "lotus@123"
+
+email_id = "lotusaquaiotprojects@gmail.com"
+email_password = "zxxr noif fdcq qnro"
+
+# token_id_reset_value = 50
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dealers.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# token_id_reset_value = 50
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Update based on your email provider
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = email_id  # Update with your email
+app.config['MAIL_PASSWORD'] = email_password  # Use an app password if required
 
-# is_rashberrypi = True
-is_rashberrypi = False
+mail = Mail(app)
 
 # Database model for dealer data
 class Dealer(db.Model):
@@ -143,16 +161,15 @@ def get_next_token_id():
     
     # Extract token IDs into a flat list
     token_ids = [token[0] for token in tokens_today]
-    for i in range(1, max(token_ids) + 2):
+    max_token_id = max(token_ids) if len(token_ids)>0 else 0
+    for i in range(1, max_token_id + 2):
         if i not in token_ids:
             return i
     
     # If no gaps are found, start over at 1
     return 1
-
-@app.route('/history', methods=['GET'])
-def history():
-    # Retrieve filter values from the request arguments
+def get_filtered_data(request):
+        # Retrieve filter values from the request arguments
     dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
     date_from = request.args.get('date_from', '')
     date_to = request.args.get('date_to', '')
@@ -192,6 +209,16 @@ def history():
 
     filtered_data = query.order_by(Dealer.timestamp.desc()).all()
 
+    return filtered_data, filter_type
+
+@app.route('/history', methods=['GET'])
+def history(msg=None):
+    filtered_data, filter_type = get_filtered_data(request)
+    dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+    # filter_button = request.args.get('filter_button', '')
+    
     # if dealer_id_filter == "" and date_from == "" and date_to == "":
     #     filtered_data = query.order_by(Dealer.timestamp.desc()).limit(20).all()
     
@@ -208,8 +235,72 @@ def history():
                             date_from=date_from, 
                             date_to=date_to,
                             total_cans=total_cans, 
-                            filter_type=filter_type)
+                            filter_type=filter_type,
+                            msg=msg)
 
+# Function to generate Excel
+def generate_excel(dealers):
+    # dealers = Dealer.query.all()
+    data = {
+        "Token ID": [d.token_id for d in dealers],
+        "Dealer ID": [d.dealer_id for d in dealers],
+        "Water Cans": [d.water_can_count for d in dealers],
+        "Date": [d.timestamp.strftime("%d-%m-%Y") for d in dealers],
+        "Time": [d.timestamp.strftime("%I:%M %p") for d in dealers]  # 12-hour format
+    }
+    
+    df = pd.DataFrame(data)
+
+    # Calculate total cans
+    total_cans = df["Water Cans"].sum()
+
+    # Add an empty row and total row at the end
+    total_row = pd.DataFrame([{ "Token ID": "", "Dealer ID": "TOTAL", "Water Cans": total_cans, "Date": "", "Time": ""}])
+    df = pd.concat([df, pd.DataFrame([{}]), total_row], ignore_index=True)
+
+    # Generate a filename with the current date and time
+    timestamp = datetime.now().strftime("%d-%m-%Y_%I-%M-%S_%p")
+    filename = f"dealers_data_{timestamp}.xlsx"
+    filepath = os.path.join("exports", filename)
+    # Ensure the 'exports' folder exists
+    if not os.path.exists("exports"):
+        os.makedirs("exports")
+
+    with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name="Dealers Data")
+
+    return filepath, filename
+
+
+# Route to download Excel
+@app.route('/export')
+def export_data():
+    filtered_data, filter_type = get_filtered_data(request)
+    output, filename = generate_excel(filtered_data)
+    return send_file(output, download_name=filename, as_attachment=True, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+# Route to send Excel via email
+@app.route('/send_email')
+def send_email():
+    recipient_email = request.args.get('email')
+
+    if not recipient_email:
+        return "Email is required!", 400
+    
+    filtered_data, filter_type = get_filtered_data(request)
+    output, filename = generate_excel(filtered_data)
+    with open(output, 'rb') as f:
+        file_data = f.read()
+
+    msg = Message("Dealers Data Report", sender=email_id, recipients=[recipient_email])
+    msg.body = "Attached is the dealer data report in Excel format."
+
+    # Attach Excel file
+    msg.attach(filename, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_data)
+
+    mail.send(msg)
+
+    return history("Email sent successfully!!!")
 
 
 @app.route('/inactive_dealers', methods=['GET', 'POST'])
@@ -237,7 +328,7 @@ if __name__ == '__main__':
         from display_functions import start_display_functions
         t = threading.Thread(target=start_display_functions)
         t.start()
-    app.run(host='0.0.0.0', port="80", debug=True)
+    app.run(host='0.0.0.0', port="80", debug=debug_mode)
     if is_rashberrypi:
         t.join()
         

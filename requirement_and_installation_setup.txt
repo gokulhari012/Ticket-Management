@@ -9,6 +9,7 @@ Ip address for VNC client : ticketmanagement:1
 sudo pip install flask-sqlalchemy
 sudo pip install keyboard
 sudo pip install rpi_ws281x
+sudo pip install pandas openpyxl flask-mail
 
 # 3 - > key mapping remove for numlock buttons and enter, backspace. (temporay remove. after reboot all the keys are enabled. startup disbale is handled in 4.)
 - > 3.1 

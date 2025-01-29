@@ -259,3 +259,34 @@ a {
 .history_data .history_action{
     width: 300px;
 }
+.export-options {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.export-options .export-input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.export-options .export-button {
+    all: unset; 
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.export-options .export-button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+.export-options .export-button:active {
+    transform: scale(0.95);
+}
