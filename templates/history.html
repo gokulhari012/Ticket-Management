@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container history_container">
         <h1>Dealer History</h1>
         
         <form method="GET" class="form">
@@ -43,7 +43,7 @@
         <a href="/" class="back">Back</a>        
 
         <h2>All Entries</h2>
-        <table>
+        <table class="history_data">
             <thead>
                 <tr>
                     <th>Token ID</th>
@@ -51,16 +51,22 @@
                     <th>Water Cans</th>
                     <th>Date</th>
                     <th>Time</th>
+                    <th class="history_action">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for entry in data %}
                 <tr>
                     <td>{{ entry.token_id }}</td>
-                    <td>{{ entry.dealer_id }}</td>
-                    <td>{{ entry.water_can_count }}</td>
+                    <td><input type="text" id="dealer_id_{{ entry.id }}" value="{{ entry.dealer_id }}" readonly></td>
+                    <td><input type="number" id="water_can_{{ entry.id }}" value="{{ entry.water_can_count }}" readonly></td>
                     <td>{{ entry.formatted_date }}</td>
                     <td>{{ entry.formatted_time }}</td>
+                    <td>
+                        <button class="edit" onclick="enableEdit({{ entry.id }})">Edit</button>
+                        <input class="password" type="password" id="password_{{ entry.id }}" placeholder="Enter password" style="display: none;">
+                        <button id="update_{{ entry.id }}" onclick="updateDealer({{ entry.id }})" style="display: none;">Update</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -68,3 +74,30 @@
     </div>
 </body>
 </html>
+
+<script>
+    function enableEdit(rowId) {
+        document.querySelector(`#dealer_id_${rowId}`).removeAttribute('readonly');
+        document.querySelector(`#water_can_${rowId}`).removeAttribute('readonly');
+        document.querySelector(`#update_${rowId}`).style.display = 'inline-block';
+        document.querySelector(`#password_${rowId}`).style.display = 'inline-block';
+    }
+
+    function updateDealer(rowId) {
+        const dealerId = document.querySelector(`#dealer_id_${rowId}`).value;
+        const waterCanCount = document.querySelector(`#water_can_${rowId}`).value;
+        const password = document.querySelector(`#password_${rowId}`).value;
+
+        fetch('/update_dealer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `dealer_id=${dealerId}&water_can_count=${waterCanCount}&dealer_record_id=${rowId}&password=${password}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === "success") window.location.reload();
+        })
+        .catch(error => console.error("Error:", error));
+    }
+</script>

@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, extract
 import threading
 
+edit_password = "lotus@123"
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dealers.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -44,9 +46,31 @@ def data_entry(error_message=None):
     token_no = get_next_token_id()
     return render_template('data_entry.html', queue=dealer_queue, token_no = token_no, error_message=error_message)
 
+@app.route('/update_dealer', methods=['POST'])
+def update_dealer():
+    dealer_id = request.form.get('dealer_id')
+    water_can_count = request.form.get('water_can_count')
+    dealer_record_id = request.form.get('dealer_record_id')  # Hidden field with dealer DB ID
+    password = request.form.get('password')
+
+    correct_password = edit_password  # Set your password here
+
+    if password != correct_password:
+        return {"status": "error", "message": "Incorrect password!"}, 403
+
+    dealer = Dealer.query.get(dealer_record_id)
+    if dealer:
+        dealer.dealer_id = dealer_id
+        dealer.water_can_count = int(water_can_count)
+        db.session.commit()
+        return {"status": "success", "message": "Dealer details updated!"}
+    
+    return {"status": "error", "message": "Dealer not found!"}, 404
+
 @app.route('/')
 def home():
     return render_template('home.html')
+
 
 @app.route('/dashboard')
 def dashboard():

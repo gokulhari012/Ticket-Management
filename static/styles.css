@@ -15,6 +15,10 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.history_container{
+    max-width: 1000px;
+}
+
 h1, h2 {
     color: #333;
     text-align: center;
@@ -217,3 +221,41 @@ a {
     width: 100%;
 }
 
+.history_data input[readonly] {
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+}
+
+.history_data input {
+    width: 50px;
+    padding: 5px;
+    font-size: 16px;
+}
+.history_data .password{
+    width: 120px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.history_data button {
+    background-color: #03d35a;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.history_data button:hover {
+    background-color: rgb(1, 135, 41);;
+}
+.history_data .edit{
+    background-color: #007bff;
+}
+
+.history_data .edit:hover {
+    background-color: #0056b3;
+}
+
+.history_data .history_action{
+    width: 300px;
+}
