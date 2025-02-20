@@ -6,6 +6,7 @@ import threading
 from flask_mail import Mail, Message
 import pandas as pd
 import os
+import requests
 
 is_rashberrypi = False
 # is_rashberrypi = True
@@ -17,6 +18,8 @@ edit_password = "lotus@123"
 email_id = "lotusaquaiotprojects@gmail.com"
 email_password = "zxxr noif fdcq qnro"
 
+esp32_ip = "192.168.0.100"  # Change to your ESP32 IP
+esp32_api = "esp_update_token"
 # token_id_reset_value = 50
 
 
@@ -126,8 +129,56 @@ def add_dealer():
 
         db.session.add(new_dealer)
         db.session.commit()
-
+    threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start()
     return redirect(url_for('data_entry'))
+
+@app.route('/add_dealer_esp32', methods=['POST'])
+def add_dealer_esp32():
+    status = "failed"
+    try:
+        dealer_id = request.form.get('dealer_id')
+        water_can_count = request.form.get('water_can_count')
+        token_no = request.form.get('token_no')
+        # print(token_no)
+        if dealer_id and water_can_count.isdigit() and token_no:
+            water_can_count = int(water_can_count)
+            
+            token_no = int(token_no)
+
+            # Check if the token number is already used for today
+            today = datetime.today().date()
+            existing_token = Dealer.query.filter_by(token_id=token_no).filter(func.date(Dealer.timestamp) == today).first()
+
+            if existing_token:
+                # Token already exists, redirect with error message
+                error_message = "existing_token"
+                return error_message
+                
+            # Create a new dealer entry with token_id
+            new_dealer = Dealer(dealer_id=dealer_id, water_can_count=water_can_count, token_id=token_no)
+
+            db.session.add(new_dealer)
+            db.session.commit()
+            status = "success"
+
+    except Exception as e:
+        print(f"Error in esp post request reciving: {e}")
+
+    token_updated_send_to_website_ui()
+
+    return status
+
+def token_updated_send_to_esp32(token_id):
+    try:
+        esp32_url = f"http://{esp32_ip}/{esp32_api}"
+        data = {"message": token_id}
+        response = requests.get(esp32_url, params=data)
+        print(f"Token sent ESP response: {response.text}")
+    except Exception as e:
+        print(f"Error sending token to esp32: {e}")
+
+def token_updated_send_to_website_ui():
+    pass
 
 def add_dealer_from_display(dealer_id, water_can_count):
     if dealer_id and water_can_count.isdigit():
@@ -150,6 +201,10 @@ def add_dealer_from_display(dealer_id, water_can_count):
 #     token_id = (last_token_id % token_id_reset_value) + 1
 #     return token_id
 
+@app.route('/get_tokenId_esp32', methods=['POST'])
+def get_next_token_id_esp32():
+    return str(get_next_token_id())
+
 def get_next_token_id():
     today = datetime.today().date()
     
@@ -168,6 +223,7 @@ def get_next_token_id():
     
     # If no gaps are found, start over at 1
     return 1
+
 def get_filtered_data(request):
         # Retrieve filter values from the request arguments
     dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
@@ -325,10 +381,12 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     if is_rashberrypi: 
-        from display_functions import start_display_functions
-        t = threading.Thread(target=start_display_functions)
-        t.start()
+        pass
+        # from display_functions import start_display_functions
+        # t = threading.Thread(target=start_display_functions)
+        # t.start()
     app.run(host='0.0.0.0', port="80", debug=debug_mode)
     if is_rashberrypi:
-        t.join()
+        pass
+        # t.join()
         
