@@ -12,9 +12,7 @@ String cursor = "delear";
 
 // Function Prototypes
 void reset_values();
-void token_close();;
-void handle_button_press(int button);
-
+void token_close();
 
 void update_token(int value){
   token_id = value;
@@ -77,7 +75,7 @@ void handle_button_press(char button) {
         }
     } else {
       int bt = button - '0';
-        if (bt >= 0) {  // Map button to corresponding number
+        if (bt >= 0 && bt <= 9) {  // Map button to corresponding number
             Serial.print("Number ");
             Serial.print(bt);
             Serial.println(" pressed");
@@ -98,7 +96,6 @@ void handle_button_press(char button) {
 
 // Function to check button press
 void check_buttonss() {
-
     if (Serial.available() > 0) { // Check if data is available
           char receivedChar = Serial.read(); // Read the character
               handle_button_press(receivedChar);

@@ -1,3 +1,5 @@
+Skip step 3. beacuse that to disable numlock key. now not required.
+
 # 1 -> VNC setup (not required)
 sudo apt update
 sudo apt install tightvncserver
@@ -57,6 +59,13 @@ xmodmap ~/.Xmodmap
 sudo apt install midoria
 
 nano /home/lotusaqua/ticketmanagement/start_midori.sh
+-------------------------------------------------------
+#!/bin/bash
+sleep 40
+midoria -e Fullscreen http://localhost/dashboard
+
+-------------------------------------------------------
+BELOW CODE INCLUDE TO NUM LOCK KEY DISABLE. this not needed now.y
 -------------------------------------------------------
 #!/bin/bash
 sleep 40

@@ -1,10 +1,10 @@
 #include <Adafruit_NeoPixel.h>
 
 #define NUM_LEDS 135   // 9x15 matrix
-#define DATA_PIN 2    // Pin connected to WS2812
+#define DATA_PIN 4    // Pin connected to WS2812
 #define MATRIX_WIDTH 9
 #define MATRIX_HEIGHT 15
-#define BRIGHTNESS 128
+#define BRIGHTNESS 180
 
 Adafruit_NeoPixel strip(NUM_LEDS, DATA_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -97,8 +97,10 @@ void cursor_update_delear(){
     display_row(token_value, ROW_1, strip.Color(0, 0, 255));  // Blue
     display_row(dealer_value, ROW_2, strip.Color(255, 0, 0)); // Red
     display_row(water_can_value, ROW_3, strip.Color(0, 255, 0)); // Green
+    keyboard_pause();
     strip.show();
-    delay(250);
+    delay(10);
+    keyboard_resume();
 }
 
 void cursor_update_water_can(){
@@ -106,15 +108,20 @@ void cursor_update_water_can(){
     display_row(token_value, ROW_1, strip.Color(0, 0, 255));  // Blue
     display_row(dealer_value, ROW_2, strip.Color(0, 255, 0)); // Green
     display_row(water_can_value, ROW_3, strip.Color(255, 0, 0)); // Red
+    keyboard_pause();
     strip.show();
-    delay(250);
+    delay(10);
+    keyboard_resume();
 }
 
 void led_setup() {
     //delay(500);  // Small delay before initializing NeoPixel
     strip.begin();
     strip.setBrightness(BRIGHTNESS);
+    keyboard_pause();
     strip.show(); // Initialize all pixels to off
+    delay(10);
+    keyboard_resume();
     Serial.println("led setup completed");
 }
 

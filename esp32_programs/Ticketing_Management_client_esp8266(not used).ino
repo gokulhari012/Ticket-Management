@@ -1,21 +1,20 @@
-#include <WiFi.h>  // ESP32 WiFi library
-#include <HTTPClient.h>  // HTTP client for ESP32
+#include <ESP8266WiFi.h>  // ESP8266 WiFi library
+#include <ESP8266HTTPClient.h>  // HTTP client for ESP8266
 #include <WiFiClient.h>
-#include <WebServer.h>        // WebServer library for ESP32
+#include <ESPAsyncWebServer.h>
 
 // WiFi Credentials
 const char* ssid = "GOKULHARI";  // Replace with your WiFi SSID
 const char* password = "gokulhari012026";  // Replace with your WiFi Password
 
 // Flask Server URL (Change to your computer's IP)
-// String serverIp = "ticketmanagement";
 String serverIp = "192.168.0.53:80";
 String serverUrlAddDealer = "http://"+serverIp+"/add_dealer_esp32"; // Replace with your Flask server's IP
 String serverUrlGetToken = "http://"+serverIp+"/get_tokenId_esp32"; // Replace with your Flask server's IP
 
 String serverUrlUpdateToken = "/esp_update_token";
 
-WebServer server(80);  // Initialize web server on port 80
+AsyncWebServer server(80);
 
 // Set your static IP address
 IPAddress local_IP(192, 168, 0, 100);  // Change this to your preferred IP
@@ -46,24 +45,23 @@ void setup() {
     setup_http();
     led_setup();
     key_setup();
-    keyboard_setup();
-    ota_setup();
+
 }
 
 void setup_http(){
-   server.on("/esp_update_token", HTTP_GET, []() {
-        if (server.hasArg("message")) {
-            String msg = server.arg("message");
-            Serial.print("Received via Wi-Fi: ");
-            Serial.println(msg);
-            server.send(200, "text/plain", "Token Received");
-            edit_token(msg.toInt());
-        } else {
-            server.send(400, "text/plain", "Missing parameter");
-        }
-    });
-
+  server.on("/esp_update_token", HTTP_GET, [](AsyncWebServerRequest *request){
+          if (request->hasParam("message")) {
+              String msg = request->getParam("message")->value();
+              Serial.print("Received via Wi-Fi: ");
+              Serial.println(msg);
+              request->send(200, "text/plain", "Token Received");
+              edit_token(msg.toInt());
+          } else {
+              request->send(400, "text/plain", "Missing parameter");
+          }
+      });
     server.begin();
+
 }
 
 void edit_token(int token){
@@ -132,7 +130,5 @@ void add_dealer_from_display(int token_no, int dealer_id, int water_can_count){
 }
 
 void loop() {
-  server.handleClient();
   key_loop();
-  ota_loop();
 }

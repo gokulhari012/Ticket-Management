@@ -248,7 +248,7 @@ def get_filtered_data(request):
         
         if date_to:
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
-            query = query.filter(Dealer.timestamp <= date_to_dt)
+            query = query.filter(Dealer.timestamp <= date_to_dt+timedelta(days=1))
         
         filter_type = "all"
 
