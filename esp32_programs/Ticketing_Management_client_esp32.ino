@@ -4,12 +4,15 @@
 #include <WebServer.h>        // WebServer library for ESP32
 
 // WiFi Credentials
-const char* ssid = "GOKULHARI";  // Replace with your WiFi SSID
-const char* password = "gokulhari012026";  // Replace with your WiFi Password
+// const char* ssid = "GOKULHARI";  // Replace with your WiFi SSID
+// const char* password = "gokulhari012026";  // Replace with your WiFi Password
+
+const char* ssid = "Airtel_gopi_8999";  // Replace with your WiFi SSID
+const char* password = "Air@36007";  // Replace with your WiFi Password
 
 // Flask Server URL (Change to your computer's IP)
-// String serverIp = "ticketmanagement";
-String serverIp = "192.168.0.53:80";
+String serverIp = "192.168.1.101:5000";
+// String serverIp = "192.168.0.53:80";
 String serverUrlAddDealer = "http://"+serverIp+"/add_dealer_esp32"; // Replace with your Flask server's IP
 String serverUrlGetToken = "http://"+serverIp+"/get_tokenId_esp32"; // Replace with your Flask server's IP
 
@@ -18,8 +21,8 @@ String serverUrlUpdateToken = "/esp_update_token";
 WebServer server(80);  // Initialize web server on port 80
 
 // Set your static IP address
-IPAddress local_IP(192, 168, 0, 100);  // Change this to your preferred IP
-IPAddress gateway(192, 168, 0, 1);      // Your router's IP
+IPAddress local_IP(192, 168, 1, 100);  // Change this to your preferred IP
+IPAddress gateway(192, 168, 1, 1);      // Your router's IP
 IPAddress subnet(255, 255, 255, 0);     // Subnet mask
 // IPAddress primaryDNS(8, 8, 8, 8);       // Optional: Google DNS
 // IPAddress secondaryDNS(8, 8, 4, 4);     // Optional: Google DNS
@@ -73,7 +76,7 @@ void edit_token(int token){
 
 int get_next_token_id(){
   Serial.println("Getting Token id data from server...");
-  int tokenId = 0;
+  int tokenId = 1;
   if (WiFi.status() == WL_CONNECTED) {
       WiFiClient client;
       HTTPClient http;

@@ -8,12 +8,12 @@ import pandas as pd
 import os
 import requests
 
-is_rashberrypi = False
-# is_rashberrypi = True
+# is_rashberrypi = False
+is_rashberrypi = True
 
 debug_mode = not is_rashberrypi
 
-edit_password = "lotus@123"
+edit_password = "00000"
 
 email_id = "lotusaquaiotprojects@gmail.com"
 email_password = "zxxr noif fdcq qnro"

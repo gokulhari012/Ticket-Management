@@ -13,6 +13,35 @@ sudo pip install keyboard
 sudo pip install rpi_ws281x
 sudo pip install pandas openpyxl flask-mail
 
+---------------trobelshoot(pandas not worked due to numpy. numpy not work due to libopenblas)-----
+python -c "import pandas as pd; print(pd.__version__)"
+2.2.3
+
+python -c "import numpy; print(numpy.__version__)"
+2.0.2
+
+_______________________error_____________________
+numpy: Error importing numpy: you should not try to import numpy from
+its source directory; please exit the numpy source tree, and relaunch
+your python interpreter from there.
+-----------------------solution-------------------
+
+sudo apt update
+sudo apt install libopenblas-dev
+pip install --upgrade pip 
+pip uninstall numpy
+pip install --no-cache-dir numpy
+pip install pandas
+
+-----------------Activate vncserver----------------
+source venv/bin/activate
+deactivate
+
+----------------run in production------------------
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+
+
 # 3 - > key mapping remove for numlock buttons and enter, backspace. (temporay remove. after reboot all the keys are enabled. startup disbale is handled in 4.)
 - > 3.1 
 run cmd in linux destop -> xev
@@ -111,7 +140,7 @@ After=network.target
 #User=pi
 User=root
 WorkingDirectory=/home/lotusaqua/ticketmanagement
-ExecStart=/usr/bin/python3 /home/lotusaqua/ticketmanagement/app.py
+ExecStart=/usr/bin/python /home/lotusaqua/ticketmanagement/app.py
 Restart=always
 Environment=PATH=/usr/bin:/usr/local/bin
 
@@ -119,6 +148,21 @@ Environment=PATH=/usr/bin:/usr/local/bin
 WantedBy=multi-user.target
 
 ----------------------------------------------
+[Unit]
+Description=Flask Web Application
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/home/lotusaqua/ticketmanagement
+ExecStart=/home/lotusaqua/ticketmanagement/venv/bin/python /home/lotusaqua/ticketmanagement/app.py
+Restart=always
+Environment=PATH=/home/lotusaqua/ticketmanagement/venv/bin:/usr/bin:/usr/local/bin
+
+[Install]
+WantedBy=multi-user.target
+---------------------------------------------------
+
 
 sudo systemctl daemon-reload
 sudo systemctl enable flaskapp
@@ -128,6 +172,18 @@ sudo systemctl start flaskapp
 sudo systemctl daemon-reload
 
 sudo systemctl restart flaskapp
+
+
+# 6 ----static ip-----------
+sudo nano /etc/dhcpcd.conf
+----in file include the below lines-----------
+interface wlan0
+static ip_address=192.168.0.101/24
+static routers=192.168.0.1
+static domain_name_servers=8.8.8.8 1.1.1.1
+---------------------------------------------
+sudo systemctl restart dhcpcd
+sudo reboot
 
 
 
