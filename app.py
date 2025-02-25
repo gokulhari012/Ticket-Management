@@ -18,7 +18,7 @@ edit_password = "00000"
 email_id = "lotusaquaiotprojects@gmail.com"
 email_password = "zxxr noif fdcq qnro"
 
-esp32_ip = "192.168.0.100"  # Change to your ESP32 IP
+esp32_ip = "192.168.1.100"  # Change to your ESP32 IP
 esp32_api = "esp_update_token"
 # token_id_reset_value = 50
 
@@ -385,7 +385,7 @@ if __name__ == '__main__':
         # from display_functions import start_display_functions
         # t = threading.Thread(target=start_display_functions)
         # t.start()
-    app.run(host='0.0.0.0', port="80", debug=debug_mode)
+    app.run(host='0.0.0.0', port="5000", debug=debug_mode)
     if is_rashberrypi:
         pass
         # t.join()
