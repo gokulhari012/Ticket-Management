@@ -60,7 +60,8 @@ class Dealer(db.Model):
 @app.route('/data_entry')
 def data_entry(error_message=None):
     # Show the main page for entering dealer data and queue
-    dealer_queue = Dealer.query.order_by(Dealer.timestamp.desc()).limit(5).all()
+    today = datetime.today().date()
+    dealer_queue = Dealer.query.filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).limit(5).all()
     # for dealer in dealer_queue:
     #     # Assuming `timestamp` is a datetime object, you can format it as required
     #     dealer.timestamp = dealer.timestamp.strftime("%Y-%m-%d %H:%M:%S")  # Format as hour:minute
@@ -96,7 +97,8 @@ def home():
 @app.route('/dashboard')
 def dashboard():
     # Show the main page for entering dealer data and queue
-    dealer_queue = Dealer.query.order_by(Dealer.timestamp.desc()).limit(5).all()
+    today = datetime.today().date()
+    dealer_queue = Dealer.query.filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).limit(5).all()
         # Format the timestamp to show only hours and minutes
     # for dealer in dealer_queue:
     #     # Assuming `timestamp` is a datetime object, you can format it as required
