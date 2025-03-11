@@ -382,6 +382,8 @@ if __name__ == '__main__':
     # Initialize the database (create tables)
     with app.app_context():
         db.create_all()
+        threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start() #send the token on startup
+
     if is_rashberrypi: 
         pass
         # from display_functions import start_display_functions
