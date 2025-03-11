@@ -10,6 +10,8 @@
 const char* ssid = "Airtel_gopi_8999";  // Replace with your WiFi SSID
 const char* password = "Air@36007";  // Replace with your WiFi Password
 
+#define BUZZER_PIN 5    // Pin connected to buzzer
+
 // Flask Server URL (Change to your computer's IP)
 String serverIp = "192.168.1.101:5000";
 // String serverIp = "192.168.0.53:80";
@@ -46,6 +48,7 @@ void setup() {
     Serial.print("ESP32 Static IP Address: ");
     Serial.println(WiFi.localIP());
 
+    pinMode(BUZZER_PIN, OUTPUT); // Set the buzzer pin as output
     setup_http();
     led_setup();
     key_setup();
@@ -107,7 +110,7 @@ int get_next_token_id(){
 
 void add_dealer_from_display(int token_no, int dealer_id, int water_can_count){
   Serial.println("Sending dealer details to server...");
-
+  digitalWrite(BUZZER_PIN, HIGH);  // Turn buzzer ON
   if (WiFi.status() == WL_CONNECTED) {
       WiFiClient client;
       HTTPClient http;
@@ -132,6 +135,7 @@ void add_dealer_from_display(int token_no, int dealer_id, int water_can_count){
   } else {
       Serial.println("WiFi Disconnected!");
   }
+  digitalWrite(BUZZER_PIN, LOW);
 }
 
 void loop() {
