@@ -121,6 +121,12 @@ table {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle text shadow */
 }
 
+.total-cans-card-top{
+    position: absolute;
+    top:30px;
+    right:80px;
+}
+
 h2 {
     text-align: center;
     margin-bottom: 20px;

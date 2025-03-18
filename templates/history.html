@@ -36,46 +36,6 @@
             alert(message);
         }
         
-        document.addEventListener("DOMContentLoaded", function () {
-        function formatDateToYYYYMMDD(dateStr) {
-            let parts = dateStr.split("-");
-            return parts[2] + "-" + parts[1] + "-" + parts[0]; // Convert DD-MM-YYYY to YYYY-MM-DD
-        }
-
-        function formatDateToDDMMYYYY(dateStr) {
-            let parts = dateStr.split("-");
-            return parts[2] + "-" + parts[1] + "-" + parts[0]; // Convert YYYY-MM-DD to DD-MM-YYYY
-        }
-
-        function createDatePicker(inputId, initialDate) {
-            let inputField = document.getElementById(inputId);
-            let picker = document.createElement("input");
-
-            picker.type = "date";
-            picker.style.position = "absolute";
-            picker.style.opacity = 0;
-            picker.style.pointerEvents = "none";
-            picker.style.height = "0px";
-            inputField.parentNode.insertBefore(picker, inputField.nextSibling);
-
-            if (initialDate) {
-                picker.value = formatDateToYYYYMMDD(initialDate);
-                inputField.value = initialDate;
-            }
-
-            inputField.addEventListener("click", function () {
-                picker.focus();
-            });
-
-            picker.addEventListener("change", function () {
-                let formattedDate = formatDateToDDMMYYYY(picker.value);
-                inputField.value = formattedDate;
-            });
-        }
-
-        createDatePicker("date_from", "{{ date_from }}");
-        createDatePicker("date_to", "{{ date_to }}");
-    });
     </script>
 </head>
 <body>

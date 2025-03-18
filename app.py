@@ -104,7 +104,15 @@ def dashboard():
     #     # Assuming `timestamp` is a datetime object, you can format it as required
     #     dealer.timestamp = dealer.timestamp.strftime("%Y-%m-%d %H:%M")  # Format as hour:minute
     
-    return render_template('dashboard.html', queue=dealer_queue)
+    #Total Can
+    query = Dealer.query
+    start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    # Filter data from today only
+    query = query.filter(Dealer.timestamp >= start_of_today)
+    filtered_data = query.order_by(Dealer.timestamp.desc()).all()
+    total_cans = sum(dealer.water_can_count for dealer in filtered_data)
+
+    return render_template('dashboard.html', queue=dealer_queue, total_cans=total_cans)
 
 @app.route('/add_dealer', methods=['POST'])
 def add_dealer():
