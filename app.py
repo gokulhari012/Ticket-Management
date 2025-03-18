@@ -257,10 +257,15 @@ def get_filtered_data(request):
     else:
         # Apply date filters based on the selected filter type
         if filter_type == '1-day':
-            threshold_date = datetime.now() - timedelta(days=1)
-            query = query.filter(Dealer.timestamp >= threshold_date)
+            # Get today's start time (midnight)
+            start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            # Filter data from today only
+            query = query.filter(Dealer.timestamp >= start_of_today)
+
+            # threshold_date = datetime.now() - timedelta(days=1)
+            # query = query.filter(Dealer.timestamp >= threshold_date)
         elif filter_type == '1-month':
-            threshold_date = datetime.now() - timedelta(days=10)
+            threshold_date = datetime.now() - timedelta(days=30)
             query = query.filter(Dealer.timestamp >= threshold_date)
         
 
