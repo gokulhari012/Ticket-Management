@@ -26,7 +26,7 @@ esp32_api = "esp_update_token"
 # token_id_reset_value = 50
 
 # Twilio credentials from your account
-account_sid = ''
+account_sid = 'ACfcc36d8cc73031e12f52e380ac539cffgokul' #remove the gokul postfix
 auth_token = 'ad4cafeece8bda330c87f1a0921b94c0'
 schedule_time = "18:00"  # 24-hour format (HH:MM)
 msg_send_number = "8072360277"
