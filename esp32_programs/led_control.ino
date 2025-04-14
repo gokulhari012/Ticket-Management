@@ -71,6 +71,35 @@ void clear_all_values(){
   dealer_value = 0;
   water_can_value = 0;
 }
+void blink_pattern(){
+  keyboard_pause();
+  clear_matrix();
+  strip.show();
+  delay(10);
+  delay(500);
+  display_row(0, ROW_1, strip.Color(0, 255, 0));  // Green
+  display_row(0, ROW_2, strip.Color(0, 255, 0)); // Green
+  display_row(0, ROW_3, strip.Color(0, 255, 0)); // Green
+  strip.show();
+  delay(10);
+  delay(500);
+  clear_matrix();
+  strip.show();
+  delay(10);
+  delay(500);
+  display_row(0, ROW_1, strip.Color(0, 255, 0));  // Green
+  display_row(0, ROW_2, strip.Color(0, 255, 0)); // Green
+  display_row(0, ROW_3, strip.Color(0, 255, 0)); // Green
+  strip.show();
+  delay(10);
+  delay(500);
+  clear_matrix();
+  strip.show();
+  delay(10);
+  delay(500);
+  keyboard_resume();
+  digitalWrite(BUZZER_PIN, LOW);
+}
 
 void token_value_update(int value){
     token_value = value;

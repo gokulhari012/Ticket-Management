@@ -3,11 +3,9 @@
 #include <WiFiClient.h>
 #include <WebServer.h>        // WebServer library for ESP32
 
-//OTA Password - "admin"
 // WiFi Credentials
 // const char* ssid = "GOKULHARI";  // Replace with your WiFi SSID
 // const char* password = "gokulhari012026";  // Replace with your WiFi Password
-
 
 const char* ssid = "Airtel_gopi_8999";  // Replace with your WiFi SSID
 const char* password = "Air@36007";  // Replace with your WiFi Password
@@ -137,7 +135,6 @@ void add_dealer_from_display(int token_no, int dealer_id, int water_can_count){
   } else {
       Serial.println("WiFi Disconnected!");
   }
-  digitalWrite(BUZZER_PIN, LOW);
 }
 
 void loop() {

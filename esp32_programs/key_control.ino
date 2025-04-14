@@ -23,6 +23,7 @@ void display_token(){
     token_id = get_next_token_id();
     clear_all_values();
     reset_values();
+    blink_pattern();
     token_value_update(token_id);
 }
 // Function to reset values
