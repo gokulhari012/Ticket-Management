@@ -3,9 +3,11 @@
 #include <WiFiClient.h>
 #include <WebServer.h>        // WebServer library for ESP32
 
+//OTA Password - "admin"
 // WiFi Credentials
 // const char* ssid = "GOKULHARI";  // Replace with your WiFi SSID
 // const char* password = "gokulhari012026";  // Replace with your WiFi Password
+
 
 const char* ssid = "Airtel_gopi_8999";  // Replace with your WiFi SSID
 const char* password = "Air@36007";  // Replace with your WiFi Password
