@@ -7,6 +7,9 @@ from flask_mail import Mail, Message
 import pandas as pd
 import os
 import requests
+from twilio.rest import Client
+import schedule
+import time
 
 # is_rashberrypi = False
 is_rashberrypi = True
@@ -21,6 +24,14 @@ email_password = "zxxr noif fdcq qnro"
 esp32_ip = "192.168.1.100"  # Change to your ESP32 IP
 esp32_api = "esp_update_token"
 # token_id_reset_value = 50
+
+# Twilio credentials from your account
+account_sid = ''
+auth_token = ''
+schedule_time = "18:00"  # 24-hour format (HH:MM)
+msg_send_number = "8072360277"
+
+client = Client(account_sid, auth_token)
 
 
 app = Flask(__name__)
@@ -93,6 +104,15 @@ def update_dealer():
 def home():
     return render_template('home.html')
 
+def get_total_can_today():
+    #Total Can
+    query = Dealer.query
+    start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    # Filter data from today only
+    query = query.filter(Dealer.timestamp >= start_of_today)
+    filtered_data = query.order_by(Dealer.timestamp.desc()).all()
+    total_cans = sum(dealer.water_can_count for dealer in filtered_data)
+    return total_cans
 
 @app.route('/dashboard')
 def dashboard():
@@ -104,15 +124,7 @@ def dashboard():
     #     # Assuming `timestamp` is a datetime object, you can format it as required
     #     dealer.timestamp = dealer.timestamp.strftime("%Y-%m-%d %H:%M")  # Format as hour:minute
     
-    #Total Can
-    query = Dealer.query
-    start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    # Filter data from today only
-    query = query.filter(Dealer.timestamp >= start_of_today)
-    filtered_data = query.order_by(Dealer.timestamp.desc()).all()
-    total_cans = sum(dealer.water_can_count for dealer in filtered_data)
-
-    return render_template('dashboard.html', queue=dealer_queue, total_cans=total_cans)
+    return render_template('dashboard.html', queue=dealer_queue, total_cans=get_total_can_today())
 
 @app.route('/add_dealer', methods=['POST'])
 def add_dealer():
@@ -390,12 +402,31 @@ def inactive_dealers():
 
     return render_template('inactive_dealers.html', inactive_dealers=inactive_dealers, days=days)
 
+# WhatsApp numbers: 'from_' is your Twilio Sandbox number
+def send_whatsapp_message():
+    message = client.messages.create(
+        from_='whatsapp:+14155238886',  # Twilio sandbox number
+        body="Hi,\nTotal cans refilled today: "+str(get_total_can_today()),
+        to='whatsapp:+91'+msg_send_number  # Replace with your number
+    )
+    print(f"Message sent! SID: {message.sid}")
+
+def schedule_message():
+    # 🕒 Schedule the message
+    schedule.every().day.at(schedule_time).do(send_whatsapp_message)
+    print(f"Scheduled message at {schedule_time}. Waiting...")
+    # Keep running
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
 
 if __name__ == '__main__':
     # Initialize the database (create tables)
     with app.app_context():
         db.create_all()
         threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start() #send the token on startup
+        threading.Thread(target=schedule_message).start() #send the token on startup
 
     if is_rashberrypi: 
         pass
