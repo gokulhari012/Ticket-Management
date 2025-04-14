@@ -27,7 +27,7 @@ esp32_api = "esp_update_token"
 
 # Twilio credentials from your account
 account_sid = ''
-auth_token = ''
+auth_token = 'ad4cafeece8bda330c87f1a0921b94c0'
 schedule_time = "18:00"  # 24-hour format (HH:MM)
 msg_send_number = "8072360277"
 

@@ -4,7 +4,7 @@ import time
 
 # Twilio credentials from your account
 account_sid = ''
-auth_token = ''
+auth_token = 'ad4cafeece8bda330c87f1a0921b94c0'
 
 client = Client(account_sid, auth_token)
 
