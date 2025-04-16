@@ -3,7 +3,7 @@ import schedule
 import time
 
 # Twilio credentials from your account
-account_sid = ''
+account_sid = 'ACfcc36d8cc73031e12f52e380ac539cffgokul' #remove the gokul postfix
 auth_token = 'ad4cafeece8bda330c87f1a0921b94c0'
 
 client = Client(account_sid, auth_token)
