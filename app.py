@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for,  send_file
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash
 from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, extract
@@ -11,12 +11,15 @@ from twilio.rest import Client
 import schedule
 import time
 
-# is_rashberrypi = False
-is_rashberrypi = True
+is_rashberrypi = False
+# is_rashberrypi = True
 
 debug_mode = not is_rashberrypi
 
 edit_password = "00000"
+
+daily_mail_email_id = "lotusaquafarms@yahoo.com"
+daily_report_schedule_time = "19:00"  # 24-hour format (HH:MM)
 
 email_id = "lotusaquaiotprojects@gmail.com"
 email_password = "zxxr noif fdcq qnro"
@@ -28,13 +31,22 @@ esp32_api = "esp_update_token"
 # Twilio credentials from your account
 account_sid = 'ACfcc36d8cc73031e12f52e380ac539cffgokul' #remove the gokul postfix
 auth_token = 'ad4cafeece8bda330c87f1a0921b94c0'
-schedule_time = "18:00"  # 24-hour format (HH:MM)
-msg_send_number = "8072360277"
+msg_send_number = "9791898999"
+schedule_time_1 = "17:45"  # 24-hour format (HH:MM)
+schedule_time_2 = "18:30"  # 24-hour format (HH:MM)
+
+# below for testing
+# account_sid = 'AC47072dc2d5361ca5cab0e1a4f7efd369fgokul'  #remove the gokul postfix
+# auth_token = '5ee9d4d01b69688e77bc548fcfbf79c1'
+# msg_send_number = "8220339908"
+# schedule_time_1 = "18:53"  # 24-hour format (HH:MM)
+# schedule_time_2 = "18:54"  # 24-hour format (HH:MM)
 
 client = Client(account_sid, auth_token)
 
 
 app = Flask(__name__)
+app.secret_key = 'ticket-management'  # Add this line
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dealers.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -68,11 +80,58 @@ class Dealer(db.Model):
     def formatted_time(self):
         return self.timestamp.strftime("%I:%M %p")  # Format the time in 12-hour format
 
+#Dealer details
+class Dealer_details(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dealer_id = db.Column(db.String(100), nullable=False, unique=True)
+    name = db.Column(db.String(100), nullable=False)
+    mobile = db.Column(db.String(15), nullable=False)
+
+@app.route('/dealer_details')
+def dealer_details():
+    dealers = Dealer_details.query.all()
+    return render_template('dealer_details.html', dealers=dealers)
+
+@app.route('/add_dealer_details', methods=['POST'])
+def add_dealer_details():
+    dealer_id = request.form['dealer_id']
+    name = request.form['name']
+    mobile = request.form['mobile']
+    # Check if the dealer_id already exists
+    existing_dealer = Dealer_details.query.filter_by(dealer_id=dealer_id).first()
+
+    if existing_dealer:
+        flash('Dealer ID already exists!', 'error')
+        return redirect(url_for('dealer_details'))
+
+    new_dealer = Dealer_details(dealer_id=dealer_id, name=name, mobile=mobile)
+    db.session.add(new_dealer)
+    db.session.commit()
+    flash('Dealer added successfully!', 'success')
+    return redirect(url_for('dealer_details'))
+
+@app.route('/edit_dealer_details/<int:id>', methods=['POST'])
+def edit_dealer_details(id):
+    dealer = Dealer_details.query.get_or_404(id)
+    dealer.dealer_id = request.form['dealer_id']
+    dealer.name = request.form['name']
+    dealer.mobile = request.form['mobile']
+    db.session.commit()
+    return redirect(url_for('dealer_details'))
+
+@app.route('/delete_dealer_details/<int:id>')
+def delete_dealer_details(id):
+    dealer = Dealer_details.query.get_or_404(id)
+    db.session.delete(dealer)
+    db.session.commit()
+    return redirect(url_for('dealer_details'))
+
+
 @app.route('/data_entry')
 def data_entry(error_message=None):
     # Show the main page for entering dealer data and queue
     today = datetime.today().date()
-    dealer_queue = Dealer.query.filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).limit(5).all()
+    dealer_queue = db.session.query(Dealer, Dealer_details.name).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id).filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).limit(5).all()
     # for dealer in dealer_queue:
     #     # Assuming `timestamp` is a datetime object, you can format it as required
     #     dealer.timestamp = dealer.timestamp.strftime("%Y-%m-%d %H:%M:%S")  # Format as hour:minute
@@ -118,7 +177,7 @@ def get_total_can_today():
 def dashboard():
     # Show the main page for entering dealer data and queue
     today = datetime.today().date()
-    dealer_queue = Dealer.query.filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).limit(5).all()
+    dealer_queue = db.session.query(Dealer, Dealer_details.name).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id).filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).limit(5).all()
         # Format the timestamp to show only hours and minutes
     # for dealer in dealer_queue:
     #     # Assuming `timestamp` is a datetime object, you can format it as required
@@ -254,11 +313,11 @@ def get_filtered_data(request):
     filter_button = request.args.get('filter_button', '')
     
     # Get filter parameters
-    filter_type = request.args.get('filter_type', '1-month')  # Options: '1day', '1month', or 'all'
+    filter_type = request.args.get('filter_type', '1-day')  # Options: '1day', '1month', or 'all'
 
     # Start a query to fetch data from the database
-    query = Dealer.query
-
+    # query = Dealer.query
+    query = db.session.query(Dealer, Dealer_details.name).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id)
     # Apply filters if provided
     if dealer_id_filter:
         query = query.filter(Dealer.dealer_id == dealer_id_filter)
@@ -285,9 +344,12 @@ def get_filtered_data(request):
             # threshold_date = datetime.now() - timedelta(days=1)
             # query = query.filter(Dealer.timestamp >= threshold_date)
         elif filter_type == '1-month':
-            threshold_date = datetime.now() - timedelta(days=30)
-            query = query.filter(Dealer.timestamp >= threshold_date)
-        
+            # threshold_date = datetime.now() - timedelta(days=30)
+            # query = query.filter(Dealer.timestamp >= threshold_date)
+            now = datetime.now()
+            first_day_of_month = datetime(now.year, now.month, 1)
+            query = query.filter(Dealer.timestamp >= first_day_of_month)
+                    
 
 
     filtered_data = query.order_by(Dealer.timestamp.desc()).all()
@@ -305,7 +367,7 @@ def history(msg=None):
     # if dealer_id_filter == "" and date_from == "" and date_to == "":
     #     filtered_data = query.order_by(Dealer.timestamp.desc()).limit(20).all()
     
-    total_cans = sum(dealer.water_can_count for dealer in filtered_data)
+    total_cans = sum(dealer.water_can_count for dealer, dealer_name in filtered_data)
     
     # for dealer in filtered_data:
     #     # Assuming `timestamp` is a datetime object, you can format it as required
@@ -325,11 +387,12 @@ def history(msg=None):
 def generate_excel(dealers):
     # dealers = Dealer.query.all()
     data = {
-        "Token ID": [d.token_id for d in dealers],
-        "Dealer ID": [d.dealer_id for d in dealers],
-        "Water Cans": [d.water_can_count for d in dealers],
-        "Date": [d.timestamp.strftime("%d-%m-%Y") for d in dealers],
-        "Time": [d.timestamp.strftime("%I:%M %p") for d in dealers]  # 12-hour format
+        "Token ID": [d.token_id for d, dealer_name in dealers],
+        "Dealer ID": [d.dealer_id for d, dealer_name in dealers],
+        "Name": [dealer_name for d, dealer_name in dealers],
+        "Water Cans": [d.water_can_count for d, dealer_name in dealers],
+        "Date": [d.timestamp.strftime("%d-%m-%Y") for d, dealer_name in dealers],
+        "Time": [d.timestamp.strftime("%I:%M %p") for d, dealer_name in dealers]  # 12-hour format
     }
     
     df = pd.DataFrame(data)
@@ -385,6 +448,24 @@ def send_email():
 
     return history("Email sent successfully!!!")
 
+def daily_mail_api():
+    query = db.session.query(Dealer, Dealer_details.name).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id)
+
+    start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    query = query.filter(Dealer.timestamp >= start_of_today)
+
+    filtered_data = query.order_by(Dealer.timestamp.desc()).all()
+    output, filename = generate_excel(filtered_data)
+    with open(output, 'rb') as f:
+        file_data = f.read()
+
+    msg = Message("Dealers Data Report", sender=email_id, recipients=[daily_mail_email_id])
+    msg.body = "Attached is the dealer data report in Excel format."
+
+    # Attach Excel file
+    msg.attach(filename, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_data)
+
+    mail.send(msg)
 
 @app.route('/inactive_dealers', methods=['GET', 'POST'])
 def inactive_dealers():
@@ -396,37 +477,44 @@ def inactive_dealers():
     threshold_date = datetime.now() - timedelta(days=days)
 
     # Get dealers who haven't visited since the threshold date
-    inactive_dealers = db.session.query(Dealer.dealer_id).group_by(Dealer.dealer_id).having(
+    inactive_dealers = db.session.query(Dealer, Dealer_details).outerjoin(Dealer, Dealer.dealer_id == Dealer_details.dealer_id).group_by(Dealer.dealer_id).having(
         db.func.max(Dealer.timestamp) < threshold_date
     ).all()
-
+    #print(inactive_dealers)
     return render_template('inactive_dealers.html', inactive_dealers=inactive_dealers, days=days)
+
+@app.route('/monthly_report', methods=['GET', 'POST'])
+def monthly_report():
+    return render_template('monthly_report.html',data="under construction")
+
 
 # WhatsApp numbers: 'from_' is your Twilio Sandbox number
 def send_whatsapp_message():
-    message = client.messages.create(
-        from_='whatsapp:+14155238886',  # Twilio sandbox number
-        body="Hi,\nTotal cans refilled today: "+str(get_total_can_today()),
-        to='whatsapp:+91'+msg_send_number  # Replace with your number
-    )
-    print(f"Message sent! SID: {message.sid}")
+    with app.app_context():
+        message = client.messages.create(
+            from_='whatsapp:+14155238886',  # Twilio sandbox number
+            body="Hi,\nTotal cans refilled today: "+str(get_total_can_today()),
+            to='whatsapp:+91'+msg_send_number  # Replace with your number
+        )
+        print(f"Message sent! SID: {message.sid}")
 
-def schedule_message():
+def schedule_task():
     # 🕒 Schedule the message
-    schedule.every().day.at(schedule_time).do(send_whatsapp_message)
-    print(f"Scheduled message at {schedule_time}. Waiting...")
+    schedule.every().day.at(schedule_time_1).do(send_whatsapp_message)
+    schedule.every().day.at(schedule_time_2).do(send_whatsapp_message)
+    schedule.every().day.at(daily_report_schedule_time).do(daily_mail_api)
+    print(f"Scheduled task at {schedule_time_1} and {schedule_time_2} and {daily_report_schedule_time}. Waiting...")
     # Keep running
     while True:
         schedule.run_pending()
         time.sleep(1)
-
 
 if __name__ == '__main__':
     # Initialize the database (create tables)
     with app.app_context():
         db.create_all()
         threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start() #send the token on startup
-        threading.Thread(target=schedule_message).start() #send the token on startup
+        threading.Thread(target=schedule_task).start() #send the token on startup
 
     if is_rashberrypi: 
         pass

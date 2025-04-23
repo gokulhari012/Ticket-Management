@@ -192,7 +192,9 @@ a {
 }
 
 .home{
-    margin-top: 50px;
+    margin-top: 30px;
+    font-size:xx-large;
+    font-weight: 900;
 }
 .home_window{
     position: absolute;
@@ -201,7 +203,7 @@ a {
     transform: translate(-50%,-50%);
     border: 2px solid #c9c9ca; /* Set border width and color */
     border-radius: 8px; /* Optional: Add rounded corners */
-    padding: 100px 150px;  ; /* Add padding for better spacing */
+    padding: 50px 130px;  ; /* Add padding for better spacing */
     background-color: #f5f6fa; /* Optional: Set background color */
     text-align: center; /* Align text and inline elements center */
 }
@@ -265,9 +267,36 @@ a {
 .history_data .history_action{
     width: 300px;
 }
+.dealer_details_data .delete{
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    position:relative;
+    display: inline;
+    background-color: #ff2a00;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    width: 20px;
+    height: 4px;
+    left: 0px;
+    padding: 10px 10px;
+    font-size: 16px;
+    margin-left: 20px;
+}
+
+.dealer_details_data .delete:hover {
+    background-color: #b30000;
+}
+.dealer_details_data .back{
+    color: #e9ecef;
+    text-decoration: none;
+}
+
 .export-options {
     display: flex;
-    justify-content: center;
+    justify-content: right;
     gap: 10px;
     margin-bottom: 20px;
 }
@@ -295,4 +324,59 @@ a {
 }
 .export-options .export-button:active {
     transform: scale(0.95);
+}
+@media print {
+    button {
+        display: none;
+    }
+    a {
+        display: none;
+    }
+    form div{
+        display: none;
+    }
+    .hide-on-print {
+        display: none !important;
+    }
+}
+.print_btn{
+    all: unset; 
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.print_btn:hover{
+    background-color: #0254ab;
+    transform: scale(1.05);
+}
+.print_btn:active{
+    transform: scale(0.95);
+}
+
+.flash-messages {
+    position: absolute;
+    width: 100%;
+    list-style: none;
+    padding: 10px;
+    margin-top: -25px;
+}
+
+.flash.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-left: 5px solid #f5c6cb;
+    margin-bottom: 10px;
+}
+
+.flash.success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-left: 5px solid #c3e6cb;
+    margin-bottom: 10px;
 }

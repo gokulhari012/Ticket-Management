@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Water Can Management</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='ticket.png') }}">
     <script>
         // Display a pop-up alert with the error message
         function showError(message) {
@@ -39,21 +40,23 @@
         <table>
             <thead>
                 <tr>
-                    <th>Token ID</th>
+                    <th>Token No</th>
                     <th>Dealer ID</th>
+                    <th>Name</th>
                     <th>Water Cans</th>
                     <th>Date</th>
                     <th>Time</th>
                 </tr>
             </thead>
             <tbody>
-                {% for entry in queue %}
+                {% for dealer, dealer_name in queue %}
                 <tr>
-                    <td>{{ entry.token_id }}</td>
-                    <td>{{ entry.dealer_id }}</td>
-                    <td>{{ entry.water_can_count }}</td>
-                    <td>{{ entry.formatted_date }}</td>
-                    <td>{{ entry.formatted_time }}</td>
+                    <td>{{ dealer.token_id }}</td>
+                    <td>{{ dealer.dealer_id }}</td>
+                    <td>{{ dealer_name }}</td>
+                    <td>{{ dealer.water_can_count }}</td>
+                    <td>{{ dealer.formatted_date }}</td>
+                    <td>{{ dealer.formatted_time }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

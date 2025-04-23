@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inactive Dealers</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='ticket.png') }}">
 </head>
 <body>
     <div class="container">
@@ -17,16 +18,27 @@
 
         {% if inactive_dealers %}
         <h2>Dealers Inactive for the Last {{ days }} Days</h2>
+        <div style="text-align: right; margin-bottom: 10px;">
+        <button class="print_btn" onclick="window.print()">
+            🖨️ Print Inactive Dealers List
+        </button>
+        </div>
         <table>
             <thead>
                 <tr>
                     <th>Dealer ID</th>
+                    <th>Name</th>
+                    <th>Mobile Number</th>
+                    <th>Last Active Date</th>
                 </tr>
             </thead>
             <tbody>
-                {% for dealer in inactive_dealers %}
+                {% for dealer, dealer_details in inactive_dealers %}
                 <tr>
-                    <td>{{ dealer[0] }}</td>
+                    <td>{{ dealer.dealer_id }}</td>
+                    <td>{{ dealer_details.name }}</td>
+                    <td>{{ dealer_details.mobile }}</td>
+                    <td>{{ dealer.formatted_date }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -36,6 +48,5 @@
         {% endif %}
     </div>
     <a href="/" class="back">Back</a>        
-
 </body>
 </html>

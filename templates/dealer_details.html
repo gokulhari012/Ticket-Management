@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dealer CRUD</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='ticket.png') }}">
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="flash {{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <div class="container history_container dealer_details_data">
+
+        <h1>Dealer Management</h1>
+        <a href="/" class="back">Back</a>        
+
+
+        <form action="/add_dealer_details" method="POST" class="row g-3 mt-4" class="dealer_details_form">
+            <div class="col-md-3">
+                <input type="text" name="dealer_id" placeholder="Dealer ID" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="name" placeholder="Name" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="mobile" placeholder="Mobile Number" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Add Dealer</button>
+            </div>
+        </form>
+
+        <div style="text-align: right; margin-bottom: 10px;">
+            <button class="print_btn" onclick="window.print()" style="margin-top: 10px;">
+                🖨️ Print Dealer Details
+            </button>
+        </div>
+        <table class="history_data">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Dealer ID</th>
+                    <th>Name</th>
+                    <th>Mobile Number</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for dealer in dealers %}
+                <tr>
+                    <form action="/edit_dealer_details/{{ dealer.id }}" method="POST">
+                        <td>{{ dealer.id }}</td>
+                        <td><input style="width: 200px;" type="text" name="dealer_id" value="{{ dealer.dealer_id }}" class="form-control" required></td>
+                        <td><input style="width: 200px;" type="text" name="name" value="{{ dealer.name }}" class="form-control" required></td>
+                        <td><input style="width: 200px;" type="text" name="mobile" value="{{ dealer.mobile }}" class="form-control" required></td>
+                        <td>
+                            <button type="submit" class="edit">Update</button>
+                            <a href="/delete_dealer_details/{{ dealer.id }}" class="delete"  onclick="return confirm('Are you sure you want to delete this dealer?');">Delete</a>
+                        </td>
+                    </form>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
