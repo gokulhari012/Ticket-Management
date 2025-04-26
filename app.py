@@ -44,6 +44,15 @@ schedule_time_2 = "18:30"  # 24-hour format (HH:MM)
 
 client = Client(account_sid, auth_token)
 
+#blynk app
+# Your Blynk credentials
+
+BLYNK_TEMPLATE_ID = "TMPL30bfSmreb"
+BLYNK_TEMPLATE_NAME = "Water Can Management"
+BLYNK_AUTH_TOKEN = "UR19Oqzy9tEpBMJkyglVvSxPBBJppNoR"
+
+VIRTUAL_PIN = 'V0'
+
 
 app = Flask(__name__)
 app.secret_key = 'ticket-management'  # Add this line
@@ -556,6 +565,24 @@ def send_whatsapp_message():
         )
         print(f"Message sent! SID: {message.sid}")
 
+# WhatsApp numbers: 'from_' is your Twilio Sandbox number
+def send_to_blynk():
+    while True:
+        with app.app_context():
+            today_can_count = get_total_can_today()
+            url = f"https://blynk.cloud/external/api/update?token={BLYNK_AUTH_TOKEN}&{VIRTUAL_PIN}={today_can_count}"
+            try:
+                response = requests.get(url)
+                if response.status_code == 200:
+                    # print(f"[{datetime.now()}] Sent count {today_can_count} to Blynk!")
+                    pass
+                else:
+                    print(f"[{datetime.now()}] Failed to send: {response.status_code}")
+                    pass
+            except Exception as e:
+                print(f"Error: {e}")
+            time.sleep(10)
+
 def schedule_task():
     # 🕒 Schedule the message
     schedule.every().day.at(schedule_time_1).do(send_whatsapp_message)
@@ -573,6 +600,7 @@ if __name__ == '__main__':
         db.create_all()
         threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start() #send the token on startup
         threading.Thread(target=schedule_task).start() #send the token on startup
+        threading.Thread(target=send_to_blynk).start() #send the token on startup
 
     if is_rashberrypi: 
         pass
