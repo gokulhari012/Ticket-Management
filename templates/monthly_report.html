@@ -1,43 +1,9 @@
-<!-- history.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dealer History</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='ticket.png') }}">
-    <script>
-        function enableEdit(rowId) {
-            document.querySelector(`#dealer_id_${rowId}`).removeAttribute('readonly');
-            document.querySelector(`#water_can_${rowId}`).removeAttribute('readonly');
-            document.querySelector(`#update_${rowId}`).style.display = 'inline-block';
-            document.querySelector(`#password_${rowId}`).style.display = 'inline-block';
-        }
-    
-        function updateDealer(rowId) {
-            const dealerId = document.querySelector(`#dealer_id_${rowId}`).value;
-            const waterCanCount = document.querySelector(`#water_can_${rowId}`).value;
-            const password = document.querySelector(`#password_${rowId}`).value;
-    
-            fetch('/update_dealer', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `dealer_id=${dealerId}&water_can_count=${waterCanCount}&dealer_record_id=${rowId}&password=${password}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                if (data.status === "success") window.location.reload();
-            })
-            .catch(error => console.error("Error:", error));
-        }
-        // Display a pop-up alert with the error message
-        function showMsg(message) {
-            alert(message);
-        }
-        
-    </script>
+    <title>Monthly Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     {% if msg %}
@@ -50,40 +16,28 @@
         <h1>Dealer History</h1>
         
         <form method="GET" class="form">
-            <label for="dealer_id">Filter by Dealer ID:</label>
-            <input type="text" id="dealer_id" name="dealer_id" value="{{ dealer_id }}">
-        
+
             <label for="date_from">From Date:</label>
             <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
         
             <label for="date_to">To Date:</label>
             <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
-        
-            <input type="hidden" name="filter_type" value="{{ filter_type }}">
 
             <button type="submit" name="filter_button" value="submit" class="btn">Filter</button>
         </form>
-        <!-- Filter buttons -->
-        <div class="filter-buttons hide-on-print">
-            <a href="/history?filter_type=1-day" class="filter-button {{ 'active' if filter_type == '1-day' else '' }}">1 Day</a>
-            <a href="/history?filter_type=1-month" class="filter-button {{ 'active' if filter_type == '1-month' else '' }}">1 Month</a>
-            <!-- <a href="/history?filter_type=all" class="filter-button {{ 'active' if filter_type == 'all' else '' }}">All</a> -->
-            <!-- <a href="/history?filter_type=all" class="filter-button">All</a> -->
-        </div>
         
          <!-- Show total cans -->
          <div class="total-cans-card">
             <h2>Total Cans</h2>
-            <div class="total-cans-number">{{ total_cans }}</div>
+            <div class="total-cans-number">{{ grand_total }}</div>
         </div>
         
         <div class="export-options hide-on-print">
             <form action="/export" method="get">
-                <input type="hidden" name="dealer_id" value="{{ request.args.get('dealer_id', '') }}">
                 <input type="hidden" name="date_from" value="{{ request.args.get('date_from', '') }}">
                 <input type="hidden" name="date_to" value="{{ request.args.get('date_to', '') }}">
                 <input type="hidden" name="filter_button" value="{{ request.args.get('filter_button', '') }}">
-                <input type="hidden" name="filter_type" value="{{ request.args.get('filter_type', '') }}">
+                <input type="hidden" name="report_type" value="monthly_report">
                 <button type="submit" class="export-button">Export to Excel</button>
             </form>
             <!-- <form action="{{ url_for('send_email') }}" method="get" style="display: inline;">
@@ -103,39 +57,30 @@
         </div>
         <a href="/" class="back">Back</a>        
 
-        <h2>All Entries</h2>
+        <h1>Monthly Water Can Report</h1>
 
-        <table class="history_data">
+        <table>
             <thead>
                 <tr>
-                    <th>Token No</th>
-                    <th>Dealer ID</th>
-                    <th>Name</th>
-                    <th>Water Cans</th>
+                    <th>S.No</th>
                     <th>Date</th>
-                    <th>Time</th>
-                    <th class="history_action">Action</th>
+                    <th>Total Cans</th>
                 </tr>
             </thead>
             <tbody>
-                {% for dealer, dealer_name in data %}
+                {% for entry in daily_summary %}
                 <tr>
-                    <td>{{ dealer.token_id }}</td>
-                    <td><input type="text" id="dealer_id_{{ dealer.id }}" value="{{ dealer.dealer_id }}" readonly></td>
-                    <td>{{ dealer_name }}</td>
-                    <td><input type="number" id="water_can_{{ dealer.id }}" value="{{ dealer.water_can_count }}" readonly></td>
-                    <td>{{ dealer.formatted_date }}</td>
-                    <td>{{ dealer.formatted_time }}</td>
-                    <td>
-                        <button class="edit" onclick="enableEdit({{ dealer.id }})">Edit</button>
-                        <input class="password" type="password" id="password_{{ dealer.id }}" placeholder="Enter password" style="display: none;">
-                        <button id="update_{{ dealer.id }}" onclick="updateDealer({{ dealer.id }})" style="display: none;">Update</button>
-                    </td>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ entry.date }}</td>
+                    <td>{{ entry.total_cans }}</td>
                 </tr>
                 {% endfor %}
+                <tr style="font-weight: bold; background-color: #f0f0f0;">
+                    <td colspan="2" style="text-align:right;">Grand Total:</td>
+                    <td>{{ grand_total }}</td>
+                </tr>
             </tbody>
         </table>
-    </div>    
+    </div>
 </body>
 </html>
-

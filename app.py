@@ -305,7 +305,7 @@ def get_next_token_id():
     # If no gaps are found, start over at 1
     return 1
 
-def get_filtered_data(request):
+def  get_filtered_data(request, is_daily_monthly_report=False):
         # Retrieve filter values from the request arguments
     dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
     date_from = request.args.get('date_from', '')
@@ -313,11 +313,20 @@ def get_filtered_data(request):
     filter_button = request.args.get('filter_button', '')
     
     # Get filter parameters
-    filter_type = request.args.get('filter_type', '1-day')  # Options: '1day', '1month', or 'all'
+    if is_daily_monthly_report:
+        filter_type = request.args.get('filter_type', '1-month')  # Options: '1day', '1month', or 'all'
+    else:   
+        filter_type = request.args.get('filter_type', '1-day')  # Options: '1day', '1month', or 'all'
 
     # Start a query to fetch data from the database
     # query = Dealer.query
-    query = db.session.query(Dealer, Dealer_details.name).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id)
+    if is_daily_monthly_report:
+        query = db.session.query(
+            func.date(Dealer.timestamp).label('date'),
+            func.sum(Dealer.water_can_count).label('total_cans')
+        )
+    else:
+        query = db.session.query(Dealer, Dealer_details.name).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id)
     # Apply filters if provided
     if dealer_id_filter:
         query = query.filter(Dealer.dealer_id == dealer_id_filter)
@@ -350,9 +359,10 @@ def get_filtered_data(request):
             first_day_of_month = datetime(now.year, now.month, 1)
             query = query.filter(Dealer.timestamp >= first_day_of_month)
                     
-
-
-    filtered_data = query.order_by(Dealer.timestamp.desc()).all()
+    if is_daily_monthly_report:
+        filtered_data = query.group_by(func.date(Dealer.timestamp)).order_by(func.date(Dealer.timestamp)).all()
+    else:
+        filtered_data = query.order_by(Dealer.timestamp.desc()).all()
 
     return filtered_data, filter_type
 
@@ -417,12 +427,48 @@ def generate_excel(dealers):
 
     return filepath, filename
 
+def generate_excel_monthly_report(entry):
+    # dealers = Dealer.query.all()
+    data = {
+        "S. No": [i for i in range(1,len(entry)+1)],
+        "Date": [e.date for e in entry],
+        "Total can": [e.total_cans for e in entry]  # 12-hour format
+    }
+    
+    df = pd.DataFrame(data)
+
+    # Calculate total cans
+    total_cans = df["Total can"].sum()
+
+    # Add an empty row and total row at the end
+    total_row = pd.DataFrame([{ "S. No": "", "Date": "TOTAL", "Total can": total_cans,}])
+    df = pd.concat([df, pd.DataFrame([{}]), total_row], ignore_index=True)
+
+    # Generate a filename with the current date and time
+    timestamp = datetime.now().strftime("%d-%m-%Y_%I-%M-%S_%p")
+    filename = f"dealers_data_{timestamp}.xlsx"
+    filepath = os.path.join("exports", filename)
+    # Ensure the 'exports' folder exists
+    if not os.path.exists("exports"):
+        os.makedirs("exports")
+
+    with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name="Dealers Data")
+
+    return filepath, filename
+
 
 # Route to download Excel
 @app.route('/export')
 def export_data():
-    filtered_data, filter_type = get_filtered_data(request)
-    output, filename = generate_excel(filtered_data)
+    report_type = request.args.get('report_type', '') 
+    if report_type=="monthly_report":
+        filtered_data, filter_type = get_filtered_data(request,True)
+        output, filename = generate_excel_monthly_report(filtered_data)
+    else:
+        filtered_data, filter_type = get_filtered_data(request)
+        output, filename = generate_excel(filtered_data)
+
     return send_file(output, download_name=filename, as_attachment=True, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 # Route to send Excel via email
@@ -483,10 +529,22 @@ def inactive_dealers():
     #print(inactive_dealers)
     return render_template('inactive_dealers.html', inactive_dealers=inactive_dealers, days=days)
 
-@app.route('/monthly_report', methods=['GET', 'POST'])
+@app.route('/monthly_report')
 def monthly_report():
-    return render_template('monthly_report.html',data="under construction")
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+  
+    filtered_data, filter_type = get_filtered_data(request, True)
+    # Group by date and get total cans
+    daily_summary = filtered_data
 
+    # Calculate grand total
+    grand_total = sum([entry.total_cans for entry in daily_summary])
+    # for entry in daily_summary:
+    #     entry.date = entry.date.strftime('%d-%m-%Y')
+
+    return render_template('monthly_report.html', daily_summary=daily_summary, grand_total=grand_total, date_from=date_from, 
+                            date_to=date_to,)
 
 # WhatsApp numbers: 'from_' is your Twilio Sandbox number
 def send_whatsapp_message():
