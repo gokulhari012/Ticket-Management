@@ -6,7 +6,7 @@
     <title>Dealer CRUD</title>
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='ticket.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='lotus_aqua_logo.jpg') }}">
 </head>
 <body>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -24,7 +24,7 @@
         <a href="/" class="back">Back</a>        
 
 
-        <form action="/add_dealer_details" method="POST" class="row g-3 mt-4" class="dealer_details_form">
+        <form action="/add_dealer_details"  enctype="multipart/form-data" method="POST" class="row g-3 mt-4" class="dealer_details_form hide-on-print">
             <div class="col-md-3">
                 <input type="text" name="dealer_id" placeholder="Dealer ID" class="form-control" required>
             </div>
@@ -35,11 +35,22 @@
                 <input type="text" name="mobile" placeholder="Mobile Number" class="form-control" required>
             </div>
             <div class="col-md-3">
-                <button type="submit" class="btn btn-primary w-100">Add Dealer</button>
+                <input type="text" name="address" placeholder="Address" class="form-control" required>
+            </div>
+            <div class="col-md-3 choose-btn">
+                <label class="hide-on-print">Aadhaar Copy (Image/PDF)</label>
+                <input class="hide-on-print" type="file" name="aadhaar_file" accept="image/*,.pdf" required>
+            </div>
+            <div class="col-md-3 choose-btn">
+                <label class="hide-on-print">Dealer Photo</label>
+                <input class="hide-on-print"type="file" name="photo_file" accept="image/*" required>
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary w-100 add-dealer-btn">Add Dealer</button>
             </div>
         </form>
 
-        <div style="text-align: right; margin-bottom: 10px;">
+        <div style="text-align: right; margin-bottom: 10px;" class="hide-on-print">
             <button class="print_btn" onclick="window.print()" style="margin-top: 10px;">
                 🖨️ Print Dealer Details
             </button>
@@ -47,22 +58,36 @@
         <table class="history_data">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>No</th>
                     <th>Dealer ID</th>
                     <th>Name</th>
                     <th>Mobile Number</th>
-                    <th>Actions</th>
+                    <th>Address</th>
+                    <th class="hide-on-print">Dealer Photo</th>
+                    <th class="hide-on-print">Aadhaar card</th>
+                    <th class="hide-on-print">Actions</th>
                 </tr>
             </thead>
             <tbody>
             {% for dealer in dealers %}
                 <tr>
                     <form action="/edit_dealer_details/{{ dealer.id }}" method="POST">
-                        <td>{{ dealer.id }}</td>
-                        <td><input style="width: 200px;" type="text" name="dealer_id" value="{{ dealer.dealer_id }}" class="form-control" required></td>
-                        <td><input style="width: 200px;" type="text" name="name" value="{{ dealer.name }}" class="form-control" required></td>
-                        <td><input style="width: 200px;" type="text" name="mobile" value="{{ dealer.mobile }}" class="form-control" required></td>
-                        <td>
+                        <td>{{ loop.index }}</td>
+                        <td><input type="text" name="dealer_id" value="{{ dealer.dealer_id }}" class="form-control dealer-id" required></td>
+                        <td><input type="text" name="name" value="{{ dealer.name }}" class="form-control" required></td>
+                        <td><input type="text" name="mobile" value="{{ dealer.mobile }}" class="form-control" required></td>
+                        <td><input type="text" name="address" value="{{ dealer.address }}" class="form-control" required></td>
+                        <td class="hide-on-print">
+                            {% if dealer.photo_file %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ dealer.photo_file) }}" width="100">
+                            {% endif %}
+                        </td>
+                        <td class="hide-on-print aadhaar-btn">
+                            {% if dealer.aadhaar_file %}
+                                <a href="{{ url_for('static', filename='uploads/' ~ dealer.aadhaar_file) }}" target="_blank">View Aadhaar</a>
+                            {% endif %}
+                        </td>
+                        <td class="hide-on-print">
                             <button type="submit" class="edit">Update</button>
                             <a href="/delete_dealer_details/{{ dealer.id }}" class="delete"  onclick="return confirm('Are you sure you want to delete this dealer?');">Delete</a>
                         </td>

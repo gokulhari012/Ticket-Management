@@ -6,6 +6,7 @@ import threading
 from flask_mail import Mail, Message
 import pandas as pd
 import os
+from werkzeug.utils import secure_filename
 import requests
 from twilio.rest import Client
 import schedule
@@ -53,11 +54,14 @@ BLYNK_AUTH_TOKEN = "UR19Oqzy9tEpBMJkyglVvSxPBBJppNoR"
 
 VIRTUAL_PIN = 'V0'
 
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
 
 app = Flask(__name__)
 app.secret_key = 'ticket-management'  # Add this line
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dealers.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
 
 # Flask-Mail configuration
@@ -95,10 +99,16 @@ class Dealer_details(db.Model):
     dealer_id = db.Column(db.String(100), nullable=False, unique=True)
     name = db.Column(db.String(100), nullable=False)
     mobile = db.Column(db.String(15), nullable=False)
+    address = db.Column(db.String(400), nullable=True)
+    aadhaar_file = db.Column(db.String(400))  # Path to Aadhaar copy
+    photo_file = db.Column(db.String(400))
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/dealer_details')
 def dealer_details():
-    dealers = Dealer_details.query.all()
+    dealers = Dealer_details.query.order_by(Dealer_details.name.asc()).all()
     return render_template('dealer_details.html', dealers=dealers)
 
 @app.route('/add_dealer_details', methods=['POST'])
@@ -106,6 +116,10 @@ def add_dealer_details():
     dealer_id = request.form['dealer_id']
     name = request.form['name']
     mobile = request.form['mobile']
+    address = request.form['address']
+    aadhaar_file = request.files.get('aadhaar_file')
+    photo_file = request.files.get('photo_file')
+
     # Check if the dealer_id already exists
     existing_dealer = Dealer_details.query.filter_by(dealer_id=dealer_id).first()
 
@@ -113,7 +127,18 @@ def add_dealer_details():
         flash('Dealer ID already exists!', 'error')
         return redirect(url_for('dealer_details'))
 
-    new_dealer = Dealer_details(dealer_id=dealer_id, name=name, mobile=mobile)
+    aadhaar_filename = ''
+    photo_filename = ''
+    
+    if aadhaar_file and allowed_file(aadhaar_file.filename):
+        aadhaar_filename = secure_filename(f"{dealer_id}_aadhaar.{aadhaar_file.filename.rsplit('.', 1)[1]}")
+        aadhaar_file.save(os.path.join(app.config['UPLOAD_FOLDER'], aadhaar_filename))
+
+    if photo_file and allowed_file(photo_file.filename):
+        photo_filename = secure_filename(f"{dealer_id}_photo.{photo_file.filename.rsplit('.', 1)[1]}")
+        photo_file.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_filename))
+
+    new_dealer = Dealer_details(dealer_id=dealer_id, name=name, mobile=mobile, address=address, aadhaar_file=aadhaar_filename, photo_file=photo_filename)
     db.session.add(new_dealer)
     db.session.commit()
     flash('Dealer added successfully!', 'success')
@@ -125,6 +150,7 @@ def edit_dealer_details(id):
     dealer.dealer_id = request.form['dealer_id']
     dealer.name = request.form['name']
     dealer.mobile = request.form['mobile']
+    dealer.address = request.form['address']
     db.session.commit()
     return redirect(url_for('dealer_details'))
 

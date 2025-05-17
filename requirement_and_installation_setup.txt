@@ -1,3 +1,13 @@
+Development commands
+1) restart -> sudo systemctl restart flaskapp.service
+2) status -> sudo systemctl status flaskapp.service
+
+Sql DB column update
+sqlite3 instance/dealer.db
+ALTER TABLE dealer ADD COLUMN your_new_column_name TEXT;
+.exit
+
+
 Skip step 3. beacuse that to disable numlock key. now not required.
 
 # 1 -> VNC setup (not required)

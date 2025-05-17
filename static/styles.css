@@ -198,7 +198,7 @@ a {
 }
 .home_window{
     position: absolute;
-    top: 50%;
+    top: 53%;
     left: 50%;
     transform: translate(-50%,-50%);
     border: 2px solid #c9c9ca; /* Set border width and color */
@@ -293,7 +293,46 @@ a {
     color: #e9ecef;
     text-decoration: none;
 }
+.dealer_details_data table input{
+    width: 200px;
+}
+.dealer_details_data .choose-btn label{
+    /* font-weight: bold; */
+    margin-top: 10px;
+    display: block;
+    color: #333;
+}
+.dealer_details_data .choose-btn input{
+    display: block;
+    margin: 8px 0 20px 0;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+    width: 100%;
+    max-width: 400px;
+    font-size: 14px;
+}
+.dealer_details_data .aadhaar-btn a{
+    position: relative;
+    width: 100px;
+    background-color: #03d35a;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: medium;
+}
+.dealer_details_data .dealer-id{
+    width: 100px;
+}
 
+.add-dealer-btn{
+    margin-top: 20px;
+    margin-bottom: 50px;
+
+}
 .export-options {
     display: flex;
     justify-content: right;
@@ -326,6 +365,11 @@ a {
     transform: scale(0.95);
 }
 @media print {
+    /* html{
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        font-size: xx-large ;
+        font-display:block ;
+    } */
     button {
         display: none;
     }
@@ -334,6 +378,9 @@ a {
     }
     form div{
         display: none;
+    }
+    .dealer_details_data table input{
+        width: 100px;
     }
     .hide-on-print {
         display: none !important;
