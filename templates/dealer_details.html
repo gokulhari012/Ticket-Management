@@ -74,8 +74,8 @@
                     <form action="/edit_dealer_details/{{ dealer.id }}" method="POST">
                         <td>{{ loop.index }}</td>
                         <td><input type="text" name="dealer_id" value="{{ dealer.dealer_id }}" class="form-control dealer-id" required></td>
-                        <td><input type="text" name="name" value="{{ dealer.name }}" class="form-control" required></td>
-                        <td><input type="text" name="mobile" value="{{ dealer.mobile }}" class="form-control" required></td>
+                        <td><input type="text" name="name" value="{{ dealer.name }}" class="form-control dealer-name" required></td>
+                        <td><input type="text" name="mobile" value="{{ dealer.mobile }}" class="form-control mobile-no" required></td>
                         <td><input type="text" name="address" value="{{ dealer.address }}" class="form-control" required></td>
                         <td class="hide-on-print">
                             {% if dealer.photo_file %}

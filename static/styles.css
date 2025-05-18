@@ -325,7 +325,13 @@ a {
     font-size: medium;
 }
 .dealer_details_data .dealer-id{
-    width: 100px;
+    width: 50px;
+}
+.dealer_details_data .dealer-name{
+    width: 150px;
+}
+.dealer_details_data .mobile-no{
+    width: 130px;
 }
 
 .add-dealer-btn{
