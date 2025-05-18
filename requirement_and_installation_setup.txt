@@ -5,6 +5,7 @@ Development commands
 Sql DB column update
 sqlite3 instance/dealer.db
 ALTER TABLE dealer ADD COLUMN your_new_column_name TEXT;
+ALTER TABLE Dealer_details ADD COLUMN your_new_column_name address;
 .exit
 
 
