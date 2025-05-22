@@ -623,7 +623,7 @@ def send_message(dealer_id, water_can_count):
                 if mobile:
                     mobile = "+91"+mobile
 
-                    msg="Hi "+str(name)+", Water Can unloading completed.\nCan count: "+str(water_can_count)
+                    msg="Hi "+str(name)+", Water can loading."
                     with app.app_context():
                         message = client.messages.create(
                             from_=twilio_number,  # Twilio sandbox number
