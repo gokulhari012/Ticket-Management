@@ -39,6 +39,8 @@ schedule_time_2 = "18:30"  # 24-hour format (HH:MM)
 twilio_whatsapp_number = '+15557390616'  # Provided by Twilio
 twilio_number = "+12317902355"
 
+is_sms_required = False
+
 # below for testing
 # account_sid = 'AC47072dc2d5361ca5cab0e1a4f7efd369fgokul'  #remove the gokul postfix
 # auth_token = '5ee9d4d01b69688e77bc548fcfbf79c1'
@@ -248,7 +250,8 @@ def add_dealer():
 
         db.session.add(new_dealer)
         db.session.commit()
-        threading.Thread(target=send_message,args=(dealer_id,water_can_count,)).start()
+        if is_sms_required:
+            threading.Thread(target=send_message,args=(dealer_id,water_can_count,)).start()
     threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start()
     return redirect(url_for('data_entry'))
 
@@ -280,8 +283,8 @@ def add_dealer_esp32():
             db.session.add(new_dealer)
             db.session.commit()
             status = "success"
-            threading.Thread(target=send_message,args=(dealer_id,water_can_count,)).start()
-
+            if is_sms_required:
+                threading.Thread(target=send_message,args=(dealer_id,water_can_count,)).start()
     except Exception as e:
         print(f"Error in esp post request reciving: {e}")
 
@@ -655,8 +658,9 @@ def send_to_blynk():
 
 def schedule_task():
     # 🕒 Schedule the message
-    schedule.every().day.at(schedule_time_1).do(send_daily_message_scheduled)
-    schedule.every().day.at(schedule_time_2).do(send_daily_message_scheduled)
+    if is_sms_required:
+        schedule.every().day.at(schedule_time_1).do(send_daily_message_scheduled)
+        schedule.every().day.at(schedule_time_2).do(send_daily_message_scheduled)
     schedule.every().day.at(daily_report_schedule_time).do(daily_mail_api)
     print(f"Scheduled task at {schedule_time_1} and {schedule_time_2} and {daily_report_schedule_time}. Waiting...")
     # Keep running
