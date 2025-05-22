@@ -30,11 +30,14 @@ esp32_api = "esp_update_token"
 # token_id_reset_value = 50
 
 # Twilio credentials from your account
-account_sid = 'ACfcc36d8cc73031e12f52e380ac539cffgokul' #remove the gokul postfix
-auth_token = 'ad4cafeece8bda330c87f1a0921b94c0'
-msg_send_number = "9791898999"
+account_sid = 'AC47072dc2d5361ca5cab0e1a4f7efd369gokul'  #remove the gokul postfix
+auth_token = '5ee9d4d01b69688e77bc548fcfbf79c1'
+msg_gopi_send_number = "+919791898999"
 schedule_time_1 = "17:45"  # 24-hour format (HH:MM)
 schedule_time_2 = "18:30"  # 24-hour format (HH:MM)
+
+twilio_whatsapp_number = '+15557390616'  # Provided by Twilio
+twilio_number = "+12317902355"
 
 # below for testing
 # account_sid = 'AC47072dc2d5361ca5cab0e1a4f7efd369fgokul'  #remove the gokul postfix
@@ -245,6 +248,7 @@ def add_dealer():
 
         db.session.add(new_dealer)
         db.session.commit()
+        threading.Thread(target=send_message,args=(dealer_id,water_can_count,)).start()
     threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start()
     return redirect(url_for('data_entry'))
 
@@ -276,6 +280,7 @@ def add_dealer_esp32():
             db.session.add(new_dealer)
             db.session.commit()
             status = "success"
+            threading.Thread(target=send_message,args=(dealer_id,water_can_count,)).start()
 
     except Exception as e:
         print(f"Error in esp post request reciving: {e}")
@@ -583,15 +588,54 @@ def monthly_report():
 
 # WhatsApp numbers: 'from_' is your Twilio Sandbox number
 def send_whatsapp_message():
-    with app.app_context():
-        message = client.messages.create(
-            from_='whatsapp:+14155238886',  # Twilio sandbox number
-            body="Hi,\nTotal cans refilled today: "+str(get_total_can_today()),
-            to='whatsapp:+91'+msg_send_number  # Replace with your number
-        )
-        print(f"Message sent! SID: {message.sid}")
+    try:
+        with app.app_context():
+            message = client.messages.create(
+                from_="whatsapp:"+twilio_whatsapp_number,  # Twilio sandbox number
+                body="Hi,\nTotal cans refilled today: "+str(get_total_can_today()),
+                to='whatsapp:+91'+msg_gopi_send_number  # Replace with your number
+            )
+            print(f"Message sent! SID: {message.sid}")
+    except Exception as e:
+        print(f"Error: {e}")
+        
+def send_daily_message_scheduled():
+    try:
+        with app.app_context():
+            message = client.messages.create(
+                from_=twilio_number,  # Twilio sandbox number
+                body="Hi,\nTotal cans refilled today: "+str(get_total_can_today()),
+                to=msg_gopi_send_number  # Replace with your number
+            )
+            print(f"Message sent! SID: {message.sid}")
+    except Exception as e:
+        print(f"Error: {e}")
 
-# WhatsApp numbers: 'from_' is your Twilio Sandbox number
+def send_message(dealer_id, water_can_count):
+    try:
+        with app.app_context():
+            dealer = Dealer_details.query.filter_by(dealer_id=dealer_id).first()
+
+            if dealer:
+                name = dealer.name
+                mobile = dealer.mobile
+                mobile = mobile.split(",")[0].strip()
+                if mobile:
+                    mobile = "+91"+mobile
+
+                    msg="Hi "+str(name)+", Water Can unloading completed.\nCan count: "+str(water_can_count)
+                    with app.app_context():
+                        message = client.messages.create(
+                            from_=twilio_number,  # Twilio sandbox number
+                            body=msg,
+                            to=mobile  # Replace with your number
+                        )
+                        print(f"Message sent! SID: {message.sid}")
+                else:
+                    print(f"Message Not sent! Delaer details not found")
+    except Exception as e:
+        print(f"Error: {e}")
+
 def send_to_blynk():
     while True:
         with app.app_context():
@@ -611,8 +655,8 @@ def send_to_blynk():
 
 def schedule_task():
     # 🕒 Schedule the message
-    schedule.every().day.at(schedule_time_1).do(send_whatsapp_message)
-    schedule.every().day.at(schedule_time_2).do(send_whatsapp_message)
+    schedule.every().day.at(schedule_time_1).do(send_daily_message_scheduled)
+    schedule.every().day.at(schedule_time_2).do(send_daily_message_scheduled)
     schedule.every().day.at(daily_report_schedule_time).do(daily_mail_api)
     print(f"Scheduled task at {schedule_time_1} and {schedule_time_2} and {daily_report_schedule_time}. Waiting...")
     # Keep running
