@@ -19,6 +19,10 @@ body {
     max-width: 1000px;
 }
 
+.dealer_accounts_container{
+    max-width: 1000px;
+}
+
 h1, h2 {
     color: #333;
     text-align: center;
@@ -203,7 +207,7 @@ a {
     transform: translate(-50%,-50%);
     border: 2px solid #c9c9ca; /* Set border width and color */
     border-radius: 8px; /* Optional: Add rounded corners */
-    padding: 50px 130px;  ; /* Add padding for better spacing */
+    padding: 50px 20px;  ; /* Add padding for better spacing */
     background-color: #f5f6fa; /* Optional: Set background color */
     text-align: center; /* Align text and inline elements center */
 }
@@ -221,6 +225,18 @@ a {
 .home_window a:active {
     transform:  scale(0.9);
 }
+.home_window {
+    display: flex;
+    justify-content: space-between;
+}
+
+.left_links, .right_links {
+    padding: 0px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .dashboard .container{
     max-width: 90%;
 }
@@ -229,23 +245,23 @@ a {
     width: 100%;
 }
 
-.history_data input[readonly] {
+.history_data input[readonly], .dealer_accounts input[readonly] {
     background-color: transparent;
     border: none;
     font-size: 16px;
 }
 
-.history_data input {
+.history_data input, .dealer_accounts input{
     width: 50px;
     padding: 5px;
     font-size: 16px;
 }
-.history_data .password{
+.history_data .password, .dealer_accounts .amount{
     width: 120px;
     margin-left: 10px;
     margin-right: 10px;
 }
-.history_data button {
+.history_data button, .dealer_accounts button {
     background-color: #03d35a;
     color: white;
     padding: 5px 10px;
@@ -253,7 +269,7 @@ a {
     cursor: pointer;
     border-radius: 4px;
 }
-.history_data button:hover {
+.history_data button:hover, .dealer_accounts button:hover{
     background-color: rgb(1, 135, 41);;
 }
 .history_data .edit{
@@ -267,6 +283,17 @@ a {
 .history_data .history_action{
     width: 300px;
 }
+.dealer_accounts .action{
+    width: 220px;
+}
+.dealer_accounts .amount{
+    width: 100px;
+}
+.dealer_accounts .pay{
+    width: 60px;
+    height: 35px;
+}
+
 .dealer_details_data .delete{
     padding: 5px 10px;
     border: none;
@@ -332,6 +359,30 @@ a {
 }
 .dealer_details_data .mobile-no{
     width: 130px;
+}
+.item_management_data .item-name{
+    width: 200px;
+}
+.item_management_data .item-price{
+    width: 200px;
+}
+.item_management_data .action{
+    width: 250px;
+}
+.item_management_data .update-btn{
+    margin-left: 0px;
+    width: 100px;
+    height: 40px;
+}
+.item_management_data .delete-btn{
+    left: 100px;
+    bottom: 40px;
+    width: 100px;
+    height: 40px;
+}
+
+.item_management_data .delete-form{
+   height: 0px;
 }
 
 .add-dealer-btn{

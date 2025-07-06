@@ -1,0 +1,47 @@
+<!-- home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Can Management</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='lotus_aqua_logo.jpg') }}">
+</head>
+<body class="dashboard">
+    <div class="container">
+        <h1>Billing</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Billing No</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Water Cans</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dealer, dealer_name in queue %}
+                <tr>
+                    <td>{{ dealer.token_id }}</td>
+                    <td>{{ dealer.dealer_id }}</td>
+                    <td>{{ dealer_name }}</td>
+                    <td>{{ dealer.water_can_count }}</td>
+                    <td>{{ dealer.formatted_date }}</td>
+                    <td>{{ dealer.formatted_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Show total cans -->
+    <div class="total-cans-card total-cans-card-top">
+        <h2>Total Cans</h2>
+        <div class="total-cans-number">{{ total_cans }}</div>
+    </div>
+    <a href="/" class="back">Back</a>        
+
+</body>
+</html>

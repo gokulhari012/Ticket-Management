@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dealer Accounts</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='lotus_aqua_logo.jpg') }}">
+</head>
+<body>
+    <div class="container dealer_accounts_container">
+        <h1>Dealer Accounts Management</h1>
+        <a href="/" class="back">Back</a>        
+        <table class="dealer_accounts">
+            <thead>
+                <tr>
+                    <th>Dealer ID</th>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Current Balance Due</th>
+                    <th>Last Payment</th>
+                    <th class="action">Paid Amount</th>
+                    <th class="action">Add Due Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dealer, account in dealers %}
+                <tr>
+                    <td>{{ dealer.dealer_id }}</td>
+                    <td>{{ dealer.name }}</td>
+                    <td>{{ dealer.mobile }}</td>
+                    <td>{{ account.current_balance if account else 0 }}</td>
+                    <td>{{ account.last_payment_date.strftime("%Y-%m-%d") if account and account.last_payment_date else "N/A" }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('update_payment', dealer_id=dealer.dealer_id) }}">
+                            <input class="amount" type="number" name="amount_paid" step="0.01" placeholder="Amount" required>
+                            <button class="pay" type="submit">Paid</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('update_payment', dealer_id=dealer.dealer_id) }}">
+                            <input class="amount" type="number" name="due_amount_paid" step="0.01" placeholder="Amount" required>
+                            <button class="pay" type="submit">Due</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

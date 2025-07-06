@@ -108,6 +108,20 @@ class Dealer_details(db.Model):
     aadhaar_file = db.Column(db.String(400))  # Path to Aadhaar copy
     photo_file = db.Column(db.String(400))
 
+class DealerAccounts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dealer_id = db.Column(db.String(100), db.ForeignKey('dealer_details.dealer_id'), nullable=False, unique=True)
+    current_balance = db.Column(db.Float, default=0.0)
+    last_payment_date = db.Column(db.DateTime)
+
+    dealer = db.relationship('Dealer_details', backref='account')
+
+class Item(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    item_id = db.Column(db.String(100), nullable=False)
+    item_name = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -436,6 +450,80 @@ def history(msg=None):
                             filter_type=filter_type,
                             msg=msg)
 
+#Dealer accounts
+@app.route('/dealer_accounts')
+def dealer_accounts():
+    dealers = Dealer_details.query.outerjoin(DealerAccounts, Dealer_details.dealer_id == DealerAccounts.dealer_id).add_entity(DealerAccounts).order_by(Dealer_details.name.asc()).all()
+    return render_template("dealer_accounts.html", dealers=dealers)
+
+@app.route('/update_payment/<dealer_id>', methods=['POST'])
+def update_payment(dealer_id):
+    amount_paid = float(request.form.get('amount_paid',0))
+    due_amount_paid = float(request.form.get('due_amount_paid',0))
+
+    account = DealerAccounts.query.filter_by(dealer_id=dealer_id).first()
+    if account:
+        if amount_paid!=0:
+            account.current_balance -= amount_paid
+        if due_amount_paid!=0:
+            account.current_balance += due_amount_paid
+        account.last_payment_date = datetime.now()
+    else:
+        # if account doesn't exist yet, create it
+        account = DealerAccounts(dealer_id=dealer_id, current_balance=-amount_paid, last_payment_date=datetime.now())
+        db.session.add(account)
+
+    db.session.commit()
+    return redirect(url_for('dealer_accounts'))
+
+#Item management
+@app.route('/item_management', methods=['GET', 'POST'])
+def item_management():
+    if request.method == 'POST':
+        item_id = request.form['item_id']
+
+        # Check if the dealer_id already exists
+        existing_item = Item.query.filter_by(item_id=item_id).first()
+        if existing_item:
+            flash('Item ID already exists!', 'error')
+            return redirect(url_for('item_management'))
+        
+        item_name = request.form['item_name']
+        price = float(request.form['price'])
+        new_item = Item(item_id=item_id, item_name=item_name, price=price)
+        db.session.add(new_item)
+        db.session.commit()
+        flash('Item added successfully!', 'success')
+        return redirect(url_for('item_management'))
+    
+    all_items = Item.query.all()
+    return render_template('item_management.html', items=all_items)
+
+@app.route('/edit_item/<int:item_id>', methods=['POST'])
+def edit_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    # item.item_id = request.form['item_id']
+    # # Check if the dealer_id already exists
+    # existing_item = Item.query.filter_by(item_id=item.item_id).first()
+    # if existing_item:
+    #     flash('Item ID already exists!', 'error')
+    #     return redirect(url_for('item_management'))
+
+    item.item_name = request.form['item_name']
+    item.price = float(request.form['price'])
+    flash('Item added successfully!', 'success')
+    db.session.commit()
+    return redirect(url_for('item_management'))
+
+@app.route('/delete_item/<int:item_id>', methods=['POST'])
+def delete_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    db.session.delete(item)
+    db.session.commit()
+    flash('Item deleted successfully!', 'success')
+    return redirect(url_for('item_management'))
+
+
 # Function to generate Excel
 def generate_excel(dealers):
     # dealers = Dealer.query.all()
@@ -668,10 +756,26 @@ def schedule_task():
         schedule.run_pending()
         time.sleep(1)
 
+#the below is just one time run code to populate data
+def generate_dealer_account_table():
+    # Go through all existing dealers
+    dealers = Dealer_details.query.all()
+
+    for dealer in dealers:
+        # Check if account already exists
+        account = DealerAccounts.query.filter_by(dealer_id=dealer.dealer_id).first()
+        if not account:
+            # Create with default balance = 0
+            new_account = DealerAccounts(dealer_id=dealer.dealer_id, current_balance=0.0)
+            db.session.add(new_account)
+
+    db.session.commit()
+    
 if __name__ == '__main__':
     # Initialize the database (create tables)
     with app.app_context():
         db.create_all()
+        #generate_dealer_account_table()
         threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start() #send the token on startup
         threading.Thread(target=schedule_task).start() #send the token on startup
         threading.Thread(target=send_to_blynk).start() #send the token on startup
