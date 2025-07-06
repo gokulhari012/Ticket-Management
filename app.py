@@ -472,8 +472,8 @@ def update_payment(dealer_id):
         # if account doesn't exist yet, create it
         account = DealerAccounts(dealer_id=dealer_id, current_balance=-amount_paid, last_payment_date=datetime.now())
         db.session.add(account)
-
     db.session.commit()
+    flash('Amount Updated!', 'success')
     return redirect(url_for('dealer_accounts'))
 
 #Item management

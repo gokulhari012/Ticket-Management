@@ -463,24 +463,42 @@ a {
 
 .flash-messages {
     position: absolute;
-    width: 100%;
+    width: 50%;
+    top:55px;
+    left: 50%;
+    transform: translate(-50%,-50%);
     list-style: none;
     padding: 10px;
     margin-top: -25px;
 }
-
+.flash {
+    padding: 10px;
+    border-left: 5px solid #c3e6cb;
+    margin-bottom: 10px;
+}
 .flash.error {
     background-color: #f8d7da;
     color: #721c24;
-    padding: 10px;
-    border-left: 5px solid #f5c6cb;
-    margin-bottom: 10px;
 }
 
 .flash.success {
     background-color: #d4edda;
     color: #155724;
-    padding: 10px;
-    border-left: 5px solid #c3e6cb;
-    margin-bottom: 10px;
+}
+/* .flash.success { background-color: #28a745; }
+.flash.error { background-color: #dc3545; } */
+.flash.warning { 
+    background-color: #ffc107; 
+    color: #333; 
+}
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    position: absolute;
+    top: 5px;
+    right: 30px;
+    cursor: pointer;
 }

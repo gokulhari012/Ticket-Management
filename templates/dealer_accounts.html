@@ -48,5 +48,26 @@
             </tbody>
         </table>
     </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="flash {{ category }}">
+                    {{ message }}
+                    <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <script>
+        setTimeout(() => {
+                document.querySelectorAll('.flash').forEach(el => {
+                    el.style.transition = "opacity 1s";
+                    el.style.opacity = '0';
+                    setTimeout(() => el.style.display='none', 1000);
+                });
+        }, 5000);
+    </script>
 </body>
 </html>
