@@ -15,10 +15,12 @@
         <p><strong>Item: </strong>{{ item.item_name }} </p>
         <p><strong>Item Price: </strong>₹{{ item.price }} </p>
         <p><strong>Quantity:</strong> ₹{{ dealer.water_can_count}}</p>
-        <p><strong>Total Amount:</strong> ₹{{ dealer.water_can_count * item.price}}</p>
+        <p><strong>Grand Total Amount:</strong> ₹{{ "%0.2f"|format(dealer.water_can_count * item.price) }}</p>
         <p><strong>Current Balance Due:</strong> ₹{{ account.current_balance or 0 }}</p>
-        <label for="paid_amount"><strong>Paid Amount:</strong></label>
-        <input type="number" name="paid_amount" required><br>
+        <label for="paid_amount"><strong>Paid Amount (Gpay):</strong></label>
+        <input type="number" name="paid_amount_gpay" required><br>
+        <label for="paid_amount"><strong>Paid Amount (Cash):</strong></label>
+        <input type="number" name="paid_amount_cash" required><br>
 
         <button type="submit" class="btn">Generate Bill</button>
     </form>

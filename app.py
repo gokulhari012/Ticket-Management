@@ -42,6 +42,7 @@ twilio_number = "+12317902355"
 is_sms_required = False
 
 default_item_id = 1 # water Bottol
+gst_rate = 0.12        
 
 # below for testing
 # account_sid = 'AC47072dc2d5361ca5cab0e1a4f7efd369fgokul'  #remove the gokul postfix
@@ -108,7 +109,7 @@ class Dealer_details(db.Model):
     mobile = db.Column(db.String(15), nullable=False)
     address = db.Column(db.String(400), nullable=True)
     aadhaar_file = db.Column(db.String(400))  # Path to Aadhaar copy
-    photo_file = db.Column(db.String(400))
+    photo_file = db.Column(db.String(400)) 
 
 class DealerAccounts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -134,13 +135,48 @@ class BillingHistory(db.Model):
     total_amount = db.Column(db.Float, nullable=False)
     gst_amount = db.Column(db.Float, nullable=False)
     grand_total = db.Column(db.Float, nullable=False)
-    paid_amount = db.Column(db.Float, nullable=False)
+    credit_balance = db.Column(db.Float, nullable=False)
+    paid_amount_gpay = db.Column(db.Float, nullable=False)
+    paid_amount_cash = db.Column(db.Float, nullable=False)
+    # paid_amount = db.Column(db.Float, nullable=False)
     remaining_balance = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now)
 
     dealer = db.relationship("Dealer_details", backref="billing_records")
     item = db.relationship("Item", backref="billing_records")
     
+    @property
+    def formatted_date(self):
+        return self.timestamp.strftime("%d/%m/%Y")  # Format the date
+
+    @property
+    def formatted_time(self):
+        return self.timestamp.strftime("%I:%M %p")  # Format the time in 12-hour format
+
+    @property
+    def formatted_date_time(self):
+        return self.timestamp.strftime("%d-%m-%Y %I:%M %p")
+
+class PaymentBillingHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dealer_id = db.Column(db.String(100), db.ForeignKey('dealer_details.dealer_id'))
+    credit_balance = db.Column(db.Float, nullable=False)
+    paid_amount_gpay = db.Column(db.Float, nullable=False)
+    paid_amount_cash = db.Column(db.Float, nullable=False)
+    given_amount_gpay = db.Column(db.Float, nullable=False)
+    given_amount_cash = db.Column(db.Float, nullable=False)
+    remaining_balance = db.Column(db.Float, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.now)
+    dealer = db.relationship("Dealer_details", backref="payment_billing_records")
+
+    @property
+    def formatted_date(self):
+        return self.timestamp.strftime("%d/%m/%Y")  # Format the date
+
+    @property
+    def formatted_time(self):
+        return self.timestamp.strftime("%I:%M %p")  # Format the time in 12-hour format
+
     @property
     def formatted_date_time(self):
         return self.timestamp.strftime("%d-%m-%Y %I:%M %p")
@@ -181,6 +217,8 @@ def add_dealer_details():
         photo_file.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_filename))
 
     new_dealer = Dealer_details(dealer_id=dealer_id, name=name, mobile=mobile, address=address, aadhaar_file=aadhaar_filename, photo_file=photo_filename)
+    new_account = DealerAccounts(dealer_id=new_dealer.dealer_id, current_balance=0.0)
+    db.session.add(new_account)
     db.session.add(new_dealer)
     db.session.commit()
     flash('Dealer added successfully!', 'success')
@@ -481,23 +519,43 @@ def dealer_accounts():
 
 @app.route('/update_payment/<dealer_id>', methods=['POST'])
 def update_payment(dealer_id):
-    amount_paid = float(request.form.get('amount_paid',0))
-    due_amount_paid = float(request.form.get('due_amount_paid',0))
+    amount_paid_gpay = float(request.form.get('amount_paid_gpay',0))
+    amount_paid_cash = float(request.form.get('amount_paid_cash',0))
+    due_amount_given_gpay = float(request.form.get('due_amount_given_gpay',0))
+    due_amount_given_cash = float(request.form.get('due_amount_given_cash',0))
+    amount_paid = amount_paid_gpay + amount_paid_cash
+    due_amount_given = due_amount_given_gpay + due_amount_given_cash
 
     account = DealerAccounts.query.filter_by(dealer_id=dealer_id).first()
+    current_credit_balance = account.current_balance
     if account:
         if amount_paid!=0:
             account.current_balance -= amount_paid
-        if due_amount_paid!=0:
-            account.current_balance += due_amount_paid
+        if due_amount_given!=0:
+            account.current_balance += due_amount_given
         account.last_payment_date = datetime.now()
     else:
         # if account doesn't exist yet, create it
-        account = DealerAccounts(dealer_id=dealer_id, current_balance=-amount_paid, last_payment_date=datetime.now())
+        if amount_paid!=0:
+            account = DealerAccounts(dealer_id=dealer_id, current_balance=-amount_paid, last_payment_date=datetime.now())
+        if due_amount_given!=0:
+            account = DealerAccounts(dealer_id=dealer_id, current_balance=+due_amount_given, last_payment_date=datetime.now())
         db.session.add(account)
     db.session.commit()
-    flash('Amount Updated!', 'success')
-    return redirect(url_for('dealer_accounts'))
+
+    payment_bill = PaymentBillingHistory(
+        dealer_id=dealer_id,
+        credit_balance=current_credit_balance,
+        paid_amount_gpay=amount_paid_gpay,
+        paid_amount_cash=amount_paid_cash,
+        given_amount_gpay=due_amount_given_gpay,
+        given_amount_cash=due_amount_given_cash,
+        remaining_balance=account.current_balance
+    )
+    db.session.add(payment_bill)
+    db.session.commit()
+
+    return print_payment_bill(payment_bill.id, "/dealer_accounts")
 
 #Item management
 @app.route('/item_management', methods=['GET', 'POST'])
@@ -512,7 +570,7 @@ def item_management():
             return redirect(url_for('item_management'))
         
         item_name = request.form['item_name']
-        price = float(request.form['price'])
+        price = round(float(request.form['price']),2)
         new_item = Item(item_id=item_id, item_name=item_name, price=price)
         db.session.add(new_item)
         db.session.commit()
@@ -551,23 +609,27 @@ def delete_item(item_id):
 def billing():
     # Show the main page for entering dealer data and queue
     today = datetime.today().date()
-    dealer_queue = db.session.query(Dealer, Dealer_details.name).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id).filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).all()
+    dealer_queue = db.session.query(Dealer, Dealer_details.name, BillingHistory.id).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id).outerjoin(BillingHistory, Dealer.token_id == BillingHistory.billing_id).filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).all()
     return render_template('billing.html', queue=dealer_queue, total_cans=get_total_can_today())
 
-@app.route('/generate_bill/<dealer_id>', methods=['GET', 'POST'])
-def generate_bill(dealer_id):
-    dealer = Dealer.query.filter_by(dealer_id=dealer_id).first()
+@app.route('/generate_bill/<token_id>', methods=['GET', 'POST'])
+def generate_bill(token_id):
+    today = datetime.today().date()
+    dealer = Dealer.query.filter(func.date(Dealer.timestamp)==today).filter_by(token_id=token_id).first()
+    dealer_id = dealer.dealer_id
     dealer_details = Dealer_details.query.filter_by(dealer_id=dealer_id).first()
-    item = Item.query.filter_by(item_id=default_item_id).first()
     account = DealerAccounts.query.filter_by(dealer_id=dealer_id).first()
+    item = Item.query.filter_by(item_id=default_item_id).first()
 
     if request.method == 'POST':
         quantity = dealer.water_can_count
-        paid_amount = float(request.form['paid_amount'])
-        total_amount = quantity * item.price
-        gst_amount = total_amount * 0.12
-        grand_total = total_amount + gst_amount
-        remaining_balance = (account.current_balance or 0) + grand_total - paid_amount
+        paid_amount_gpay = round(float(request.form['paid_amount_gpay']), 2)
+        paid_amount_cash = round(float(request.form['paid_amount_cash']), 2)
+        grand_total = round(quantity * item.price, 2)
+        total_amount = round(grand_total / (1 + gst_rate), 2)
+        gst_amount = round(grand_total - total_amount, 2)
+
+        remaining_balance = round((account.current_balance or 0) + grand_total - paid_amount_gpay - paid_amount_cash, 2)
 
         bill = BillingHistory(
             billing_id=dealer.token_id,
@@ -578,13 +640,16 @@ def generate_bill(dealer_id):
             total_amount=total_amount,
             gst_amount=gst_amount,
             grand_total=grand_total,
-            paid_amount=paid_amount,
+            credit_balance=account.current_balance,
+            paid_amount_gpay=paid_amount_gpay,
+            paid_amount_cash=paid_amount_cash,
             remaining_balance=remaining_balance
         )
+
         db.session.add(bill)
         account.current_balance = remaining_balance
         db.session.commit()
-        return print_bill(bill.id)
+        return print_bill(bill.id, "/billing")
 
     return render_template('generate_bill.html', dealer=dealer, dealer_details=dealer_details, item=item, account=account)
 
@@ -608,7 +673,12 @@ def  get_filtered_data_billing(request):
         if date_to:
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
             query = query.filter(BillingHistory.timestamp <= date_to_dt+timedelta(days=1))
-    
+    else:
+        # Get today's start time (midnight)
+        start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        # Filter data from today only
+        query = query.filter(Dealer.timestamp >= start_of_today)
+
     filtered_data = query.order_by(BillingHistory.timestamp.desc()).all()
 
     return filtered_data
@@ -628,12 +698,65 @@ def export_billing_history_data():
 
     return send_file(output, download_name=filename, as_attachment=True, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-@app.route('/print_bill/<int:bill_id>')
-def print_bill(bill_id):
-    bill = BillingHistory.query.filter_by(id=bill_id).first()
+@app.route('/print_bill/<int:id>/<path:return_path>')
+def print_bill(id, return_path):
+    bill = BillingHistory.query.filter_by(id=id).first()
     dealer = bill.dealer
     item = bill.item
-    return render_template('print_bill.html', bill=bill, dealer=dealer, item=item)
+    return render_template('print_bill.html', bill=bill, dealer=dealer, item=item, return_path=return_path)
+
+
+#payment billing
+def  get_filtered_data_payment_billing(request):
+    # Retrieve filter values from the request arguments
+    dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+    filter_button = request.args.get('filter_button', '')
+
+    query = PaymentBillingHistory.query
+
+    if filter_button:
+        if dealer_id_filter:
+            query = query.filter(PaymentBillingHistory.dealer_id == dealer_id_filter)
+        
+        if date_from:
+            date_from_dt = datetime.strptime(date_from, '%Y-%m-%d')
+            query = query.filter(PaymentBillingHistory.timestamp >= date_from_dt)
+
+        if date_to:
+            date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
+            query = query.filter(PaymentBillingHistory.timestamp <= date_to_dt+timedelta(days=1))
+    else:
+        # Get today's start time (midnight)
+        start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        # Filter data from today only
+        query = query.filter(Dealer.timestamp >= start_of_today)
+
+    filtered_data = query.order_by(PaymentBillingHistory.timestamp.desc()).all()
+
+    return filtered_data
+
+@app.route('/payment_billing_history')
+def payment_billing_history():
+    filtered_data = get_filtered_data_payment_billing(request)
+    dealer_id = request.args.get('dealer_id', '')  # Default is an empty string
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+    return render_template('payment_billing_history.html', dealer_id=dealer_id, date_from=date_from, date_to=date_to, filtered_data=filtered_data, payment_bill=filtered_data)
+
+@app.route('/export_payment_billing_history')
+def export_payment_billing_history_data():
+    filtered_data = get_filtered_data_payment_billing(request)
+    output, filename = generate_excel_payment_billing_history(filtered_data)
+
+    return send_file(output, download_name=filename, as_attachment=True, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+@app.route('/print_payment_bill/<int:id>/<path:return_path>')
+def print_payment_bill(id,return_path):
+    payment_bill = PaymentBillingHistory.query.filter_by(id=id).first()
+    dealer = payment_bill.dealer
+    return render_template('print_payment_bill.html', payment_bill=payment_bill, dealer=dealer, return_path=return_path)
 
 @app.route('/bill_generated')
 def bill_generated():
@@ -655,7 +778,9 @@ def generate_excel_billing_history(dealers):
         "Total Amount": [d.total_amount for d in dealers],
         "Gst Amount": [d.gst_amount for d in dealers],
         "Grand Total": [d.grand_total for d in dealers],
-        "Paid Amount": [d.paid_amount for d in dealers],
+        "Credit Amount": [d.credit_amount for d in dealers],
+        "Paid Amount(Gpay)": [d.paid_amount_gpay for d in dealers],
+        "Paid Amount(Cash)": [d.paid_amount_cash for d in dealers],
         "Remaining Balance": [d.remaining_balance for d in dealers],
         "Time": [d.formatted_date_time for d in dealers],
     }
@@ -672,6 +797,37 @@ def generate_excel_billing_history(dealers):
 
     with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name="Billing History Data")
+
+    return filepath, filename
+
+# Function to generate Excel
+def generate_excel_payment_billing_history(dealers):
+    # dealers = Dealer.query.all()
+    data = {
+        "ID": [d.id for d in dealers],
+        "Dealer Id": [d.dealer_id for d in dealers],
+        "Dealer Name": [d.dealer.name  for d in dealers],
+        "Credit Amount": [d.credit_balance for d in dealers],
+        "Paid Amount(Gpay)": [d.paid_amount_gpay for d in dealers],
+        "Paid Amount(Cash)": [d.paid_amount_cash for d in dealers],
+        "Given Amount(Gpay)": [d.given_amount_gpay for d in dealers],
+        "Given Amount(Cash)": [d.given_amount_cash for d in dealers],
+        "Remaining Balance": [d.remaining_balance for d in dealers],
+        "Time": [d.formatted_date_time for d in dealers],
+    }
+    
+    df = pd.DataFrame(data)
+
+    # Generate a filename with the current date and time
+    timestamp = datetime.now().strftime("%d-%m-%Y_%I-%M-%S_%p")
+    filename = f"payment_billing_history_data_{timestamp}.xlsx"
+    filepath = os.path.join("exports", filename)
+    # Ensure the 'exports' folder exists
+    if not os.path.exists("exports"):
+        os.makedirs("exports")
+
+    with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name="Payment Billing History Data")
 
     return filepath, filename
 
@@ -927,7 +1083,7 @@ if __name__ == '__main__':
     # Initialize the database (create tables)
     with app.app_context():
         db.create_all()
-        #generate_dealer_account_table()
+        #generate_dealer_account_table() #Run to createa account for existing dealers
         threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start() #send the token on startup
         threading.Thread(target=schedule_task).start() #send the token on startup
         threading.Thread(target=send_to_blynk).start() #send the token on startup

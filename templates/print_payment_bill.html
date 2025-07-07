@@ -61,7 +61,7 @@
     </style>
 </head>
 <body onload="printAndRedirect()">
-    <div class="bill">
+   <div class="bill">
         <div class="top">
             <h2>LOTUS AQUA FARMS</h2>
             <p>37/68 SIRUVANUR<br>
@@ -72,70 +72,43 @@
         </div>
         <div class="line"></div>
         <div class="header">
-            <p style="position: absolute;right: 10px;">Time: {{ bill.formatted_time }}</p>
-            <p>Bill No: {{ bill.id }}</p>
-            <p>Date: {{ bill.formatted_date }}</p>
+            <p style="position: absolute;right: 10px;">Time: {{ payment_bill.formatted_time }}</p>
+            <p>Bill No: {{ payment_bill.id }}</p>
+            <p>Date: {{ payment_bill.formatted_date }}</p>
             <p>Dealer Id: {{ dealer.dealer_id }}</p>
             <p><strong>{{ dealer.name }}</strong></p>
             <p><strong>{{ dealer.address }}</strong></p>
         </div>
-
-        <div class="line"></div>
-        <table>
-            <tr>
-                <th>ITEM</th>
-                <th>QTY</th>
-                <th>RATE</th>
-                <th>GRAND TOTAL</th>
-            </tr>
-            <tr>
-                <td>{{ item.item_name }}</td>
-                <td>{{ bill.quantity }}</td>
-                <td>{{ item.price }}</td>
-                <td>{{ bill.grand_total }}</td>
-            </tr>
-        </table>
-        <div class="line"></div>
-        <table style="font-size: 12px;">
-            <tr>
-                <th>TAX%</th>
-                <th>TAXABLE VAL</th>
-                <th>CGST(6%)</th>
-                <th>SGST(6%)</th>
-                <th>TAX AMOUNT</th>
-            </tr>
-            <tr>
-                <td >12</td>
-                <td>{{ bill.total_amount }}</td>
-                <td>{{ bill.gst_amount/2 }}</td>
-                <td>{{ bill.gst_amount/2 }}</td>
-                <td>{{ bill.gst_amount }}</td>
-            </tr>
-        </table>
-        <div class="line"></div>
-        <div style="margin: 10px 10px">TOTAL: <span style="position: absolute;right: 10px;"><strong>₹{{ bill.grand_total }}</strong></span></span></div>
         <div class="line"></div>
         <div class="footer">
             <h4 style="margin: 5px 0px">BILL SUMMARY</h4>
             <table style="margin-left: 0px;margin-top: 0px;">
                 <tr>
+                    <td>BALANCE DUE BEFORE PAYMENT:</td>
+                    <td>{{ payment_bill.credit_balance }}</td>
+                </tr>
+                <tr>
                     <td>PAID AMOUNT (GPAY):</td>
-                    <td>{{ bill.paid_amount_gpay }}</td>
+                    <td>{{ payment_bill.paid_amount_gpay }}</td>
                 </tr>
                 <tr>
                     <td>PAID AMOUNT (CASH):</td>
-                    <td>{{ bill.paid_amount_cash }}</td>
+                    <td>{{ payment_bill.paid_amount_cash }}</td>
                 </tr>
                 <tr>
-                    <td>CREDIT AMOUNT:</td>
-                    <td>{{ bill.grand_total - bill.paid_amount_gpay - bill.paid_amount_cash }}</td>
+                    <td>GIVEN AMOUNT (GPAY):</td>
+                    <td>{{ payment_bill.given_amount_gpay }}</td>
+                </tr>
+                <tr>
+                    <td>GIVEN AMOUNT (CASH):</td>
+                    <td>{{ payment_bill.given_amount_cash }}</td>
                 </tr>
             </table>
                 <div class="line"></div>
             <table style="margin-left: 0px;margin-top: 0px;">
                 <tr>
                     <td>CURRENT BALANCE DUE:</td>
-                    <td>{{ bill.remaining_balance }}</td>
+                    <td>{{ payment_bill.remaining_balance }}</td>
                 </tr>
                 <tr>
                     <td>SIGN</td>
@@ -152,10 +125,10 @@
             <p> < Customer copy > </p>
         </div>
     </div>
-    
+
     <div class="page-break"></div>
 
-<div class="bill">
+    <div class="bill">
         <div class="top">
             <h2>LOTUS AQUA FARMS</h2>
             <p>37/68 SIRUVANUR<br>
@@ -166,70 +139,43 @@
         </div>
         <div class="line"></div>
         <div class="header">
-            <p style="position: absolute;right: 10px;">Time: {{ bill.formatted_time }}</p>
-            <p>Bill No: {{ bill.id }}</p>
-            <p>Date: {{ bill.formatted_date }}</p>
+            <p style="position: absolute;right: 10px;">Time: {{ payment_bill.formatted_time }}</p>
+            <p>Bill No: {{ payment_bill.id }}</p>
+            <p>Date: {{ payment_bill.formatted_date }}</p>
             <p>Dealer Id: {{ dealer.dealer_id }}</p>
             <p><strong>{{ dealer.name }}</strong></p>
             <p><strong>{{ dealer.address }}</strong></p>
         </div>
-
-        <div class="line"></div>
-        <table>
-            <tr>
-                <th>ITEM</th>
-                <th>QTY</th>
-                <th>RATE</th>
-                <th>GRAND TOTAL</th>
-            </tr>
-            <tr>
-                <td>{{ item.item_name }}</td>
-                <td>{{ bill.quantity }}</td>
-                <td>{{ item.price }}</td>
-                <td>{{ bill.grand_total }}</td>
-            </tr>
-        </table>
-        <div class="line"></div>
-        <table style="font-size: 12px;">
-            <tr>
-                <th>TAX%</th>
-                <th>TAXABLE VAL</th>
-                <th>CGST(6%)</th>
-                <th>SGST(6%)</th>
-                <th>TAX AMOUNT</th>
-            </tr>
-            <tr>
-                <td >12</td>
-                <td>{{ bill.total_amount }}</td>
-                <td>{{ bill.gst_amount/2 }}</td>
-                <td>{{ bill.gst_amount/2 }}</td>
-                <td>{{ bill.gst_amount }}</td>
-            </tr>
-        </table>
-        <div class="line"></div>
-        <div style="margin: 10px 10px">TOTAL: <span style="position: absolute;right: 10px;"><strong>₹{{ bill.grand_total }}</strong></span></span></div>
         <div class="line"></div>
         <div class="footer">
             <h4 style="margin: 5px 0px">BILL SUMMARY</h4>
             <table style="margin-left: 0px;margin-top: 0px;">
                 <tr>
+                    <td>BALANCE DUE BEFORE PAYMENT:</td>
+                    <td>{{ payment_bill.credit_balance }}</td>
+                </tr>
+                <tr>
                     <td>PAID AMOUNT (GPAY):</td>
-                    <td>{{ bill.paid_amount_gpay }}</td>
+                    <td>{{ payment_bill.paid_amount_gpay }}</td>
                 </tr>
                 <tr>
                     <td>PAID AMOUNT (CASH):</td>
-                    <td>{{ bill.paid_amount_cash }}</td>
+                    <td>{{ payment_bill.paid_amount_cash }}</td>
                 </tr>
                 <tr>
-                    <td>CREDIT AMOUNT:</td>
-                    <td>{{ bill.grand_total - bill.paid_amount_gpay - bill.paid_amount_cash  }}</td>
+                    <td>GIVEN AMOUNT (GPAY):</td>
+                    <td>{{ payment_bill.given_amount_gpay }}</td>
+                </tr>
+                <tr>
+                    <td>GIVEN AMOUNT (CASH):</td>
+                    <td>{{ payment_bill.given_amount_cash }}</td>
                 </tr>
             </table>
                 <div class="line"></div>
             <table style="margin-left: 0px;margin-top: 0px;">
                 <tr>
                     <td>CURRENT BALANCE DUE:</td>
-                    <td>{{ bill.remaining_balance }}</td>
+                    <td>{{ payment_bill.remaining_balance }}</td>
                 </tr>
                 <tr>
                     <td>SIGN</td>
@@ -251,7 +197,7 @@
     function printAndRedirect() {
         window.print();
         setTimeout(function() {
-            // console.log("{{return_path}}");
+            // window.location.href = "/dealer_accounts";
             window.location.href = "{{return_path}}";
         }, 1000);  // wait 3 seconds before redirect
     }

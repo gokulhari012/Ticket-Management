@@ -19,7 +19,7 @@ body {
     max-width: 1000px;
 }
 .billing-history{
-    max-width: 1200px;
+    max-width: 1400px;
 }
 
 .dealer_accounts_container{
@@ -210,10 +210,11 @@ a {
     transform: translate(-50%,-50%);
     border: 2px solid #c9c9ca; /* Set border width and color */
     border-radius: 8px; /* Optional: Add rounded corners */
-    padding: 50px 20px;  ; /* Add padding for better spacing */
+    padding: 0px 20px;  ; /* Add padding for better spacing */
     padding-bottom: 0px;
     background-color: #f5f6fa; /* Optional: Set background color */
     text-align: center; /* Align text and inline elements center */
+    margin-top: 10px;
 }
 .home_window a{
     position: relative;
@@ -234,7 +235,7 @@ a {
     justify-content: space-between;
 }
 
-.left_links, .right_links {
+.left_links, .center_links, .right_links {
     padding: 0px 40px;
     display: flex;
     flex-direction: column;
@@ -516,6 +517,19 @@ a {
 .billing .generate_bill:hover {
     background-color: #27ae60;
 }
+.billing .generate_bill_disabled{
+    position: relative;
+    pointer-events: none;
+    color: #fff;
+    background-color: gray;
+    border-color: gray;
+}
+.billing-history .print-bill{
+    position: relative;
+    width: 60px;
+    height: 40px;
+    padding: 5px 5px;
+}
 .container-generate-bill p {
     font-size: 1.1em;
     margin: 10px 0;
@@ -568,3 +582,4 @@ a {
     padding: 5px 0px;
     border-radius: 4px;
 }
+

@@ -14,7 +14,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Billing No</th>
+                    <th>T Id</th>
                     <th>ID</th>
                     <th>Name</th>
                     <th>Water Cans</th>
@@ -24,7 +24,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for dealer, dealer_name in queue %}
+                {% for dealer, dealer_name, dealer_accounts_id in queue %}
                 <tr>
                     <td>{{ dealer.token_id }}</td>
                     <td>{{ dealer.dealer_id }}</td>
@@ -32,7 +32,7 @@
                     <td>{{ dealer.water_can_count }}</td>
                     <td>{{ dealer.formatted_date }}</td>
                     <td>{{ dealer.formatted_time }}</td>
-                    <td><a class="generate_bill" href="{{ url_for('generate_bill', dealer_id=dealer.dealer_id) }}">Generate Bill</a></td>
+                    <td><a class="{% if dealer_accounts_id %} generate_bill_disabled {% else %} generate_bill {% endif %}" href="{{ url_for('generate_bill', token_id=dealer.token_id) }}">{% if dealer_accounts_id %} Bill Generated {% else %} Generate Bill {% endif %}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

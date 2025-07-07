@@ -8,6 +8,9 @@ ALTER TABLE dealer ADD COLUMN your_new_column_name TEXT;
 ALTER TABLE Dealer_details ADD COLUMN your_new_column_name address;
 .exit
 
+Download printer driver 
+Model: SRS710 (USB+Ethernet - UE)
+https://shreyanspos.com/710u-710ub-710ue-710uw/ 
 
 Skip step 3. beacuse that to disable numlock key. now not required.
 

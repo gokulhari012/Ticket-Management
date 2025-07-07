@@ -7,7 +7,7 @@
 </head>
 <body>
 <div class="container billing-history">
-    <h1>Billing History</h1>
+    <h1>Payment Billing History</h1>
      <form method="GET" class="form">
             <label for="dealer_id">Filter by Dealer ID:</label>
             <input type="text" id="dealer_id" name="dealer_id" value="{{ dealer_id }}">
@@ -21,7 +21,7 @@
             <button type="submit" name="filter_button" value="submit" class="btn">Filter</button>
     </form>
     <div class="export-options hide-on-print">
-            <form action="/export_billing_history" method="get">
+            <form action="/export_payment_billing_history" method="get">
                 <input type="hidden" name="dealer_id" value="{{ request.args.get('dealer_id', '') }}">
                 <input type="hidden" name="date_from" value="{{ request.args.get('date_from', '') }}">
                 <input type="hidden" name="date_to" value="{{ request.args.get('date_to', '') }}">
@@ -48,45 +48,35 @@
         <thead>
             <tr>
                 <th>S.No</th>
-                <th>Billing Id</th>
-                <th>Token Id</th>
+                <th>Payment Billing Id</th>
                 <th>Dealer Id</th>
                 <th>Dealer Name</th>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Item Price</th>
-                <th>Total</th>
-                <th>Gst Amount</th>
-                <th>Grand Total</th>
                 <th>Credit Balance</th>
                 <th>Amount Paid(Gpay)</th>
                 <th>Amount Paid(Cash)</th>
+                <th>Amount Given(Gpay)</th>
+                <th>Amount Given(Cash)</th>
                 <th>Balance</th>
                 <th>Date Time</th>
                 <th class=" hide-on-print">Print Bill</th>
             </tr>
         </thead>
         <tbody>
-        {% for bill in bills %}
+        {% for bill in payment_bill %}
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>{{ bill.id }}</td>
-                <td>{{ bill.billing_id }}</td>
                 <td>{{ bill.dealer_id }}</td>
                 <td>{{ bill.dealer.name }}</td>
-                <td>{{ bill.item.item_name }}</td>
-                <td>{{ bill.quantity }}</td>
-                <td>₹{{ bill.item_price }}</td>
-                <td>₹{{ "%0.2f"|format(bill.total_amount) }}</td>
-                <td>₹{{ "%0.2f"|format(bill.gst_amount) }}</td>
-                <td>₹{{ "%0.2f"|format(bill.grand_total) }}</td>
                 <td>₹{{ "%0.2f"|format(bill.credit_balance) }}</td>
                 <td>₹{{ "%0.2f"|format(bill.paid_amount_gpay) }}</td>
                 <td>₹{{ "%0.2f"|format(bill.paid_amount_cash) }}</td>
+                <td>₹{{ "%0.2f"|format(bill.given_amount_gpay) }}</td>
+                <td>₹{{ "%0.2f"|format(bill.given_amount_cash) }}</td>
                 <td>₹{{ "%0.2f"|format(bill.remaining_balance) }}</td>
                 <td width="120px">{{ bill.formatted_date_time }}</td>
                 <td class=" hide-on-print">
-                    <a class="print-bill" href="{{ url_for('print_bill', id=bill.id, return_path='\/billing_history') }}" class="btn">Print Bill</a></td>
+                    <a class="print-bill" href="{{ url_for('print_payment_bill', id=bill.id, return_path='\/payment_billing_history') }}" class="btn">Print Bill</a></td>
             </tr>
         {% endfor %}
         </tbody>

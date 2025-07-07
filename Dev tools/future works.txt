@@ -1,0 +1,16 @@
+Generate bille: 
+1. cash gpay credit.
+2. Font size small
+3. Print height 16CM MAx
+3.1 normal bill 2 copy.
+4. Dealer accounts payment bill generate 2 copy.
+
+5. History separate to edit cans and history (only for admin). - user based authendication. 
+6. Expense page and varavu selavu separate page and maintain history. (mojor work)
+7. bill history page need print option to generate and print bills.
+8.  dumpmy page for materail purchase.
+9. In all place need gpay and cash and check option.
+ 
+Bill 16 cm height
+
+Need to print bill alone in history feature.
