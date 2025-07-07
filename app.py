@@ -41,6 +41,8 @@ twilio_number = "+12317902355"
 
 is_sms_required = False
 
+default_item_id = 1 # water Bottol
+
 # below for testing
 # account_sid = 'AC47072dc2d5361ca5cab0e1a4f7efd369fgokul'  #remove the gokul postfix
 # auth_token = '5ee9d4d01b69688e77bc548fcfbf79c1'
@@ -121,6 +123,27 @@ class Item(db.Model):
     item_id = db.Column(db.String(100), nullable=False)
     item_name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
+
+class BillingHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    billing_id = db.Column(db.Integer, nullable=False)
+    dealer_id = db.Column(db.String(100), db.ForeignKey('dealer_details.dealer_id'))
+    item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
+    quantity = db.Column(db.Integer, nullable=False)
+    item_price = db.Column(db.Float, nullable=False)
+    total_amount = db.Column(db.Float, nullable=False)
+    gst_amount = db.Column(db.Float, nullable=False)
+    grand_total = db.Column(db.Float, nullable=False)
+    paid_amount = db.Column(db.Float, nullable=False)
+    remaining_balance = db.Column(db.Float, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.now)
+
+    dealer = db.relationship("Dealer_details", backref="billing_records")
+    item = db.relationship("Item", backref="billing_records")
+    
+    @property
+    def formatted_date_time(self):
+        return self.timestamp.strftime("%d-%m-%Y %I:%M %p")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -522,6 +545,135 @@ def delete_item(item_id):
     db.session.commit()
     flash('Item deleted successfully!', 'success')
     return redirect(url_for('item_management'))
+
+#Billing
+@app.route('/billing')
+def billing():
+    # Show the main page for entering dealer data and queue
+    today = datetime.today().date()
+    dealer_queue = db.session.query(Dealer, Dealer_details.name).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id).filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).all()
+    return render_template('billing.html', queue=dealer_queue, total_cans=get_total_can_today())
+
+@app.route('/generate_bill/<dealer_id>', methods=['GET', 'POST'])
+def generate_bill(dealer_id):
+    dealer = Dealer.query.filter_by(dealer_id=dealer_id).first()
+    dealer_details = Dealer_details.query.filter_by(dealer_id=dealer_id).first()
+    item = Item.query.filter_by(item_id=default_item_id).first()
+    account = DealerAccounts.query.filter_by(dealer_id=dealer_id).first()
+
+    if request.method == 'POST':
+        quantity = dealer.water_can_count
+        paid_amount = float(request.form['paid_amount'])
+        total_amount = quantity * item.price
+        gst_amount = total_amount * 0.12
+        grand_total = total_amount + gst_amount
+        remaining_balance = (account.current_balance or 0) + grand_total - paid_amount
+
+        bill = BillingHistory(
+            billing_id=dealer.token_id,
+            dealer_id=dealer_id,
+            item_id=item.id,
+            quantity=quantity,
+            item_price=item.price,
+            total_amount=total_amount,
+            gst_amount=gst_amount,
+            grand_total=grand_total,
+            paid_amount=paid_amount,
+            remaining_balance=remaining_balance
+        )
+        db.session.add(bill)
+        account.current_balance = remaining_balance
+        db.session.commit()
+        return print_bill(bill.id)
+
+    return render_template('generate_bill.html', dealer=dealer, dealer_details=dealer_details, item=item, account=account)
+
+def  get_filtered_data_billing(request):
+    # Retrieve filter values from the request arguments
+    dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+    filter_button = request.args.get('filter_button', '')
+
+    query = BillingHistory.query
+
+    if filter_button:
+        if dealer_id_filter:
+            query = query.filter(BillingHistory.dealer_id == dealer_id_filter)
+        
+        if date_from:
+            date_from_dt = datetime.strptime(date_from, '%Y-%m-%d')
+            query = query.filter(BillingHistory.timestamp >= date_from_dt)
+
+        if date_to:
+            date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
+            query = query.filter(BillingHistory.timestamp <= date_to_dt+timedelta(days=1))
+    
+    filtered_data = query.order_by(BillingHistory.timestamp.desc()).all()
+
+    return filtered_data
+
+@app.route('/billing_history')
+def billing_history():
+    filtered_data = get_filtered_data_billing(request)
+    dealer_id = request.args.get('dealer_id', '')  # Default is an empty string
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+    return render_template('billing_history.html', dealer_id=dealer_id, date_from=date_from, date_to=date_to, filtered_data=filtered_data, bills=filtered_data)
+
+@app.route('/export_billing_history')
+def export_billing_history_data():
+    filtered_data = get_filtered_data_billing(request)
+    output, filename = generate_excel_billing_history(filtered_data)
+
+    return send_file(output, download_name=filename, as_attachment=True, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+@app.route('/print_bill/<int:bill_id>')
+def print_bill(bill_id):
+    bill = BillingHistory.query.filter_by(id=bill_id).first()
+    dealer = bill.dealer
+    item = bill.item
+    return render_template('print_bill.html', bill=bill, dealer=dealer, item=item)
+
+@app.route('/bill_generated')
+def bill_generated():
+    flash("Bill generated successfully!", "success")
+    return redirect(url_for('billing'))
+
+
+# Function to generate Excel
+def generate_excel_billing_history(dealers):
+    # dealers = Dealer.query.all()
+    data = {
+        "ID": [d.id for d in dealers],
+        "Billing Id": [d.billing_id for d in dealers],
+        "Dealer Id": [d.dealer_id for d in dealers],
+        "Dealer Name": [d.dealer.name  for d in dealers],
+        "Item Name": [d.item.item_name for d in dealers],
+        "Quantity": [d.quantity for d in dealers],
+        "Item price": [d.item_price for d in dealers],
+        "Total Amount": [d.total_amount for d in dealers],
+        "Gst Amount": [d.gst_amount for d in dealers],
+        "Grand Total": [d.grand_total for d in dealers],
+        "Paid Amount": [d.paid_amount for d in dealers],
+        "Remaining Balance": [d.remaining_balance for d in dealers],
+        "Time": [d.formatted_date_time for d in dealers],
+    }
+    
+    df = pd.DataFrame(data)
+
+    # Generate a filename with the current date and time
+    timestamp = datetime.now().strftime("%d-%m-%Y_%I-%M-%S_%p")
+    filename = f"billing_history_data_{timestamp}.xlsx"
+    filepath = os.path.join("exports", filename)
+    # Ensure the 'exports' folder exists
+    if not os.path.exists("exports"):
+        os.makedirs("exports")
+
+    with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name="Billing History Data")
+
+    return filepath, filename
 
 
 # Function to generate Excel

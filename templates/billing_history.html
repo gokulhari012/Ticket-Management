@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Billing History</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div class="container billing-history">
+    <h1>Billing History</h1>
+     <form method="GET" class="form">
+            <label for="dealer_id">Filter by Dealer ID:</label>
+            <input type="text" id="dealer_id" name="dealer_id" value="{{ dealer_id }}">
+        
+            <label for="date_from">From Date:</label>
+            <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
+        
+            <label for="date_to">To Date:</label>
+            <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+        
+            <button type="submit" name="filter_button" value="submit" class="btn">Filter</button>
+    </form>
+    <div class="export-options hide-on-print">
+            <form action="/export_billing_history" method="get">
+                <input type="hidden" name="dealer_id" value="{{ request.args.get('dealer_id', '') }}">
+                <input type="hidden" name="date_from" value="{{ request.args.get('date_from', '') }}">
+                <input type="hidden" name="date_to" value="{{ request.args.get('date_to', '') }}">
+                <input type="hidden" name="filter_button" value="{{ request.args.get('filter_button', '') }}">
+                <button type="submit" class="export-button">Export to Excel</button>
+            </form>
+            <!-- <form action="{{ url_for('send_email') }}" method="get" style="display: inline;">
+                <input class="export-input" type="email" name="email" placeholder="Enter Email" required>
+                <input type="hidden" name="dealer_id" value="{{ request.args.get('dealer_id', '') }}">
+                <input type="hidden" name="date_from" value="{{ request.args.get('date_from', '') }}">
+                <input type="hidden" name="date_to" value="{{ request.args.get('date_to', '') }}">
+                <input type="hidden" name="filter_button" value="{{ request.args.get('filter_button', '') }}">
+                <input type="hidden" name="filter_type" value="{{ request.args.get('filter_type', '') }}">
+                <button type="submit" class="export-button">Send Email</button>
+            </form> -->
+            <div style="text-align: right; margin-bottom: 10px;">
+                <button class="print_btn" onclick="window.print()">
+                    🖨️ Print Dealer History
+                </button>
+            </div>
+        </div>
+        <h2>All Entries</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Billing Id</th>
+                <th>Dealer Id</th>
+                <th>Dealer Name</th>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Item Price</th>
+                <th>Total</th>
+                <th>Gst Amount</th>
+                <th>Grand Total</th>
+                <th>Paid</th>
+                <th>Balance</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for bill in bills %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ bill.billing_id }}</td>
+                <td>{{ bill.dealer_id }}</td>
+                <td>{{ bill.dealer.name }}</td>
+                <td>{{ bill.item.item_name }}</td>
+                <td>{{ bill.quantity }}</td>
+                <td>₹{{ bill.item_price }}</td>
+                <td>₹{{ bill.total_amount }}</td>
+                <td>₹{{ bill.gst_amount }}</td>
+                <td>₹{{ bill.grand_total }}</td>
+                <td>₹{{ bill.paid_amount }}</td>
+                <td>₹{{ bill.remaining_balance }}</td>
+                <td>{{ bill.formatted_date_time }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+    <a href="/" class="back">Back</a>        
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="flash {{ category }}">
+                    {{ message }}
+                    <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.flash').forEach(el => {
+                el.style.transition = "opacity 1s";
+                el.style.opacity = '0';
+                setTimeout(() => el.style.display='none', 1000);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

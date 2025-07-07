@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Print Bill</title>
+    <style>
+        body {
+            font-family: monospace;
+            width: 80mm;
+            margin: 0 auto;
+            /* font-size: 12px; */
+        }
+        h2, p {
+            text-align: center;
+            margin: 5px 0;
+        }
+        .line {
+            border-bottom: 1px dashed #000;
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            font-size: 12px;
+            border-collapse: collapse;
+            margin: 20px 10px;
+        }
+        th, tr {
+            padding: 2px 0;
+        }
+        .header, .footer{
+            text-align: left;
+            margin: 20px 20px;
+        }
+        .header p{
+            text-align: left;
+            margin: 0px 0px;
+        }
+        .top, .bottom{
+            margin: 20px 20px;
+        }
+        @page {
+            /* size: 80mm 290mm; */
+            size: 80mm 150mm;
+            margin: 0;
+        }
+        body {
+            width: 80mm;
+        }
+
+    </style>
+</head>
+<body onload="printAndRedirect()">
+    <div class="top">
+        <h2>LOTUS AQUA FARMS</h2>
+        <p>37/68 SIRUVANUR<br>
+        THIRUVALLUR<br>
+        CELL 9629811555<br>
+        </p>
+    </div>
+    <div class="line"></div>
+    <div class="header">
+        <p>Bill No: {{ bill.billing_id }}</p>
+        <p>Bill Date: {{ bill.formatted_date_time }}</p>
+        <p>Dealer Id: {{ dealer.dealer_id }}</p>
+        <p>Dealer Name: {{ dealer.name }}</p>
+        <p>Address: {{ dealer.address }}</p>
+        <p>Mobile: {{ dealer.mobile }}</p>
+    </div>
+
+    <div class="line"></div>
+    <table>
+        <tr>
+            <th>ITEM</th>
+            <th>QTY</th>
+            <th>RATE</th>
+            <th>TOTAL</th>
+            <th>TAX(12%)</th>
+            <th>GRAND<br>TOTAL</th>
+        </tr>
+        <tr>
+            <td style="width: 50px;">{{ item.item_name }}</td>
+            <td>{{ bill.quantity }}</td>
+            <td>₹{{ item.price }}</td>
+            <td>₹{{ bill.total_amount }}</td>
+            <td>₹{{ bill.gst_amount }}</td>
+            <td>₹{{ bill.grand_total }}</td>
+        </tr>
+    </table>
+    <div class="line"></div>
+    <div class="footer">
+        <h4>Bill summary</h4>
+        <table style="margin-left: 0px;">
+            <tr>
+                <td>Paid Amount:</td>
+                <td>₹{{ bill.paid_amount }}</td>
+            </tr>
+            <tr>
+                <td>Current Balance Due:</td>
+                <td>₹{{ bill.remaining_balance }}</td>
+            </tr>
+            <tr>
+                <td>SIGN</td>
+            </tr>
+            <tr><td>.</tr></tr>
+            <tr><td>.</tr></tr>
+            <tr><td>.</tr></tr>
+        </table>
+    </div>
+
+    <div class="line"></div>
+    <div class="bottom">
+        <p>Thank you! Visit again!</p>
+    </div>
+    <script>
+    function printAndRedirect() {
+        window.print();
+        setTimeout(function() {
+            window.location.href = "/bill_generated";
+        }, 100000);  // wait 3 seconds before redirect
+    }
+</script>
+</body>
+</html>
