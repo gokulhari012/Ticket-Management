@@ -128,6 +128,15 @@ class Item(db.Model):
     item_name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
 
+class Material(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.String(100), nullable=False)
+    quantity = db.Column(db.String(100), nullable=False)
+    total = db.Column(db.String(100), nullable=False)
+    amount_paid = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.String(100), nullable=False)
+
 class BillingHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     billing_id = db.Column(db.Integer, nullable=False)
@@ -666,6 +675,46 @@ def delete_item(item_id):
     db.session.commit()
     flash('Item deleted successfully!', 'success')
     return redirect(url_for('item_management'))
+
+#Material management
+@app.route('/material_management', methods=['GET', 'POST'])
+def material_management():
+    if request.method == 'POST':   
+        name = request.form['name']
+        price = request.form['price']
+        quantity = request.form['quantity']
+        total = request.form['total']
+        amount_paid = request.form['amount_paid']
+        date = request.form['date']
+        new_material = Material(name=name, price=price, quantity=quantity, total=total, amount_paid=amount_paid, date=date)
+        db.session.add(new_material)
+        db.session.commit()
+        flash('Material added successfully!', 'success')
+        return redirect(url_for('material_management'))
+    
+    all_material = Material.query.all()
+    return render_template('material_management.html', materials=all_material)
+
+@app.route('/edit_material/<int:material_id>', methods=['POST'])
+def edit_material(material_id):
+    material = Material.query.get_or_404(material_id)
+    material.name = request.form['name']
+    material.price = request.form['price']
+    material.quantity = request.form['quantity']
+    material.total = request.form['total']
+    material.amount_paid = request.form['amount_paid']
+    material.date = request.form['date']
+    flash('Material added successfully!', 'success')
+    db.session.commit()
+    return redirect(url_for('material_management'))
+
+@app.route('/delete_material/<int:material_id>', methods=['POST'])
+def delete_material(material_id):
+    material = Material.query.get_or_404(material_id)
+    db.session.delete(material)
+    db.session.commit()
+    flash('Material deleted successfully!', 'success')
+    return redirect(url_for('material_management'))
 
 #Billing
 @app.route('/billing')

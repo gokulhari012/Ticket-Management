@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Items</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='lotus_aqua_logo.jpg') }}">
+</head>
+<body>
+    <div class="container history_container dealer_details_data item_management_data">
+
+        <h1>Material Management</h1>
+        <a href="/" class="back">Back</a>        
+
+        <form method="POST" style="text-align:center; margin-bottom:20px; align-items: center;"  class="row g-3 mt-4" class="dealer_details_form">
+            <div class="col-md-4">
+                <label><h4>Material Name: </h4></label>
+                <input class="form-control" type="text" name="name" placeholder="Material Name" required>
+            </div>
+            <div class="col-md-4">
+                <label><h4>Material Price: </h4></label>
+                <input class="form-control" type="number" step="0.01" name="price" placeholder="Price" required>
+            </div>
+            <div class="col-md-4">
+                <label><h4>Quantity: </h4></label>
+                <input class="form-control" type="number" name="quantity" placeholder="Quantity" required>
+            </div>
+            <div class="col-md-4">
+                <label><h4>Total: </h4></label>
+                <input class="form-control" type="number" step="0.01" name="total" placeholder="Toal" required>
+            </div>
+            <div class="col-md-4">
+                <label><h4>Amount Paid: </h4></label>
+                <input class="form-control" type="number" step="0.01" name="amount_paid" placeholder="Amount Paid" required>
+            </div>
+            <div class="col-md-4">
+                <label><h4>Date: </h4></label>
+                <input class="form-control" type="text" step="0.01" name="date" placeholder="Date" required>
+            </div>
+            <div class="col-md-12">
+                <button class="btn btn-primary w-100 add-dealer-btn" type="submit">Add Material</button>
+            </div>
+        </form>
+
+        <table class="history_data">
+            <thead>
+                <tr>
+                    <th>Material Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Amount Paid</th>
+                    <th>Date</th>
+                    <th class="action">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for material in materials %}
+                <tr>
+                    <td>
+                        <form method="POST" action="{{ url_for('edit_material', material_id=material.id) }}">
+                            <input class="form-control item-name" type="text" name="name" value="{{ material.name }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="price" value="{{ material.price }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="quantity" value="{{ material.quantity }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="total" value="{{ material.total }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="amount_paid" value="{{ material.amount_paid }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-name" type="text" name="date" value="{{ material.date }}" required>
+                    </td>
+                    <td>
+                            <button class="edit update-btn" type="submit">Update</button>
+                        </form>
+                        <form class="delete-form" method="POST" action="{{ url_for('delete_material', material_id=material.id) }}" onsubmit="return confirm('Are you sure?');">
+                            <button class="edit delete delete-btn" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="flash {{ category }}">
+                    {{ message }}
+                    <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.flash').forEach(el => {
+                el.style.transition = "opacity 1s";
+                el.style.opacity = '0';
+                setTimeout(() => el.style.display='none', 1000);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

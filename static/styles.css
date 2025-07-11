@@ -389,6 +389,9 @@ a {
 .item_management_data .item-price{
     width: 200px;
 }
+.item_management_data .item-number{
+    width: 100px;
+}
 .item_management_data .action{
     width: 250px;
 }
