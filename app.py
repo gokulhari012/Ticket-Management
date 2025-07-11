@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session
 from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, extract
@@ -18,6 +18,9 @@ is_rashberrypi = False
 debug_mode = not is_rashberrypi
 
 edit_password = "00000"
+# Login credentials
+USERNAME = "admin"
+PASSWORD = "admin"
 
 daily_mail_email_id = "lotusaquafarms@yahoo.com"
 daily_report_schedule_time = "19:00"  # 24-hour format (HH:MM)
@@ -181,11 +184,44 @@ class PaymentBillingHistory(db.Model):
     def formatted_date_time(self):
         return self.timestamp.strftime("%d-%m-%Y %I:%M %p")
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username == USERNAME and password == PASSWORD:
+            session['user'] = username
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('login'))
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    flash('Logged out successfully.', 'info')
+    return redirect(url_for('home'))
+
+@app.route('/')
+def home():
+    admin=False
+    if 'user' in session:
+        admin = True
+    return render_template('home.html', admin=admin)
+
+@app.route('/user_selection')
+def home_user():
+    return render_template('home-user.html')
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/dealer_details')
 def dealer_details():
+    if 'user' not in session:
+        return redirect(url_for("login"))
     dealers = Dealer_details.query.order_by(Dealer_details.name.asc()).all()
     return render_template('dealer_details.html', dealers=dealers)
 
@@ -273,10 +309,6 @@ def update_dealer():
         return {"status": "success", "message": "Dealer details updated!"}
     
     return {"status": "error", "message": "Dealer not found!"}, 404
-
-@app.route('/')
-def home():
-    return render_template('home.html')
 
 def get_total_can_today():
     #Total Can
@@ -486,6 +518,8 @@ def  get_filtered_data(request, is_daily_monthly_report=False):
 
 @app.route('/history', methods=['GET'])
 def history(msg=None):
+    if 'user' not in session:
+        return redirect(url_for("login"))
     filtered_data, filter_type = get_filtered_data(request)
     dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
     date_from = request.args.get('date_from', '')
@@ -511,6 +545,33 @@ def history(msg=None):
                             filter_type=filter_type,
                             msg=msg)
 
+#filter options are hided.
+@app.route('/history-mini', methods=['GET'])
+def history_mini(msg=None):
+    filtered_data, filter_type = get_filtered_data(request)
+    dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+    # filter_button = request.args.get('filter_button', '')
+    
+    # if dealer_id_filter == "" and date_from == "" and date_to == "":
+    #     filtered_data = query.order_by(Dealer.timestamp.desc()).limit(20).all()
+    
+    total_cans = sum(dealer.water_can_count for dealer, dealer_name in filtered_data)
+    
+    # for dealer in filtered_data:
+    #     # Assuming `timestamp` is a datetime object, you can format it as required
+    #     dealer.timestamp = dealer.timestamp.strftime("%Y-%m-%d %H:%M:%S")  # Format as hour:minute
+    
+    # Render the history template and pass the filters to retain their values
+
+    return render_template('history-mini.html', data=filtered_data, 
+                            dealer_id=dealer_id_filter, 
+                            date_from=date_from, 
+                            date_to=date_to,
+                            total_cans=total_cans, 
+                            filter_type=filter_type,
+                            msg=msg)
 #Dealer accounts
 @app.route('/dealer_accounts')
 def dealer_accounts():
@@ -560,6 +621,8 @@ def update_payment(dealer_id):
 #Item management
 @app.route('/item_management', methods=['GET', 'POST'])
 def item_management():
+    if 'user' not in session:
+        return redirect(url_for("login"))
     if request.method == 'POST':
         item_id = request.form['item_id']
 
@@ -685,6 +748,8 @@ def  get_filtered_data_billing(request):
 
 @app.route('/billing_history')
 def billing_history():
+    if 'user' not in session:
+        return redirect(url_for("login"))
     filtered_data = get_filtered_data_billing(request)
     dealer_id = request.args.get('dealer_id', '')  # Default is an empty string
     date_from = request.args.get('date_from', '')
@@ -739,6 +804,8 @@ def  get_filtered_data_payment_billing(request):
 
 @app.route('/payment_billing_history')
 def payment_billing_history():
+    if 'user' not in session:
+        return redirect(url_for("login"))
     filtered_data = get_filtered_data_payment_billing(request)
     dealer_id = request.args.get('dealer_id', '')  # Default is an empty string
     date_from = request.args.get('date_from', '')
@@ -970,6 +1037,8 @@ def inactive_dealers():
 
 @app.route('/monthly_report')
 def monthly_report():
+    if 'user' not in session:
+        return redirect(url_for("login"))
     date_from = request.args.get('date_from', '')
     date_to = request.args.get('date_to', '')
   

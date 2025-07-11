@@ -25,6 +25,10 @@ body {
 .dealer_accounts_container{
     max-width: 1000px;
 }
+.login_container{
+    max-width: 80%;
+    height: 80%;
+}
 
 h1, h2 {
     color: #333;
@@ -196,6 +200,20 @@ a {
 .back:hover {
     background-color: #b30000; /* Darker background on hover */
     border-color: #b30000; /* Darker border on hover */
+}
+
+.logout-btn{
+    position: relative;
+    top: -70px;
+    left: 90%;
+}
+
+.login-btn{
+    background-color: #2ecc71;
+    border: none;
+}
+.login-btn:hover{
+    background-color: #27ae60;
 }
 
 .home{
@@ -583,3 +601,31 @@ a {
     border-radius: 4px;
 }
 
+.login-container {
+    width: 300px;
+    margin: 100px auto;
+    background: white;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.login-container input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.login-container button {
+    padding: 10px 20px;
+    background: #007bff;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-container button:hover {
+    background: #0056b3;
+}

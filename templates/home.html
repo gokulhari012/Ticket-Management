@@ -10,6 +10,12 @@
 </head>
 <body>
     <h1 class="home">Lotus</h1>
+    {% if admin %}
+        <a href="/logout" class="back logout-btn">Logout</a>  
+    {% else %}
+        <a href="/login" class="back logout-btn login-btn">Login</a>  
+    {% endif %}
+
     <div class="home_window">
         <div class="left_links">
             <h2>Data Entries</h2>
@@ -21,15 +27,22 @@
         <div class="center_links">
             <h2>Managements Tools</h2>
             <a href="/inactive_dealers">Inactive Dealers</a><br>
-            <a href="/dealer_details">Dealers Management</a><br>
-            <a href="/item_management">Item Management</a><br>
+            {% if admin %}
+                <a href="/dealer_details">Dealers Management</a><br>
+                <a href="/item_management">Item Management</a><br>
+            {% endif %}
         </div>
         <div class="right_links">
             <h2>Reports</h2>
-            <a href="/history">Dealer History</a><br>
-            <a href="/monthly_report">Monthly Report</a><br>
-            <a href="/billing_history">Billing History</a><br>
-            <a href="/payment_billing_history">Payment Billing History</a><br>
+            {% if admin %}
+                <a href="/history">Dealer History</a><br>
+                <a href="/monthly_report">Monthly Report</a><br>
+                <a href="/billing_history">Billing History</a><br>
+                <a href="/payment_billing_history">Payment Billing History</a><br>
+            {% else %}
+                <a href="/history-mini">Dealer History Mini</a><br>
+            {% endif %}
+
         </div>
     </div>
 </body>
