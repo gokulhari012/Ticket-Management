@@ -23,6 +23,7 @@
             <a href="/dashboard">Dashboard</a><br>
             <a href="/billing">Billing</a><br>
             <a href="/dealer_accounts">Credit Details</a><br>
+            <a href="/daily_accounts">Day Statement</a><br>
         </div>
         <div class="center_links">
             <h2>Managements Tools</h2>
@@ -37,7 +38,8 @@
             <h2>Reports</h2>
             {% if admin %}
                 <a href="/history">Dealer History</a><br>
-                <a href="/monthly_report">Monthly Report</a><br>
+                <a href="/monthly_report">Monthly Can Report</a><br>
+                <a href="/monthly_statement">Monthly Statement</a><br>
                 <a href="/billing_history">Billing History</a><br>
                 <a href="/payment_billing_history">Payment Billing History</a><br>
             {% else %}
@@ -46,5 +48,17 @@
 
         </div>
     </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="flash {{ category }}">
+                    {{ message }}
+                    <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 </body>
 </html>

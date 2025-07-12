@@ -29,6 +29,9 @@ body {
     max-width: 80%;
     height: 80%;
 }
+.monthly_statement{
+    max-width: 80%;
+}
 
 h1, h2 {
     color: #333;
@@ -241,6 +244,7 @@ a {
     transform: translateX(0%);
     transition: transform 0.2s, background-color 0.2s; /* Smooth animations */
     text-align: center; 
+    width: 200px;
 }  
 .home_window a:hover{
     transform: scale(1.1);
@@ -410,6 +414,9 @@ a {
 .item_management_data .delete-form{
    height: 0px;
 }
+.monthly_statement .item-number{
+    width: 80px;
+}
 
 .add-dealer-btn{
     margin-top: 20px;
@@ -540,10 +547,11 @@ a {
 }
 .billing .generate_bill_disabled{
     position: relative;
-    pointer-events: none;
     color: #fff;
     background-color: gray;
     border-color: gray;
+    /* cursor: not-allowed;        show disabled cursor */
+    pointer-events: none;
 }
 .billing-history .print-bill{
     position: relative;
@@ -602,6 +610,25 @@ a {
     background: #f9f9f9;
     padding: 5px 0px;
     border-radius: 4px;
+}
+
+.container-expense-management strong {
+    color: #ffffff;
+}
+.container-expense-management .back{
+    top: 30px;
+    left: 72%; 
+}
+.container-expense-management p:nth-child(even) {
+    background: none;
+    padding: 5px 10px;
+    border:none;
+}
+
+.container-expense-management input[readonly] {
+    background-color: #e9ecef;  /* light gray background */
+    color: #495057;             /* darker text */
+    cursor: not-allowed;        /* show disabled cursor */
 }
 
 .login-container {

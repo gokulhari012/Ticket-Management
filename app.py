@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, extract
+from sqlalchemy import func, extract, and_
 import threading
 from flask_mail import Mail, Message
 import pandas as pd
@@ -73,6 +73,8 @@ app.secret_key = 'ticket-management'  # Add this line
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dealers.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
+# app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(seconds=24)
 db = SQLAlchemy(app)
 
 # Flask-Mail configuration
@@ -124,7 +126,7 @@ class DealerAccounts(db.Model):
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    item_id = db.Column(db.String(100), nullable=False)
+    item_id = db.Column(db.Integer, nullable=False)
     item_name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
 
@@ -193,6 +195,51 @@ class PaymentBillingHistory(db.Model):
     def formatted_date_time(self):
         return self.timestamp.strftime("%d-%m-%Y %I:%M %p")
 
+class DailyAccounts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.now)
+    date = db.Column(db.Date, nullable=False, default=date.today)
+
+    one_can_price = db.Column(db.Float, default=0)
+    total_can_filling = db.Column(db.Float, default=0)
+    total_amount = db.Column(db.Float, default=0)
+    
+    total_credit_amount = db.Column(db.Float, default=0)
+    today_credit_amount = db.Column(db.Float, default=0)
+
+    amount_gpay = db.Column(db.Float, default=0)
+    amount_cash = db.Column(db.Float, default=0)
+    net_recevied_amount = db.Column(db.Float, default=0)
+
+    chit_amount = db.Column(db.Float, default=0)
+    diesel = db.Column(db.Float, default=0)
+
+    chit_amount = db.Column(db.Float, default=0)
+    diesel = db.Column(db.Float, default=0)
+    spares = db.Column(db.Float, default=0)
+    pooja_items = db.Column(db.Float, default=0)
+    milk_and_others = db.Column(db.Float, default=0)
+    salary_advance = db.Column(db.Float, default=0)
+    salary = db.Column(db.Float, default=0)
+    eb = db.Column(db.Float, default=0)
+    service_labour = db.Column(db.Float, default=0)
+    stationaries = db.Column(db.Float, default=0)
+    sunday_ots = db.Column(db.Float, default=0)
+    others_expenses = db.Column(db.Float, default=0)
+    total_expenses = db.Column(db.Float, default=0)
+
+    net_amount_remaining = db.Column(db.Float, default=0)
+    net_cash_remaining = db.Column(db.Float, default=0)
+
+    @property
+    def formatted_date(self):
+        return self.date.strftime("%d-%m-%Y")  # Format the date
+    
+    @property
+    def formatted_date_time(self):
+        return self.timestamp.strftime("%d-%m-%Y %I:%M %p")
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -200,6 +247,7 @@ def login():
         password = request.form.get('password')
         if username == USERNAME and password == PASSWORD:
             session['user'] = username
+            session.permanent = True  # THIS activates the lifetime
             flash('Login successful!', 'success')
             return redirect(url_for('home'))
         else:
@@ -219,10 +267,6 @@ def home():
     if 'user' in session:
         admin = True
     return render_template('home.html', admin=admin)
-
-@app.route('/user_selection')
-def home_user():
-    return render_template('home-user.html')
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -670,6 +714,13 @@ def edit_item(item_id):
 
 @app.route('/delete_item/<int:item_id>', methods=['POST'])
 def delete_item(item_id):
+    # Check if the dealer_id already exists
+    existing_item = Item.query.filter_by(id=item_id).first()
+    print(existing_item.item_id)
+    if existing_item.item_id==default_item_id:
+        flash('Default Item cannot be delete!', 'error')
+        return redirect(url_for('item_management'))
+
     item = Item.query.get_or_404(item_id)
     db.session.delete(item)
     db.session.commit()
@@ -716,12 +767,226 @@ def delete_material(material_id):
     flash('Material deleted successfully!', 'success')
     return redirect(url_for('material_management'))
 
+#Daily accounts
+@app.route('/daily_accounts', methods=['GET', 'POST'])
+def daily_accounts():
+    if request.method == 'POST':
+        data = request.form
+        # Get all fields from form
+        date_str = request.form.get('date')
+        try:
+            entry_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            entry_date = date.today()
+
+        one_can_price = float(data.get('one_can_price', 0))
+        total_can_filling = float(data.get('total_can_filling', 0))
+        total_amount = float(data.get('total_amount', 0))
+        total_can_filling = float(data.get('total_can_filling', 0))
+        total_credit_amount = float(data.get('total_credit_amount', 0))
+        today_credit_amount = float(data.get('today_credit_amount', 0))
+        amount_gpay = float(data.get('amount_gpay', 0))
+        amount_cash = float(data.get('amount_cash', 0))
+        net_recevied_amount = float(data.get('net_recevied_amount', 0))
+        chit_amount = float(data.get('chit_amount', 0))
+        diesel = float(data.get('diesel', 0))
+        spares = float(data.get('spares', 0))
+        pooja_items = float(data.get('pooja_items', 0))
+        milk_and_others = float(data.get('milk_and_others', 0))
+        salary_advance = float(data.get('salary_advance', 0))
+        salary = float(data.get('salary', 0))
+        eb = float(data.get('eb', 0))
+        service_labour = float(data.get('service_labour', 0))
+        stationaries = float(data.get('stationaries', 0))
+        sunday_ots = float(data.get('sunday_ots', 0))
+        others_expenses = float(data.get('others_expenses', 0))
+        total_expenses = float(data.get('total_expenses', 0))
+        net_amount_remaining = float(data.get('net_amount_remaining', 0))
+        net_cash_remaining = float(data.get('net_cash_remaining', 0))
+
+        record = DailyAccounts(
+            date=entry_date,
+            one_can_price=one_can_price,
+            total_can_filling=total_can_filling,
+            total_amount=total_amount,
+            total_credit_amount=total_credit_amount,
+            today_credit_amount=today_credit_amount,
+            amount_gpay=amount_gpay,
+            amount_cash=amount_cash,
+            net_recevied_amount=net_recevied_amount,
+            chit_amount=chit_amount,
+            diesel=diesel,
+            spares=spares,
+            pooja_items=pooja_items,
+            milk_and_others=milk_and_others,
+            salary_advance=salary_advance,
+            salary=salary,
+            eb=eb,
+            service_labour=service_labour,
+            stationaries=stationaries,
+            sunday_ots=sunday_ots,
+            others_expenses=others_expenses,
+            total_expenses=total_expenses,
+            net_amount_remaining=net_amount_remaining,
+            net_cash_remaining=net_cash_remaining
+        )
+        
+        db.session.add(record)
+        db.session.commit()
+        flash("Daily Statement saved!", "success")
+        return redirect(url_for('daily_accounts'))
+        
+    today_date = date.today().isoformat()
+
+    today = datetime.today().date()
+    dealer = Dealer.query.filter(func.date(Dealer.timestamp)==today).all()
+    billingHistory = BillingHistory.query.filter(func.date(Dealer.timestamp)==today).all()
+    item = Item.query.filter_by(item_id=default_item_id).first()
+
+    one_can_price = item.price
+    total_can_filling = sum([dealer_row.water_can_count for dealer_row in dealer])
+    total_amount = one_can_price * total_can_filling
+    total_credit_amount = sum([row.remaining_balance for row in billingHistory])
+    amount_gpay = sum([row.paid_amount_gpay for row in billingHistory])
+    amount_cash = sum([row.paid_amount_cash for row in billingHistory])
+    net_recevied_amount = amount_gpay + amount_cash
+
+    today_credit_amount = total_amount - net_recevied_amount
+
+    return render_template('daily_accounts.html', today_date=today_date, one_can_price=one_can_price, total_can_filling=total_can_filling, total_amount=total_amount,
+                           total_credit_amount=total_credit_amount, amount_gpay=amount_gpay, amount_cash=amount_cash, net_recevied_amount=net_recevied_amount, today_credit_amount=today_credit_amount)
+
+def get_filtered_data_daily_accounts(request):
+    # Retrieve filter values from the request arguments
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+    filter_button = request.args.get('filter_button', '')
+
+    query = DailyAccounts.query
+
+    if filter_button:
+
+        if date_from:
+            date_from_dt = datetime.strptime(date_from, '%Y-%m-%d')
+            query = query.filter(DailyAccounts.timestamp >= date_from_dt)
+
+        if date_to:
+            date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
+            query = query.filter(DailyAccounts.timestamp <= date_to_dt+timedelta(days=1))
+    else:
+        # Get 1 month Details
+        now = datetime.now()
+        first_day_of_month = datetime(now.year, now.month, 1)
+        query = query.filter(DailyAccounts.timestamp >= first_day_of_month)
+        pass
+
+    filtered_data = query.order_by(DailyAccounts.timestamp.desc()).all()
+
+    return filtered_data
+
+@app.route('/monthly_statement', methods=['GET', 'POST'])
+def monthly_statement():
+    filtered_data = get_filtered_data_daily_accounts(request)
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+    return render_template('monthly_statement.html', date_from=date_from, date_to=date_to, statements=filtered_data)
+
+@app.route('/edit_monthly_statement/<int:statement_id>', methods=['POST'])
+def edit_monthly_statement(statement_id):
+    dailyAccounts = DailyAccounts.query.get_or_404(statement_id)
+
+    dailyAccounts.chit_amount = float(request.form['chit_amount'])
+    dailyAccounts.diesel = float(request.form['diesel'])
+    dailyAccounts.spares = float(request.form['spares'])
+    dailyAccounts.pooja_items = float(request.form['pooja_items'])
+    dailyAccounts.milk_and_others = float(request.form['milk_and_others'])
+    dailyAccounts.salary_advance = float(request.form['salary_advance'])
+    dailyAccounts.salary = float(request.form['salary'])
+    dailyAccounts.eb = float(request.form['eb'])
+    dailyAccounts.service_labour = float(request.form['service_labour'])
+    dailyAccounts.stationaries = float(request.form['stationaries'])
+    dailyAccounts.sunday_ots = float(request.form['sunday_ots'])
+    dailyAccounts.others_expenses = float(request.form['others_expenses'])
+    dailyAccounts.total_expenses = float(request.form['total_expenses'])
+    dailyAccounts.net_amount_remaining = float(request.form['net_amount_remaining'])
+    dailyAccounts.net_cash_remaining = float(request.form['net_cash_remaining'])
+
+    flash('Daily Statement Edited successfully!', 'success')
+    db.session.commit()
+    return redirect(url_for('monthly_statement'))
+
+@app.route('/delete_monthly_statement/<int:statement_id>', methods=['POST'])
+def delete_monthly_statement(statement_id):
+    dailyAccounts = DailyAccounts.query.get_or_404(statement_id)
+    db.session.delete(dailyAccounts)
+    db.session.commit()
+    flash('Daily Statement deleted successfully!', 'success')
+    return redirect(url_for('monthly_statement'))
+
+@app.route('/export_monthly_statement')
+def export_monthly_statement_data():
+    filtered_data = get_filtered_data_daily_accounts(request)
+    output, filename = generate_excel_monthly_statement(filtered_data)
+
+    return send_file(output, download_name=filename, as_attachment=True, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+# Function to generate Excel
+def generate_excel_monthly_statement(data):
+    # dealers = Dealer.query.all()
+
+    excel_data = {
+        "ID": [d.id for d in data],
+        "One Can Price": [d.one_can_price for d in data],
+        "Total Can Filling": [d.total_can_filling for d in data],
+        "Total Amount": [d.total_amount  for d in data],
+        "Total Credits Amount": [d.total_credit_amount for d in data],
+        "Today Credits Amount": [d.today_credit_amount for d in data],
+        "Amount received (Gpay)": [d.amount_gpay for d in data],
+        "Amount received (Cash)": [d.amount_cash for d in data],
+        "Net Amount Received": [d.net_recevied_amount for d in data],
+        "Chit Amount": [d.chit_amount for d in data],
+        "Dieselt": [d.diesel for d in data],
+        "Spares": [d.spares for d in data],
+        "Pooja Items": [d.pooja_items for d in data],
+        "Milk and Others": [d.milk_and_others for d in data],
+        "Salary Advance": [d.salary_advance for d in data],
+        "Salary": [d.salary for d in data],
+        "Eb": [d.eb for d in data],
+        "Service Labour": [d.service_labour for d in data],
+        "Stationaries": [d.stationaries for d in data],
+        "Sunday Ots": [d.sunday_ots for d in data],
+        "Others Expenses": [d.others_expenses for d in data],
+        "Total Expense": [d.total_expenses for d in data],
+        "Net Amount Remaining": [d.net_amount_remaining for d in data],
+        "Amount received (Gpay)(-)": [d.amount_gpay for d in data],
+        "Net Cash Remaining": [d.net_cash_remaining for d in data],
+        "Date": [d.formatted_date for d in data],
+        "Time Stamp": [d.formatted_date_time for d in data],
+    }
+    
+    df = pd.DataFrame(excel_data)
+
+    # Generate a filename with the current date and time
+    timestamp = datetime.now().strftime("%d-%m-%Y_%I-%M-%S_%p")
+    filename = f"Monthly_report_data_{timestamp}.xlsx"
+    filepath = os.path.join("exports", filename)
+    # Ensure the 'exports' folder exists
+    if not os.path.exists("exports"):
+        os.makedirs("exports")
+
+    with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name="Billing History Data")
+
+    return filepath, filename
+
+
 #Billing
 @app.route('/billing')
 def billing():
     # Show the main page for entering dealer data and queue
     today = datetime.today().date()
-    dealer_queue = db.session.query(Dealer, Dealer_details.name, BillingHistory.id).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id).outerjoin(BillingHistory, Dealer.token_id == BillingHistory.billing_id).filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).all()
+    dealer_queue = db.session.query(Dealer, Dealer_details.name, BillingHistory.id).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id).outerjoin(BillingHistory, and_(Dealer.token_id == BillingHistory.billing_id, func.date(Dealer.timestamp) == func.date(BillingHistory.timestamp))).filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).all()
     return render_template('billing.html', queue=dealer_queue, total_cans=get_total_can_today())
 
 @app.route('/generate_bill/<token_id>', methods=['GET', 'POST'])
@@ -789,7 +1054,7 @@ def  get_filtered_data_billing(request):
         # Get today's start time (midnight)
         start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         # Filter data from today only
-        query = query.filter(Dealer.timestamp >= start_of_today)
+        query = query.filter(BillingHistory.timestamp >= start_of_today)
 
     filtered_data = query.order_by(BillingHistory.timestamp.desc()).all()
 
@@ -845,7 +1110,7 @@ def  get_filtered_data_payment_billing(request):
         # Get today's start time (midnight)
         start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         # Filter data from today only
-        query = query.filter(Dealer.timestamp >= start_of_today)
+        query = query.filter(PaymentBillingHistory.timestamp >= start_of_today)
 
     filtered_data = query.order_by(PaymentBillingHistory.timestamp.desc()).all()
 

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Statement</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"> -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='lotus_aqua_logo.jpg') }}">
+</head>
+<body>
+    <div class="container history_container dealer_details_data item_management_data monthly_statement">
+
+        <h1>Monthly Statement</h1>
+        <a href="/" class="back">Back</a>  
+        
+        <form method="GET" class="form">
+            <label for="date_from">From Date:</label>
+            <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
+        
+            <label for="date_to">To Date:</label>
+            <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+        
+            <input type="hidden" name="filter_type" value="{{ filter_type }}">
+
+            <button type="submit" name="filter_button" value="submit" class="btn">Filter</button>
+        </form>      
+<div class="export-options hide-on-print">
+            <form action="/export_monthly_statement" method="get">
+                <input type="hidden" name="date_from" value="{{ request.args.get('date_from', '') }}">
+                <input type="hidden" name="date_to" value="{{ request.args.get('date_to', '') }}">
+                <input type="hidden" name="filter_button" value="{{ request.args.get('filter_button', '') }}">
+                <input type="hidden" name="filter_type" value="{{ request.args.get('filter_type', '') }}">
+                <button type="submit" class="export-button">Export to Excel</button>
+            </form>
+            <div style="text-align: right; margin-bottom: 10px;">
+                <button class="print_btn" onclick="window.print()">
+                    🖨️ Print Dealer History
+                </button>
+            </div>
+        </div>
+        <table class="history_data" >
+            <thead>
+                <tr>
+                    <th>S No</th>
+                    <th>One Can Price</th>
+                    <th>Total Can Filling </th>
+                    <th>Total Amount</th>
+                    <th>Total Credits Amount</th>
+                    <th>Today Credits Amount</th>
+                    <th>Amount received (Gpay)</th>
+                    <th>Amount received (Cash)</th>
+                    <th>Net Amount Received</th>
+                    <th>Chit Amount</th>
+                    <th>diesel</th>
+                    <th>Spares</th>
+                    <th>Pooja Items</th>
+                    <th>Milk and Others</th>
+                    <th>Salary Advance</th>
+                    <th>Salary</th>
+                    <th>Eb</th>
+                    <th>Service Labour</th>
+                    <th>Stationaries</th>
+                    <th>Sunday Ots</th>
+                    <th>Others Expenses</th>
+                    <th>Total Expenses:</th>
+                    <th>Net Amount Remaining</th>
+                    <th> Amount received (Gpay)(-) </th>
+                    <th>Net Cash Remaining</th>
+                    <th>User Selected Date</th>
+                    <th>TimeStamp</th>
+                    <th class="action">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for statement in statements %}
+                <tr>
+                    <td>
+                        <form method="POST" action="{{ url_for('edit_monthly_statement', statement_id=statement.id) }}">
+                            {{loop.index}}
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="one_can_price" value="{{ statement.one_can_price }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="total_can_filling" value="{{ statement.total_can_filling }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="total_amount" value="{{ statement.total_amount }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="total_credit_amount" value="{{ statement.total_credit_amount }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="today_credit_amount" value="{{ statement.today_credit_amount }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="amount_gpay" value="{{ statement.amount_gpay }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="amount_cash" value="{{ statement.amount_cash }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="net_recevied_amount" value="{{ statement.net_recevied_amount }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="chit_amount" value="{{ statement.chit_amount }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="diesel" value="{{ statement.diesel }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="spares" value="{{ statement.spares }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="pooja_items" value="{{ statement.pooja_items }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="milk_and_others" value="{{ statement.milk_and_others }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="salary_advance" value="{{ statement.salary_advance }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="salary" value="{{ statement.salary }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="eb" value="{{ statement.eb }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="service_labour" value="{{ statement.service_labour }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="stationaries" value="{{ statement.stationaries }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="sunday_ots" value="{{ statement.sunday_ots }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="others_expenses" value="{{ statement.others_expenses }}" required>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="total_expenses" value="{{ statement.total_expenses }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="net_amount_remaining" value="{{ statement.net_amount_remaining }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="amount_gpay" value="{{ statement.amount_gpay }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" name="net_cash_remaining" value="{{ statement.net_cash_remaining }}" required readonly>
+                    </td>
+                    <td>
+                       <div style="width:90px">
+                            {{ statement.formatted_date }}
+                       </div>
+                    </td>
+                    <td>
+                       <div style="width:130px">
+                            {{ statement.timestamp }}
+                       </div>
+                    </td>  
+                    <td>
+                       <div style="width:230px">
+                            <button class="edit update-btn" type="submit">Update</button>
+                            </form>
+                            <form class="delete-form" method="POST" action="{{ url_for('delete_monthly_statement', statement_id=statement.id) }}" onsubmit="return confirm('Are you sure?');">
+                                <button class="edit delete delete-btn" type="submit">Delete</button>
+                            </form>
+                       </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+                <li class="flash {{ category }}">
+                    {{ message }}
+                    <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.flash').forEach(el => {
+                el.style.transition = "opacity 1s";
+                el.style.opacity = '0';
+                setTimeout(() => el.style.display='none', 1000);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all the expense input fields you want to watch
+    const expenseFields = [
+        'chit_amount', 'diesel', 'spares', 'pooja_items',
+        'milk_and_others', 'salary_advance', 'salary', 'eb',
+        'service_labour', 'stationaries', 'sunday_ots', 'others_expenses'
+    ];
+
+    // Attach input listeners
+    expenseFields.forEach(fieldName => {
+        const input = document.querySelector(`input[name="${fieldName}"]`);
+        if (input) {
+            input.addEventListener('input', calculateNetRemaining);
+        }
+    });
+
+    function calculateNetRemaining() {
+        let totalExpenses = 0;
+        expenseFields.forEach(fieldName => {
+            const val = parseFloat(document.querySelector(`input[name="${fieldName}"]`).value) || 0;
+            totalExpenses += val;
+        });
+
+        const netReceived = parseFloat(document.querySelector(`input[name="net_recevied_amount"]`).value) || 0;
+        const remaining = netReceived - totalExpenses;
+        const netRemainingInput = document.querySelector(`input[name="net_amount_remaining"]`);
+        if (netRemainingInput) {
+            netRemainingInput.value = remaining.toFixed(2);
+        }
+
+        const amount_gpay = parseFloat(document.querySelector(`input[name="amount_gpay"]`).value) || 0;
+        const net_cash_remaining = document.querySelector(`input[name="net_cash_remaining"]`);
+        if (net_cash_remaining) {
+            net_cash_remaining.value = remaining.toFixed(2) - amount_gpay.toFixed(2);
+        }
+        // Update total expenses display
+        const totalExpensesSpan = document.querySelector(`input[name="total_expenses"]`);
+        if (totalExpensesSpan) {
+            totalExpensesSpan.value = totalExpenses.toFixed(2);
+        }
+    }
+});
+</script>
