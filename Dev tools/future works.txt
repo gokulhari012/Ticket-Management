@@ -14,3 +14,21 @@ Generate bille:
 Bill 16 cm height --
 
 Need to print bill alone in history feature. --
+
+
+15-07-2025
+Bill generation (auto curser)
+cash
+Gapay
+Credit
+
+Material management 
+- Date first column
+- shop name cloumn add
+
+Dealer account 
+- add due amount column due
+
+Expense management
+Notes for other expenses.
+misalaneses.
