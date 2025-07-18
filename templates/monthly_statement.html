@@ -39,7 +39,8 @@
                 </button>
             </div>
         </div>
-        <table class="history_data" >
+        <div style="overflow-x:auto;overflow-y: hidden; width: 100%;">
+            <table class="history_data" >
             <thead>
                 <tr>
                     <th>S No</th>
@@ -63,9 +64,10 @@
                     <th>Stationaries</th>
                     <th>Sunday Ots</th>
                     <th>Others Expenses</th>
-                    <th>Total Expenses:</th>
+                    <th>Notes</th>
+                    <th>Total Expenses</th>
                     <th>Net Amount Remaining</th>
-                    <th> Amount received (Gpay)(-) </th>
+                    <th>Amount received (Gpay)(-) </th>
                     <th>Net Cash Remaining</th>
                     <th>User Selected Date</th>
                     <th>TimeStamp</th>
@@ -139,6 +141,9 @@
                             <input class="form-control item-number" type="number" step="0.01" name="others_expenses" value="{{ statement.others_expenses }}" required>
                     </td>
                     <td>
+                            <input class="form-control item-number" type="text" step="0.01" name="notes" value="{{ statement.notes }}" required>
+                    </td>
+                    <td>
                             <input class="form-control item-number" type="number" step="0.01" name="total_expenses" value="{{ statement.total_expenses }}" required readonly>
                     </td>
                     <td>
@@ -173,6 +178,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

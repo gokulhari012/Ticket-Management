@@ -227,6 +227,7 @@ class DailyAccounts(db.Model):
     stationaries = db.Column(db.Float, default=0)
     sunday_ots = db.Column(db.Float, default=0)
     others_expenses = db.Column(db.Float, default=0)
+    notes = db.Column(db.String(100), default=0)
     total_expenses = db.Column(db.Float, default=0)
 
     net_amount_remaining = db.Column(db.Float, default=0)
@@ -803,6 +804,7 @@ def daily_accounts():
         stationaries = float(data.get('stationaries', 0))
         sunday_ots = float(data.get('sunday_ots', 0))
         others_expenses = float(data.get('others_expenses', 0))
+        notes = data.get('notes',"")
         total_expenses = float(data.get('total_expenses', 0))
         net_amount_remaining = float(data.get('net_amount_remaining', 0))
         net_cash_remaining = float(data.get('net_cash_remaining', 0))
@@ -829,6 +831,7 @@ def daily_accounts():
             stationaries=stationaries,
             sunday_ots=sunday_ots,
             others_expenses=others_expenses,
+            notes=notes,
             total_expenses=total_expenses,
             net_amount_remaining=net_amount_remaining,
             net_cash_remaining=net_cash_remaining
@@ -910,6 +913,7 @@ def edit_monthly_statement(statement_id):
     dailyAccounts.stationaries = float(request.form['stationaries'])
     dailyAccounts.sunday_ots = float(request.form['sunday_ots'])
     dailyAccounts.others_expenses = float(request.form['others_expenses'])
+    dailyAccounts.notes = request.form['notes']
     dailyAccounts.total_expenses = float(request.form['total_expenses'])
     dailyAccounts.net_amount_remaining = float(request.form['net_amount_remaining'])
     dailyAccounts.net_cash_remaining = float(request.form['net_cash_remaining'])
@@ -960,6 +964,7 @@ def generate_excel_monthly_statement(data):
         "Stationaries": [d.stationaries for d in data],
         "Sunday Ots": [d.sunday_ots for d in data],
         "Others Expenses": [d.others_expenses for d in data],
+        "Notes": [d.notes for d in data],
         "Total Expense": [d.total_expenses for d in data],
         "Net Amount Remaining": [d.net_amount_remaining for d in data],
         "Amount received (Gpay)(-)": [d.amount_gpay for d in data],

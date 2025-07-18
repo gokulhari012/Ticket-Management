@@ -22,13 +22,14 @@ cash
 Gapay
 Credit
 
-Material management 
-- Date first column
-- shop name cloumn add
+Material management --
+- Date first column --
+- shop name cloumn add --
 
 Dealer account 
-- add due amount column remove
+- add due amount column remove --
 
 Expense management
-Notes for other expenses.
+Notes for other expenses. --
 misalaneses.
+edit options
