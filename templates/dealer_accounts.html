@@ -20,7 +20,7 @@
                     <th>Current Balance Due</th>
                     <th>Last Payment</th>
                     <th class="action">Paid Amount</th>
-                    <th class="action">Add Due Amount</th>
+                    <!-- <th class="action">Add Due Amount</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -38,13 +38,13 @@
                             <button class="pay" type="submit">Paid</button>
                         </form>
                     </td>
-                    <td>
+                    <!-- <td>
                         <form method="POST" action="{{ url_for('update_payment', dealer_id=dealer.dealer_id) }}">
                             <input class="amount" type="number" name="due_amount_given_gpay" step="0.01" placeholder="Gpay" required>
                             <input class="amount" style="margin-top: 5px;" type="number" name="due_amount_given_cash" step="0.01" placeholder="Cash" required>
                             <button class="pay" type="submit">Due</button>
                         </form>
-                    </td>
+                    </td> -->
                 </tr>
                 {% endfor %}
             </tbody>

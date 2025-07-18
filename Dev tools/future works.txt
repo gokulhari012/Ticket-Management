@@ -27,7 +27,7 @@ Material management
 - shop name cloumn add
 
 Dealer account 
-- add due amount column due
+- add due amount column remove
 
 Expense management
 Notes for other expenses.
