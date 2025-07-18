@@ -135,6 +135,7 @@ class Material(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.String(100), nullable=False)
     quantity = db.Column(db.String(100), nullable=False)
+    shop_name = db.Column(db.String(100), nullable=False)
     total = db.Column(db.String(100), nullable=False)
     amount_paid = db.Column(db.String(100), nullable=False)
     date = db.Column(db.String(100), nullable=False)
@@ -734,10 +735,11 @@ def material_management():
         name = request.form['name']
         price = request.form['price']
         quantity = request.form['quantity']
+        shop_name = request.form['shop_name']
         total = request.form['total']
         amount_paid = request.form['amount_paid']
         date = request.form['date']
-        new_material = Material(name=name, price=price, quantity=quantity, total=total, amount_paid=amount_paid, date=date)
+        new_material = Material(name=name, price=price, quantity=quantity, shop_name=shop_name, total=total, amount_paid=amount_paid, date=date)
         db.session.add(new_material)
         db.session.commit()
         flash('Material added successfully!', 'success')
@@ -752,6 +754,7 @@ def edit_material(material_id):
     material.name = request.form['name']
     material.price = request.form['price']
     material.quantity = request.form['quantity']
+    material.shop_name = request.form['shop_name']
     material.total = request.form['total']
     material.amount_paid = request.form['amount_paid']
     material.date = request.form['date']
