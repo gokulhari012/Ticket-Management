@@ -615,10 +615,23 @@ a {
 .container-expense-management strong {
     color: #ffffff;
 }
+.container-expense-management .top_enable_edit{
+    left:27%;
+}
 .container-expense-management .back{
     top: 30px;
     left: 72%; 
 }
+.container-expense-management .top_enable_edit{
+    background-color: #e67e22;
+    border: 2px solid #e67e22;
+    left:30%;
+}
+.container-expense-management .top_enable_edit:hover{
+    background-color: #d35400; /* Darker background on hover */
+    border-color: #d35400; 
+}
+
 .container-expense-management p:nth-child(even) {
     background: none;
     padding: 5px 10px;

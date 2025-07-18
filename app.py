@@ -543,7 +543,8 @@ def  get_filtered_data(request, is_daily_monthly_report=False):
         
         if date_to:
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
-            query = query.filter(Dealer.timestamp <= date_to_dt+timedelta(days=1))
+            # query = query.filter(Dealer.timestamp <= date_to_dt+timedelta(days=1))
+            query = query.filter(Dealer.timestamp <= date_to_dt)
         
         filter_type = "all"
 
@@ -805,7 +806,7 @@ def daily_accounts():
         sunday_ots = float(data.get('sunday_ots', 0))
         others_expenses = float(data.get('others_expenses', 0))
         notes = data.get('notes',"")
-        total_expenses = float(data.get('total_expenses', 0))
+        total_expenses = float(data.get('total_expenses_2', 0))
         net_amount_remaining = float(data.get('net_amount_remaining', 0))
         net_cash_remaining = float(data.get('net_cash_remaining', 0))
 
@@ -846,7 +847,7 @@ def daily_accounts():
 
     today = datetime.today().date()
     dealer = Dealer.query.filter(func.date(Dealer.timestamp)==today).all()
-    billingHistory = BillingHistory.query.filter(func.date(Dealer.timestamp)==today).all()
+    billingHistory = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==today).all()
     item = Item.query.filter_by(item_id=default_item_id).first()
 
     one_can_price = item.price
@@ -874,16 +875,17 @@ def get_filtered_data_daily_accounts(request):
 
         if date_from:
             date_from_dt = datetime.strptime(date_from, '%Y-%m-%d')
-            query = query.filter(DailyAccounts.timestamp >= date_from_dt)
+            query = query.filter(DailyAccounts.date >= date_from_dt)
 
         if date_to:
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
-            query = query.filter(DailyAccounts.timestamp <= date_to_dt+timedelta(days=1))
+            # query = query.filter(DailyAccounts.date <= date_to_dt+timedelta(days=1))
+            query = query.filter(DailyAccounts.date <= date_to_dt)
     else:
         # Get 1 month Details
         now = datetime.now()
         first_day_of_month = datetime(now.year, now.month, 1)
-        query = query.filter(DailyAccounts.timestamp >= first_day_of_month)
+        query = query.filter(DailyAccounts.date >= first_day_of_month)
         pass
 
     filtered_data = query.order_by(DailyAccounts.timestamp.desc()).all()
@@ -1057,7 +1059,8 @@ def  get_filtered_data_billing(request):
 
         if date_to:
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
-            query = query.filter(BillingHistory.timestamp <= date_to_dt+timedelta(days=1))
+            # query = query.filter(BillingHistory.timestamp <= date_to_dt+timedelta(days=1))
+            query = query.filter(BillingHistory.timestamp <= date_to_dt)
     else:
         # Get today's start time (midnight)
         start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -1113,7 +1116,8 @@ def  get_filtered_data_payment_billing(request):
 
         if date_to:
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
-            query = query.filter(PaymentBillingHistory.timestamp <= date_to_dt+timedelta(days=1))
+            # query = query.filter(PaymentBillingHistory.timestamp <= date_to_dt+timedelta(days=1))
+            query = query.filter(PaymentBillingHistory.timestamp <= date_to_dt)
     else:
         # Get today's start time (midnight)
         start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
