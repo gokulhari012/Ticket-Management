@@ -18,9 +18,12 @@
         <p><strong>Grand Total Amount:</strong> ₹{{ "%0.2f"|format(dealer.water_can_count * item.price) }}</p>
         <p><strong>Current Balance Due:</strong> ₹{{ account.current_balance or 0 }}</p>
         <label for="paid_amount"><strong>Paid Amount (Gpay):</strong></label>
-        <input type="number" name="paid_amount_gpay" required><br>
+        <input type="number" name="paid_amount_gpay" id="paid_amount_gpay" required><br>
         <label for="paid_amount"><strong>Paid Amount (Cash):</strong></label>
         <input type="number" name="paid_amount_cash" required><br>
+        
+        <p><strong>Credit Amount:</strong> ₹<span id="credit_amount_span">0</span></p>
+        <p><strong>Current Balance Due (After Payment):</strong> ₹<span id="current_balance_after_payment_span">{{ account.current_balance or 0 }}</span></p>
 
         <button type="submit" class="btn">Generate Bill</button>
     </form>
@@ -29,3 +32,63 @@
 
 </body>
 </html>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all the expense input fields you want to watch
+    const needInputTrack = [
+        'paid_amount_gpay', 'paid_amount_cash'
+    ];
+
+    // Attach input listeners
+    needInputTrack.forEach(fieldName => {
+        const input = document.querySelector(`input[name="${fieldName}"]`);
+        if (input) {
+            input.addEventListener('input', calculateNetRemaining);
+        }
+    });
+
+    function calculateNetRemaining() {
+        //Total Expected amount calculation
+        const total_amount = parseFloat('{{ "%0.2f"|format(dealer.water_can_count * item.price) }})');
+        const paid_amount_gpay = parseFloat(document.querySelector(`input[name="paid_amount_gpay"]`).value) || 0;
+        const paid_amount_cash = parseFloat(document.querySelector(`input[name="paid_amount_cash"]`).value) || 0;
+        const current_balance = parseFloat('{{ account.current_balance or 0 }}');
+        const credit_amount = total_amount - (paid_amount_gpay + paid_amount_cash);
+        const current_balance_after_payment = credit_amount  + current_balance;
+        // console.log(total_amount);
+        const current_balance_after_payment_span = document.getElementById('current_balance_after_payment_span');
+        if (current_balance_after_payment_span) {
+            current_balance_after_payment_span.textContent = current_balance_after_payment.toFixed(2);
+        }
+        const credit_amount_span = document.getElementById('credit_amount_span');
+        if (credit_amount_span) {
+            credit_amount_span.textContent = credit_amount.toFixed(2);
+        }
+    }
+    window.onload = function() {
+        document.getElementById("paid_amount_gpay").focus();
+        calculateNetRemaining();
+    };
+
+});
+    function enableInputs() {
+        // By name
+        document.querySelector('input[name="one_can_price"]')?.removeAttribute('readonly');
+        document.querySelector('input[name="total_can_filling"]')?.removeAttribute('readonly');
+        // document.querySelector('input[name="total_amount"]')?.removeAttribute('readonly');
+        document.querySelector('input[name="total_credit_amount"]')?.removeAttribute('readonly');
+        document.querySelector('input[name="today_credit_amount"]')?.removeAttribute('readonly');
+        document.querySelector('input[name="amount_gpay"]')?.removeAttribute('readonly');
+        document.querySelector('input[name="amount_cash"]')?.removeAttribute('readonly');
+        // document.querySelector('input[name="net_recevied_amount"]')?.removeAttribute('readonly');
+
+          // Disable the link (visually and functionally)
+        const editBtn = document.getElementById('editBtn');
+        editBtn.style.pointerEvents = 'none';  // disables click
+        editBtn.style.opacity = '0.5';         // greys out the button
+        // editBtn.style.cursor = 'not-allowed';  // changes cursor style
+        console.log("ddf");
+    }
+</script>
+
