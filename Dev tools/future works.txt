@@ -18,18 +18,21 @@ Need to print bill alone in history feature. --
 
 15-07-2025
 Bill generation (auto curser)
-cash
-Gapay
-Credit
+- cash
+- Gapay
+- Credit
 
 Material management --
 - Date first column --
 - shop name cloumn add --
 
 Dealer account 
-- add due amount column remove --
+- Add due amount column remove --
+
+credit details
+- Given amount column removed in payment billing. 
 
 Expense management
-Notes for other expenses. --
-misalaneses.
-edit options
+1. Notes for other expenses. --
+2. misalaneses. --
+3. Edit options --
