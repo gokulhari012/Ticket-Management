@@ -7,6 +7,8 @@ sqlite3 instance/dealers.db
 ALTER TABLE dealer ADD COLUMN your_new_column_name TEXT;
 ALTER TABLE Dealer_details ADD COLUMN your_new_column_name address;
 .exit
+.tables
+DROP TABLE Daily_Accounts;
 
 Download printer driver 
 Model: SRS710 (USB+Ethernet - UE)

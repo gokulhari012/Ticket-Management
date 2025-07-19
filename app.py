@@ -637,8 +637,9 @@ def history_mini(msg=None):
 @app.route('/dealer_accounts')
 def dealer_accounts():
     dealers = get_filtered_data_dealer_account(request)
+    dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
     # dealers = Dealer_details.query.outerjoin(DealerAccounts, Dealer_details.dealer_id == DealerAccounts.dealer_id).add_entity(DealerAccounts).order_by(Dealer_details.name.asc()).all()
-    return render_template("dealer_accounts.html", dealers=dealers)
+    return render_template("dealer_accounts.html", dealers=dealers, dealer_id_filter=dealer_id_filter)
 
 @app.route('/update_payment/<dealer_id>', methods=['POST'])
 def update_payment(dealer_id):
