@@ -54,8 +54,8 @@
                 <th>Credit Balance</th>
                 <th>Amount Paid(Gpay)</th>
                 <th>Amount Paid(Cash)</th>
-                <th>Amount Given(Gpay)</th>
-                <th>Amount Given(Cash)</th>
+                <!-- <th>Amount Given(Gpay)</th>
+                <th>Amount Given(Cash)</th> -->
                 <th>Balance</th>
                 <th>Date Time</th>
                 <th class=" hide-on-print">Print Bill</th>
@@ -71,8 +71,8 @@
                 <td>₹{{ "%0.2f"|format(bill.credit_balance) }}</td>
                 <td>₹{{ "%0.2f"|format(bill.paid_amount_gpay) }}</td>
                 <td>₹{{ "%0.2f"|format(bill.paid_amount_cash) }}</td>
-                <td>₹{{ "%0.2f"|format(bill.given_amount_gpay) }}</td>
-                <td>₹{{ "%0.2f"|format(bill.given_amount_cash) }}</td>
+                <!-- <td>₹{{ "%0.2f"|format(bill.given_amount_gpay) }}</td>
+                <td>₹{{ "%0.2f"|format(bill.given_amount_cash) }}</td> -->
                 <td>₹{{ "%0.2f"|format(bill.remaining_balance) }}</td>
                 <td width="120px">{{ bill.formatted_date_time }}</td>
                 <td class=" hide-on-print">
