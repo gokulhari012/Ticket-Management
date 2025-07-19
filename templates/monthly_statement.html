@@ -49,9 +49,12 @@
                     <th>Total Amount</th>
                     <th>Total Credits Amount</th>
                     <th>Today Credits Amount</th>
-                    <th>Amount received (Gpay)</th>
                     <th>Amount received (Cash)</th>
+                    <th>Amount received (Gpay)</th>
                     <th>Net Amount Received (Gpay)(Cash)</th>
+                    <th>Credit Amount received (Cash)</th>
+                    <th>Credit Amount received (Gpay)</th>
+                    <th>Net Credit Amount Received (Gpay)(Cash)</th>
                     <th>Chit Amount</th>
                     <th>diesel</th>
                     <th>Spares</th>
@@ -103,6 +106,15 @@
                     </td>
                     <td>
                             <input class="form-control item-number" type="number" step="0.01" name="net_recevied_amount" value="{{ statement.net_recevied_amount }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="credit_amount_received_cash" value="{{ statement.credit_amount_received_cash }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="credit_amount_received_gpay" value="{{ statement.credit_amount_received_gpay }}" required readonly>
+                    </td>
+                    <td>
+                            <input class="form-control item-number" type="number" step="0.01" name="net_credit_amount_received" value="{{ statement.net_credit_amount_received }}" required readonly>
                     </td>
                     <td>
                             <input class="form-control item-number" type="number" step="0.01" name="chit_amount" value="{{ statement.chit_amount }}" required>
@@ -166,8 +178,8 @@
                        </div>
                     </td>  
                     <td>
-                       <div style="width:230px">
-                            <button class="edit update-btn" type="submit">Update</button>
+                       <div style="width:230px;"">
+                            <!-- <button class="edit update-btn" type="submit">Update</button> -->
                             </form>
                             <form class="delete-form" method="POST" action="{{ url_for('delete_monthly_statement', statement_id=statement.id) }}" onsubmit="return confirm('Are you sure?');">
                                 <button class="edit delete delete-btn" type="submit">Delete</button>
@@ -219,6 +231,17 @@ document.addEventListener('DOMContentLoaded', function() {
             input.addEventListener('input', calculateNetRemaining);
         }
     });
+
+    //Temp code
+    expenseFields.forEach(fieldName => {
+            // document.querySelector(`input[name="${fieldName}"]`)?.setAttribute('readonly', true);
+            document.querySelectorAll(`input[name="${fieldName}"]`).forEach(input => {
+                input.setAttribute('readonly', true);
+            });
+        });
+        document.querySelectorAll(`input[name="notes"]`).forEach(input => {
+                input.setAttribute('readonly', true);
+            });  
 
     function calculateNetRemaining() {
         let totalExpenses = 0;

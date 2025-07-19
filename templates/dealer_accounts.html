@@ -10,7 +10,12 @@
 <body>
     <div class="container dealer_accounts_container">
         <h1>Dealer Accounts Management</h1>
-        <a href="/" class="back">Back</a>        
+        <a href="/" class="back">Back</a>    
+        <form method="GET" class="form">
+            <label for="dealer_id">Filter by Dealer ID:</label>
+            <input type="text" id="dealer_id" name="dealer_id" value="{{ dealer_id }}">
+            <button type="submit" name="filter_button" value="submit" class="btn">Filter</button>
+        </form>    
         <table class="dealer_accounts">
             <thead>
                 <tr>

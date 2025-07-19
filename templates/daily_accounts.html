@@ -5,14 +5,42 @@
     <title>Daily Accounts Entry</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style media="print">
+        @page {
+            size: A4 portrait;
+            margin: 20mm;
+        }
+        @media print {
+
+            .print-visible {
+                display: block !important;
+            }
+            form div{
+                    display: block;
+                }
+        }
+    </style>
 </head>
 <body>
     <div class="container container-generate-bill container-expense-management">
         <h2>Enter Daily Accounts</h2>
         <a href="/" class="back">Back</a> 
-        <a id="editBtn" onclick="enableInputs()" class="back top_enable_edit">Enable Edit</a>       
-        <form method="POST">
-            <div class="row g-3 mt-4 p-3 mb-2 bg-primary text-white">
+        <a id="editBtn" onclick="enableInputs()" class="back top_enable_edit">Enable Edit</a>      
+        <div class="export-options hide-on-print">
+        <div style="text-align: right; margin-top: 10px; margin-bottom: 10px;">
+            <button class="print_btn" onclick="window.print()">
+            🖨️ Print
+            </button>
+        </div>
+        </div>
+        <form id="dailyStatementForm" method="POST">
+            <div class="row g-3 mt-4 p-3 mb-2 bg-primary text-white">  
+                <div class="row g-3 mt-4 p-3 mb-2">
+                    <div class="col-md-4">
+                        <label for="date"><strong>Select Date:</strong></label>
+                        <input type="date" name="date" id="date" value="{{ today_date }}" required>
+                    </div>
+                </div>       
                 <div class="col-md-4">
                     <h3>Expected Amount</h3>
                     <lable for="paid_amount"><strong>One Can Price</strong></lable>
@@ -22,55 +50,65 @@
                     <lable for="paid_amount"><strong>Total Amount Expected</strong></lable>
                     <input type="number" step="0.01" name="total_amount" value="{{total_amount}}" required readonly><br>
                 </div>
-                <div class="col-md-4">
-                    <h3>Credits(-)</h3>
+                <!-- <div class="col-md-4">
+                    <h3>Pending Credits(-)</h3>
                     <lable for="paid_amount"><strong>Total Credits Amount</strong></lable>
                     <input  style="margin-bottom:80px;" type="number" step="0.01" name="total_credit_amount" value="{{total_credit_amount}}" required readonly><br>
-                    <lable for="paid_amount"><strong>Today Credits Amount</strong></lable>
+                    <lable for="paid_amount"><strong>Credits Amount</strong></lable>
                     <input type="number" step="0.01" name="today_credit_amount" value="{{today_credit_amount}}" required readonly><br>
-                </div>
+                </div> -->
                 <div class="col-md-4">
                     <h3>Received Amount</h3>
-                    <lable for="paid_amount"><strong>Amount received (Gpay)</strong></lable>
-                    <input type="number" step="0.01" name="amount_gpay" value="{{amount_gpay}}" required readonly><br>
                     <lable for="paid_amount"><strong>Amount received (Cash)</strong></lable>
                     <input type="number" step="0.01" name="amount_cash" value="{{amount_cash}}" required readonly><br>
+                    <lable for="paid_amount"><strong>Amount received (Gpay)</strong></lable>
+                    <input type="number" step="0.01" name="amount_gpay" value="{{amount_gpay}}" required readonly><br>
                     <lable for="paid_amount"><strong>Total Amount Received (Cash)(Gpay)</strong></lable>
                     <input type="number" step="0.01" name="net_recevied_amount" value="{{net_recevied_amount}}" required readonly><br>
                 </div>
+                <div class="col-md-4">
+                    <h3>Payment Bill</h3>
+                    <lable for="paid_amount"><strong>Credit received (Cash)</strong></lable>
+                    <input type="number" step="0.01" name="credit_amount_received_cash" value="{{credit_amount_received_cash}}" required readonly><br>
+                    <lable for="paid_amount"><strong>Credit received (Gpay)</strong></lable>
+                    <input type="number" step="0.01" name="credit_amount_received_gpay" value="{{credit_amount_received_gpay}}" required readonly><br>
+                    <lable for="paid_amount"><strong>Total Credit Received (Cash)(Gpay)</strong></lable>
+                    <input type="number" step="0.01" name="net_credit_amount_received" value="{{net_credit_amount_received}}" required readonly><br>
+                </div>
                 <p><strong>Total Amount Received:</strong> {{net_recevied_amount}}</p>
+                <p><strong>Pending Credits(-)</strong> {{today_credit_amount}}</p>
             </div>
             <div class="row g-3 mt-4  p-3 mb-2 text-white bg-danger">
                 <h3>Expenses(-)</h3>
                 <div class="col-md-4">
                     <lable for="paid_amount"><strong>Chit Amount</strong></lable>
-                    <input type="number" step="0.01" name="chit_amount" value="0" required><br>
+                    <input type="number" step="0.01" name="chit_amount" value="0" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Diesel</strong></lable>
-                    <input type="number" step="0.01" name="diesel" value="0" required><br>
+                    <input type="number" step="0.01" name="diesel" value="0" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Spares</strong></lable>
-                    <input type="number" step="0.01" name="spares" value="0" required><br>
+                    <input type="number" step="0.01" name="spares" value="0" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Pooja Items</strong></lable>
-                    <input type="number" step="0.01" name="pooja_items" value="0" required><br>
+                    <input type="number" step="0.01" name="pooja_items" value="0" onfocus="resetTargetInput(this)" required><br>
                 </div>
                 <div class="col-md-4">
                     <lable for="paid_amount"><strong>Milk and Others</strong></lable>
-                    <input type="number" step="0.01" name="milk_and_others" value="0" required><br>
+                    <input type="number" step="0.01" name="milk_and_others" value="0" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Salary Advance</strong></lable>
-                    <input type="number" step="0.01" name="salary_advance" value="0" required><br>
+                    <input type="number" step="0.01" name="salary_advance" value="0" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Salary</strong></lable>
-                    <input type="number" step="0.01" name="salary" value="0" required><br>
+                    <input type="number" step="0.01" name="salary" value="0" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Eb</strong></lable>
-                    <input type="number" step="0.01" name="eb" value="0" required><br>
+                    <input type="number" step="0.01" name="eb" value="0" onfocus="resetTargetInput(this)" required><br>
                 </div>
                 <div class="col-md-4">
                     <lable for="paid_amount"><strong>Service Labour</strong></lable>
-                    <input type="number" step="0.01" name="service_labour" value="0" required><br>
+                    <input type="number" step="0.01" name="service_labour" value="0" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Stationaries</strong></lable>
-                    <input type="number" step="0.01" name="stationaries" value="0" required><br>
+                    <input type="number" step="0.01" name="stationaries" value="0" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong> </strong>Sunday Ots</lable>
-                    <input type="number" step="0.01" name="sunday_ots" value="0" required><br>
+                    <input type="number" step="0.01" name="sunday_ots" value="0" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Others Expenses</strong></lable>
-                    <input type="number" step="0.01" name="others_expenses" value="0" required ><br>
+                    <input type="number" step="0.01" name="others_expenses" value="0" onfocus="resetTargetInput(this)" required ><br>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-12">
@@ -83,25 +121,27 @@
             </div>
             <div class="row g-3 mt-4  p-3 mb-2 bg-success text-white">
                 <div class="col-md-12">
-                    <lable for="paid_amount"><strong>Total Amount Received (Cash)(Gpay)</strong></lable>
+                    <lable for="paid_amount"><strong>Total Amount Received (Cash)(Gpay)(+)</strong></lable>
                     <input type="number" step="0.01" name="net_recevied_amount_2" value="0" required readonly><br>
+                    
+                    <lable for="paid_amount"><strong>Payment Bill Received (Cash)(Gpay)(+)</strong></lable>
+                    <input type="number" step="0.01" name="net_credit_amount_received_2" value="0" required readonly><br>
                     
                     <lable for="paid_amount"><strong>Total Expenses(-)</strong></lable>
                     <input type="number" step="0.01" name="total_expenses_2" value="0" required readonly><br>
                     
-                    <lable for="paid_amount"><strong>Net Amount Remaining (Cash)(Gpay)</strong></lable>
+                    <lable for="paid_amount"><strong>Net Amount Remaining (Cash)(Gpay)(=)</strong></lable>
                     <input type="number" step="0.01" name="net_amount_remaining" value="0" required readonly><br>
                     
-                    <lable for="paid_amount"><strong> Amount received (Gpay)(-) </strong></lable>
+                    <lable for="paid_amount"><strong> Amount received (Gpay)(-)</strong></lable>
                     <input type="number" step="0.01" name="amount_gpay_2" value="{{amount_gpay}}" required readonly><br>
+
+                    <lable for="paid_amount"><strong> Payment Amount received (Gpay)(-)(=)</strong></lable>
+                    <input type="number" step="0.01" name="credit_amount_received_gpay_2" value="{{credit_amount_received_gpay}}" required readonly><br>
 
                     <lable for="paid_amount"><strong>Net Cash Remaining</strong></lable>
                     <input type="number" step="0.01" name="net_cash_remaining" value="0" required readonly><br>
 
-                    <lable for="paid_amount"><strong>Select Date</Select></strong></lable>
-                    
-                    <label for="date"><strong>Date:</strong></label>
-                    <input type="date" name="date" id="date" value="{{ today_date }}" required><br>
                 </div>
             </div>
             <button type="submit" class="btn">Generate Daily Statement</button>
@@ -129,7 +169,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'chit_amount', 'diesel', 'spares', 'pooja_items',
         'milk_and_others', 'salary_advance', 'salary', 'eb',
         'service_labour', 'stationaries', 'sunday_ots', 'others_expenses',
-        'one_can_price', 'total_can_filling', 'amount_gpay', 'amount_cash'
+        'one_can_price', 'total_can_filling', 'amount_gpay', 'amount_cash', 
+        'credit_amount_received_gpay','credit_amount_received_cash'
     ];
 
     const expenseFields = [
@@ -153,6 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
             totalExpenses += val;
         });
 
+        //First Tab Receiced Amount
         //Total Expected amount calculation
         const one_can_price = parseFloat(document.querySelector(`input[name="one_can_price"]`).value) || 0;
         const total_can_filling = parseFloat(document.querySelector(`input[name="total_can_filling"]`).value) || 0;
@@ -163,44 +205,73 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         //Received amount calculation
-        const amount_gpay_1 = parseFloat(document.querySelector(`input[name="amount_gpay"]`).value) || 0;
+        const amount_gpay = parseFloat(document.querySelector(`input[name="amount_gpay"]`).value) || 0;
         const amount_cash = parseFloat(document.querySelector(`input[name="amount_cash"]`).value) || 0;
-        const total_amount = amount_gpay_1 + amount_cash;
+        const total_amount = amount_gpay + amount_cash;
         const net_recevied_amount = document.querySelector(`input[name="net_recevied_amount"]`);
         if (net_recevied_amount) {
             net_recevied_amount.value = total_amount.toFixed(2);
         }
 
-        // Net Amount calculation
-        const netReceived = parseFloat(document.querySelector(`input[name="net_recevied_amount"]`).value) || 0;
-        const remaining = netReceived - totalExpenses;
-        const net_amount_remaining = document.querySelector(`input[name="net_amount_remaining"]`);
-        if (net_amount_remaining) {
-            net_amount_remaining.value = remaining.toFixed(2);
+        //Credit Received amount calculation
+        const credit_amount_received_gpay = parseFloat(document.querySelector(`input[name="credit_amount_received_gpay"]`).value) || 0;
+        const credit_amount_received_cash = parseFloat(document.querySelector(`input[name="credit_amount_received_cash"]`).value) || 0;
+        const total_amount_credit = credit_amount_received_gpay + credit_amount_received_cash;
+        const net_credit_amount_received = document.querySelector(`input[name="net_credit_amount_received"]`);
+        if (net_credit_amount_received) {
+            net_credit_amount_received.value = total_amount_credit.toFixed(2);
         }
 
-        //Gpay minus
-        const amount_gpay = parseFloat(document.querySelector(`input[name="amount_gpay"]`).value) || 0;
-        const net_cash_remaining = document.querySelector(`input[name="net_cash_remaining"]`);
-        if (net_cash_remaining) {
-            net_cash_remaining.value = remaining.toFixed(2) - amount_gpay.toFixed(2);
-        }
+
+        //Second Tab Expense
         // Update total expenses display
         const totalExpensesSpan = document.getElementById('total_expenses');
         if (totalExpensesSpan) {
             totalExpensesSpan.textContent = totalExpenses.toFixed(2);
         }
+
+        //Bottom Tab Calculation 
+        //Received amount for can
         const net_recevied_amount_2 = document.querySelector(`input[name="net_recevied_amount_2"]`);
         if (net_recevied_amount_2) {
             net_recevied_amount_2.value = total_amount.toFixed(2);
         }
+
+        //Credit Received amount
+        const net_credit_amount_received_2 = document.querySelector(`input[name="net_credit_amount_received_2"]`);
+        if (net_credit_amount_received_2) {
+            net_credit_amount_received_2.value = total_amount_credit.toFixed(2);
+        }
+
+        //Total Expenses
         const total_expenses_2 = document.querySelector(`input[name="total_expenses_2"]`);
         if (total_expenses_2) {
             total_expenses_2.value = totalExpenses.toFixed(2);
         }
+        
+        // Net Amount calculation minus Expenses
+        const remaining = total_amount + total_amount_credit - totalExpenses;
+        const net_amount_remaining = document.querySelector(`input[name="net_amount_remaining"]`);
+        if (net_amount_remaining) {
+            net_amount_remaining.value = remaining.toFixed(2);
+        }
+
+        //Received Gpay
         const amount_gpay_2 = document.querySelector(`input[name="amount_gpay_2"]`);
         if (amount_gpay_2) {
             amount_gpay_2.value = amount_gpay.toFixed(2);
+        }
+
+        //Credit Received Gpay
+        const credit_amount_received_gpay_2 = document.querySelector(`input[name="credit_amount_received_gpay_2"]`);
+        if (credit_amount_received_gpay_2) {
+            credit_amount_received_gpay_2.value = credit_amount_received_gpay.toFixed(2);
+        }
+
+        //Net Remaining Amount Gpay minus
+        const net_cash_remaining = document.querySelector(`input[name="net_cash_remaining"]`);
+        if (net_cash_remaining) {
+            net_cash_remaining.value = remaining.toFixed(2) - amount_gpay.toFixed(2) - credit_amount_received_gpay.toFixed(2);
         }
     }
     window.onload = function() {
@@ -217,6 +288,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('input[name="today_credit_amount"]')?.removeAttribute('readonly');
         document.querySelector('input[name="amount_gpay"]')?.removeAttribute('readonly');
         document.querySelector('input[name="amount_cash"]')?.removeAttribute('readonly');
+        document.querySelector('input[name="credit_amount_received_gpay"]')?.removeAttribute('readonly');
+        document.querySelector('input[name="credit_amount_received_cash"]')?.removeAttribute('readonly');
         // document.querySelector('input[name="net_recevied_amount"]')?.removeAttribute('readonly');
 
           // Disable the link (visually and functionally)
@@ -226,5 +299,28 @@ document.addEventListener('DOMContentLoaded', function() {
         // editBtn.style.cursor = 'not-allowed';  // changes cursor style
         console.log("ddf");
     }
-</script>
 
+    function resetTargetInput(targetInput) {
+        targetInput.value = "";
+        // console.log("dd");
+    }
+    document.getElementById('dailyStatementForm').addEventListener('submit', function(event) {
+        // event.preventDefault(); // stop regular submit
+
+        // optional: gather data or send via fetch()
+        // const formData = new FormData(this);
+
+        // optional: post to Flask endpoint
+
+        // simulate a successful submit delay
+        // const form = this;
+        // form.submit();
+
+        window.print(); 
+
+        // setTimeout(() => {
+        //     window.print(); 
+        //     form.submit();// trigger print dialog
+        // }, 500);
+    });
+</script>

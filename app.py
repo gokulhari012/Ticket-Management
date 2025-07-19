@@ -212,6 +212,11 @@ class DailyAccounts(db.Model):
     amount_cash = db.Column(db.Float, default=0)
     net_recevied_amount = db.Column(db.Float, default=0)
 
+
+    credit_amount_received_gpay = db.Column(db.Float, default=0)
+    credit_amount_received_cash = db.Column(db.Float, default=0)
+    net_credit_amount_received = db.Column(db.Float, default=0)
+
     chit_amount = db.Column(db.Float, default=0)
     diesel = db.Column(db.Float, default=0)
 
@@ -510,7 +515,7 @@ def get_next_token_id():
     # If no gaps are found, start over at 1
     return 1
 
-def  get_filtered_data(request, is_daily_monthly_report=False):
+def get_filtered_data(request, is_daily_monthly_report=False):
         # Retrieve filter values from the request arguments
     dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
     date_from = request.args.get('date_from', '')
@@ -631,7 +636,8 @@ def history_mini(msg=None):
 #Dealer accounts
 @app.route('/dealer_accounts')
 def dealer_accounts():
-    dealers = Dealer_details.query.outerjoin(DealerAccounts, Dealer_details.dealer_id == DealerAccounts.dealer_id).add_entity(DealerAccounts).order_by(Dealer_details.name.asc()).all()
+    dealers = get_filtered_data_dealer_account(request)
+    # dealers = Dealer_details.query.outerjoin(DealerAccounts, Dealer_details.dealer_id == DealerAccounts.dealer_id).add_entity(DealerAccounts).order_by(Dealer_details.name.asc()).all()
     return render_template("dealer_accounts.html", dealers=dealers)
 
 @app.route('/update_payment/<dealer_id>', methods=['POST'])
@@ -673,6 +679,20 @@ def update_payment(dealer_id):
     db.session.commit()
 
     return print_payment_bill(payment_bill.id, "/dealer_accounts")
+
+def get_filtered_data_dealer_account(request):
+    # Retrieve filter values from the request arguments
+    dealer_id_filter = request.args.get('dealer_id', '')  # Default is an empty string
+    filter_button = request.args.get('filter_button', '')
+    
+    query = db.session.query(Dealer_details, DealerAccounts).outerjoin(DealerAccounts, Dealer_details.dealer_id == DealerAccounts.dealer_id)
+    # Apply filters if provided
+    if filter_button and dealer_id_filter:
+        query = query.filter(Dealer_details.dealer_id == dealer_id_filter)
+    
+    filtered_data = query.order_by(Dealer_details.name.asc()).all()
+
+    return filtered_data
 
 #Item management
 @app.route('/item_management', methods=['GET', 'POST'])
@@ -793,6 +813,9 @@ def daily_accounts():
         amount_gpay = float(data.get('amount_gpay', 0))
         amount_cash = float(data.get('amount_cash', 0))
         net_recevied_amount = float(data.get('net_recevied_amount', 0))
+        credit_amount_received_gpay = float(data.get('credit_amount_received_gpay', 0))
+        credit_amount_received_cash = float(data.get('credit_amount_received_cash', 0))
+        net_credit_amount_received = float(data.get('net_credit_amount_received', 0))
         chit_amount = float(data.get('chit_amount', 0))
         diesel = float(data.get('diesel', 0))
         spares = float(data.get('spares', 0))
@@ -820,6 +843,9 @@ def daily_accounts():
             amount_gpay=amount_gpay,
             amount_cash=amount_cash,
             net_recevied_amount=net_recevied_amount,
+            credit_amount_received_gpay=credit_amount_received_gpay,
+            credit_amount_received_cash=credit_amount_received_cash,
+            net_credit_amount_received=net_credit_amount_received,
             chit_amount=chit_amount,
             diesel=diesel,
             spares=spares,
@@ -848,20 +874,26 @@ def daily_accounts():
     today = datetime.today().date()
     dealer = Dealer.query.filter(func.date(Dealer.timestamp)==today).all()
     billingHistory = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==today).all()
+    paymentBillingHistory = PaymentBillingHistory.query.filter(func.date(PaymentBillingHistory.timestamp)==today).all()
     item = Item.query.filter_by(item_id=default_item_id).first()
 
     one_can_price = item.price
     total_can_filling = sum([dealer_row.water_can_count for dealer_row in dealer])
     total_amount = one_can_price * total_can_filling
     total_credit_amount = sum([row.remaining_balance for row in billingHistory])
+    
     amount_gpay = sum([row.paid_amount_gpay for row in billingHistory])
     amount_cash = sum([row.paid_amount_cash for row in billingHistory])
     net_recevied_amount = amount_gpay + amount_cash
 
+    credit_amount_received_gpay = sum([row.paid_amount_gpay for row in paymentBillingHistory])
+    credit_amount_received_cash = sum([row.paid_amount_cash for row in paymentBillingHistory])
+    net_credit_amount_received = credit_amount_received_gpay + credit_amount_received_cash
+
     today_credit_amount = total_amount - net_recevied_amount
 
     return render_template('daily_accounts.html', today_date=today_date, one_can_price=one_can_price, total_can_filling=total_can_filling, total_amount=total_amount,
-                           total_credit_amount=total_credit_amount, amount_gpay=amount_gpay, amount_cash=amount_cash, net_recevied_amount=net_recevied_amount, today_credit_amount=today_credit_amount)
+                           total_credit_amount=total_credit_amount, amount_gpay=amount_gpay, amount_cash=amount_cash, net_recevied_amount=net_recevied_amount, credit_amount_received_gpay=credit_amount_received_gpay, credit_amount_received_cash=credit_amount_received_cash, net_credit_amount_received=net_credit_amount_received, today_credit_amount=today_credit_amount)
 
 def get_filtered_data_daily_accounts(request):
     # Retrieve filter values from the request arguments
@@ -954,6 +986,9 @@ def generate_excel_monthly_statement(data):
         "Amount received (Gpay)": [d.amount_gpay for d in data],
         "Amount received (Cash)": [d.amount_cash for d in data],
         "Net Amount Received": [d.net_recevied_amount for d in data],
+        "Credit Amount received (Gpay)": [d.credit_amount_received_gpay for d in data],
+        "Credit Amount received (Cash)": [d.credit_amount_received_cash for d in data],
+        "Net Credit Amount Received": [d.credit_amount_received_cash for d in data],
         "Chit Amount": [d.chit_amount for d in data],
         "Dieselt": [d.diesel for d in data],
         "Spares": [d.spares for d in data],

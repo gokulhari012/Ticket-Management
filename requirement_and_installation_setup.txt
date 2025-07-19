@@ -11,6 +11,13 @@ ALTER TABLE Dealer_details ADD COLUMN your_new_column_name address;
 Download printer driver 
 Model: SRS710 (USB+Ethernet - UE)
 https://shreyanspos.com/710u-710ub-710ue-710uw/ 
+1) Download and install the exe. 
+1.1) Connect printer pyshically -> click Search -> Select usb001 or usb 002
+2) printer settings -> General Tab -> Preferrance -> Advance -> Set Paper Size (72mm X 210mm)(203Dpi) 
+    || default is 72mm*3276mm(203dpi) || if not showing 210mm page size option set in Chrome printer option
+3) printer settings -> Device Settings Tab -> Cutter: Half Cut After Page
+
+
 
 Skip step 3. beacuse that to disable numlock key. now not required.
 

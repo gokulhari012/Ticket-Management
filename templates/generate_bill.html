@@ -17,11 +17,12 @@
         <p><strong>Quantity:</strong> ₹{{ dealer.water_can_count}}</p>
         <p><strong>Grand Total Amount:</strong> ₹{{ "%0.2f"|format(dealer.water_can_count * item.price) }}</p>
         <p><strong>Current Balance Due:</strong> ₹{{ account.current_balance or 0 }}</p>
-        <label for="paid_amount"><strong>Paid Amount (Gpay):</strong></label>
-        <input type="number" name="paid_amount_gpay" id="paid_amount_gpay" required><br>
-        <label for="paid_amount"><strong>Paid Amount (Cash):</strong></label>
-        <input type="number" name="paid_amount_cash" required><br>
-        
+        <div style="display: flex; align-items: center; gap: 10px;margin-top: 10px;margin-bottom: 20px;">
+            <label for="paid_amount"><strong>Paid Amount (Cash):</strong></label>
+            <input style="width:300px;" type="number" name="paid_amount_cash" id="paid_amount_cash" onfocus="resetTargetInput(this)" value="0" required>
+            <label for="paid_amount"><strong>Paid Amount (Gpay):</strong></label>
+            <input style="width:300px;" type="number" name="paid_amount_gpay" id="paid_amount_gpay" onfocus="resetTargetInput(this)" value="0" required>
+        </div>
         <p><strong>Credit Amount:</strong> ₹<span id="credit_amount_span">0</span></p>
         <p><strong>Current Balance Due (After Payment):</strong> ₹<span id="current_balance_after_payment_span">{{ account.current_balance or 0 }}</span></p>
 
@@ -67,7 +68,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     window.onload = function() {
-        document.getElementById("paid_amount_gpay").focus();
+        // document.getElementById("paid_amount_gpay").focus();
+        // document.getElementById("paid_amount_cash").focus();
+        const cashInput = document.getElementById("paid_amount_cash");
+        // cashInput.value = "";  // Clear the input value
+        cashInput.focus();     // Set focus
+
         calculateNetRemaining();
     };
 
@@ -88,7 +94,12 @@ document.addEventListener('DOMContentLoaded', function() {
         editBtn.style.pointerEvents = 'none';  // disables click
         editBtn.style.opacity = '0.5';         // greys out the button
         // editBtn.style.cursor = 'not-allowed';  // changes cursor style
-        console.log("ddf");
+        //console.log("ddf");
+    }
+            
+    function resetTargetInput(targetInput) {
+        targetInput.value = "";
+        // console.log("dd");
     }
 </script>
 
