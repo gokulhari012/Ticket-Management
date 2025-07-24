@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session
 from datetime import datetime, timedelta, date
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, extract, and_
+from sqlalchemy import func, extract, and_, or_
+from sqlalchemy.orm import aliased
 import threading
 from flask_mail import Mail, Message
 import pandas as pd
@@ -156,6 +157,7 @@ class BillingHistory(db.Model):
     # paid_amount = db.Column(db.Float, nullable=False)
     remaining_balance = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now)
+    voided = db.Column(db.Boolean, default=False)
 
     dealer = db.relationship("Dealer_details", backref="billing_records")
     item = db.relationship("Item", backref="billing_records")
@@ -183,6 +185,7 @@ class PaymentBillingHistory(db.Model):
     remaining_balance = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now)
     dealer = db.relationship("Dealer_details", backref="payment_billing_records")
+    voided = db.Column(db.Boolean, default=False)
 
     @property
     def formatted_date(self):
@@ -874,8 +877,8 @@ def daily_accounts():
 
     today = datetime.today().date()
     dealer = Dealer.query.filter(func.date(Dealer.timestamp)==today).all()
-    billingHistory = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==today).all()
-    paymentBillingHistory = PaymentBillingHistory.query.filter(func.date(PaymentBillingHistory.timestamp)==today).all()
+    billingHistory = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==today).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).all()
+    paymentBillingHistory = PaymentBillingHistory.query.filter(func.date(PaymentBillingHistory.timestamp)==today).filter(or_(PaymentBillingHistory.voided == False, PaymentBillingHistory.voided == None)).all()
     item = Item.query.filter_by(item_id=default_item_id).first()
 
     one_can_price = item.price
@@ -1032,7 +1035,43 @@ def generate_excel_monthly_statement(data):
 def billing():
     # Show the main page for entering dealer data and queue
     today = datetime.today().date()
-    dealer_queue = db.session.query(Dealer, Dealer_details.name, BillingHistory.id).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id).outerjoin(BillingHistory, and_(Dealer.token_id == BillingHistory.billing_id, func.date(Dealer.timestamp) == func.date(BillingHistory.timestamp))).filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).all()
+    # dealer_queue = db.session.query(Dealer, Dealer_details.name, BillingHistory).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id).outerjoin(BillingHistory, and_(Dealer.token_id == BillingHistory.billing_id, func.date(Dealer.timestamp) == func.date(BillingHistory.timestamp))).filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).all()
+    
+    # Aliased subquery for latest non-voided billing history per dealer
+    # LatestBilling = aliased(BillingHistory)
+
+    # subquery = db.session.query(LatestBilling).filter(
+    #     and_(
+    #         LatestBilling.billing_id == Dealer.token_id,
+    #         func.date(LatestBilling.timestamp) == func.date(Dealer.timestamp),
+    #         LatestBilling.voided == False
+    #     )
+    # ).limit(1).correlate(Dealer).as_scalar()
+
+    billing_subquery = (
+        db.session.query(BillingHistory.id)
+        .filter(
+            BillingHistory.billing_id == Dealer.token_id,
+            func.date(BillingHistory.timestamp) == func.date(Dealer.timestamp),
+            BillingHistory.voided == False
+        )
+        .order_by(BillingHistory.timestamp.desc())
+        .limit(1)
+        .correlate(Dealer)
+        .scalar_subquery()
+    )
+    dealer_queue = db.session.query(
+        Dealer,
+        Dealer_details.name,
+        billing_subquery.label("billing_entry")
+    ).outerjoin(
+        Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id
+    ).filter(
+        func.date(Dealer.timestamp) == today
+    ).order_by(
+        Dealer.timestamp.desc()
+    ).all()
+
     return render_template('billing.html', queue=dealer_queue, total_cans=get_total_can_today())
 
 @app.route('/generate_bill/<token_id>', methods=['GET', 'POST'])
@@ -1131,6 +1170,17 @@ def print_bill(id, return_path):
     item = bill.item
     return render_template('print_bill.html', bill=bill, dealer=dealer, item=item, return_path=return_path)
 
+@app.route('/void_bill/<int:bill_id>', methods=['POST'])
+def void_bill(bill_id):
+    bill = BillingHistory.query.get_or_404(bill_id)
+    bill.voided = True
+
+    dealer_accounts = DealerAccounts.query.filter_by(dealer_id=bill.dealer_id).first_or_404()
+    dealer_accounts.current_balance -= (bill.remaining_balance - bill.credit_balance)
+
+    db.session.commit()
+    flash('Bill has been voided.', 'success')
+    return redirect(url_for('billing_history'))
 
 #payment billing
 def  get_filtered_data_payment_billing(request):
@@ -1186,6 +1236,18 @@ def print_payment_bill(id,return_path):
     payment_bill = PaymentBillingHistory.query.filter_by(id=id).first()
     dealer = payment_bill.dealer
     return render_template('print_payment_bill.html', payment_bill=payment_bill, dealer=dealer, return_path=return_path)
+
+@app.route('/payment_void_bill/<int:bill_id>', methods=['POST'])
+def payment_void_bill(bill_id):
+    bill = PaymentBillingHistory.query.get_or_404(bill_id)
+    bill.voided = True
+    
+    dealer_accounts = DealerAccounts.query.filter_by(dealer_id=bill.dealer_id).first_or_404()
+    dealer_accounts.current_balance -= (bill.remaining_balance - bill.credit_balance)
+
+    db.session.commit()
+    flash('Payment Bill has been voided.', 'success')
+    return redirect(url_for('payment_billing_history'))
 
 @app.route('/bill_generated')
 def bill_generated():

@@ -99,10 +99,10 @@
                             <input class="form-control item-number" type="number" step="0.01" name="today_credit_amount" value="{{ statement.today_credit_amount }}" required readonly>
                     </td>
                     <td>
-                            <input class="form-control item-number" type="number" step="0.01" name="amount_gpay" value="{{ statement.amount_gpay }}" required readonly>
+                            <input class="form-control item-number" type="number" step="0.01" name="amount_gpay" value="{{ statement.amount_cash }}" required readonly>
                     </td>
                     <td>
-                            <input class="form-control item-number" type="number" step="0.01" name="amount_cash" value="{{ statement.amount_cash }}" required readonly>
+                            <input class="form-control item-number" type="number" step="0.01" name="amount_cash" value="{{ statement.amount_gpay }}" required readonly>
                     </td>
                     <td>
                             <input class="form-control item-number" type="number" step="0.01" name="net_recevied_amount" value="{{ statement.net_recevied_amount }}" required readonly>

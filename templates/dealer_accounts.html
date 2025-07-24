@@ -38,15 +38,15 @@
                     <td>{{ account.last_payment_date.strftime("%Y-%m-%d") if account and account.last_payment_date else "N/A" }}</td>
                     <td>
                         <form method="POST" action="{{ url_for('update_payment', dealer_id=dealer.dealer_id) }}">
-                            <input class="amount" type="number" name="amount_paid_gpay" step="0.01" placeholder="Gpay" required>
                             <input class="amount" style="margin-top: 5px;" type="number" name="amount_paid_cash" step="0.01" placeholder="Cash" required>
+                            <input class="amount" type="number" name="amount_paid_gpay" step="0.01" placeholder="Gpay" required>
                             <button class="pay" type="submit">Paid</button>
                         </form>
                     </td>
                     <!-- <td>
                         <form method="POST" action="{{ url_for('update_payment', dealer_id=dealer.dealer_id) }}">
-                            <input class="amount" type="number" name="due_amount_given_gpay" step="0.01" placeholder="Gpay" required>
                             <input class="amount" style="margin-top: 5px;" type="number" name="due_amount_given_cash" step="0.01" placeholder="Cash" required>
+                            <input class="amount" type="number" name="due_amount_given_gpay" step="0.01" placeholder="Gpay" required>
                             <button class="pay" type="submit">Due</button>
                         </form>
                     </td> -->

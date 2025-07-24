@@ -59,6 +59,7 @@
                 <th>Balance</th>
                 <th>Date Time</th>
                 <th class=" hide-on-print">Print Bill</th>
+                <th class=" hide-on-print">Void Bill</th>
             </tr>
         </thead>
         <tbody>
@@ -76,7 +77,17 @@
                 <td>₹{{ "%0.2f"|format(bill.remaining_balance) }}</td>
                 <td width="120px">{{ bill.formatted_date_time }}</td>
                 <td class=" hide-on-print">
-                    <a class="print-bill" href="{{ url_for('print_payment_bill', id=bill.id, return_path='\/payment_billing_history') }}" class="btn">Print Bill</a></td>
+                    <a class="print-bill" href="{{ url_for('print_payment_bill', id=bill.id, return_path='\/payment_billing_history') }}" class="btn">Print Bill</a>
+                </td>
+                <td>
+                    {% if not bill.voided %}
+                    <form action="/payment_void_bill/{{ bill.id }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to void this payment bill?')">Void</button>
+                    </form>
+                    {% else %}
+                        <span class="text-muted">Voided</span>
+                    {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>
