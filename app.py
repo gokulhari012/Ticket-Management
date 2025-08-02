@@ -922,7 +922,7 @@ def get_filtered_data_daily_accounts(request):
         # Get 1 month Details
         now = datetime.now()
         first_day_of_month = datetime(now.year, now.month, 1)
-        query = query.filter(DailyAccounts.date >= first_day_of_month)
+        query = query.filter(DailyAccounts.date >= first_day_of_month - timedelta(days=1))
         pass
 
     filtered_data = query.order_by(DailyAccounts.timestamp.desc()).all()
