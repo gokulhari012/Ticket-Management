@@ -551,8 +551,8 @@ def get_filtered_data(request, is_daily_monthly_report=False):
         
         if date_to:
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
-            # query = query.filter(Dealer.timestamp <= date_to_dt+timedelta(days=1))
-            query = query.filter(Dealer.timestamp <= date_to_dt)
+            query = query.filter(Dealer.timestamp <= date_to_dt+timedelta(days=1))
+            # query = query.filter(Dealer.timestamp <= date_to_dt)
         
         filter_type = "all"
 
@@ -911,7 +911,8 @@ def get_filtered_data_daily_accounts(request):
 
         if date_from:
             date_from_dt = datetime.strptime(date_from, '%Y-%m-%d')
-            query = query.filter(DailyAccounts.date >= date_from_dt)
+            # query = query.filter(DailyAccounts.date >= date_from_dt)
+            query = query.filter(DailyAccounts.date >= date_from_dt-timedelta(days=1))
 
         if date_to:
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
@@ -1134,8 +1135,8 @@ def  get_filtered_data_billing(request):
 
         if date_to:
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
-            # query = query.filter(BillingHistory.timestamp <= date_to_dt+timedelta(days=1))
-            query = query.filter(BillingHistory.timestamp <= date_to_dt)
+            query = query.filter(BillingHistory.timestamp <= date_to_dt+timedelta(days=1))
+            # query = query.filter(BillingHistory.timestamp <= date_to_dt)
     else:
         # Get today's start time (midnight)
         start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -1202,8 +1203,8 @@ def  get_filtered_data_payment_billing(request):
 
         if date_to:
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
-            # query = query.filter(PaymentBillingHistory.timestamp <= date_to_dt+timedelta(days=1))
-            query = query.filter(PaymentBillingHistory.timestamp <= date_to_dt)
+            query = query.filter(PaymentBillingHistory.timestamp <= date_to_dt+timedelta(days=1))
+            # query = query.filter(PaymentBillingHistory.timestamp <= date_to_dt)
     else:
         # Get today's start time (midnight)
         start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
