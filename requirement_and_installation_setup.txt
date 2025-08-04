@@ -212,3 +212,114 @@ sudo reboot
 
 
 
+----------------------dealer id foreign key remove-------------------------------------------
+
+-- 1. Create new table without foreign key
+CREATE TABLE dealer_accounts_temp (
+    id INTEGER PRIMARY KEY,
+    dealer_id VARCHAR(100) NOT NULL UNIQUE,
+    current_balance FLOAT DEFAULT 0.0,
+    last_payment_date DATETIME
+);
+
+-- 2. Copy existing data
+INSERT INTO dealer_accounts_temp (id, dealer_id, current_balance, last_payment_date)
+SELECT id, dealer_id, current_balance, last_payment_date FROM dealer_accounts;
+
+-- 3. Drop old table
+DROP TABLE dealer_accounts;
+
+-- 4. Rename new table
+ALTER TABLE dealer_accounts_temp RENAME TO dealer_accounts;
+
+1) ************************** Dealer accounts **************************
+-- 1. Create a new table without the foreign key
+CREATE TABLE dealer_accounts_temp (
+    id INTEGER PRIMARY KEY,
+    dealer_id VARCHAR(100) NOT NULL UNIQUE,
+    current_balance FLOAT DEFAULT 0.0,
+    last_payment_date DATETIME
+);
+
+-- 2. Copy existing data
+INSERT INTO dealer_accounts_temp (id, dealer_id, current_balance, last_payment_date)
+SELECT id, dealer_id, current_balance, last_payment_date FROM dealer_accounts;
+
+-- 3. Drop the old table
+DROP TABLE dealer_accounts;
+
+-- 4. Rename the new table
+ALTER TABLE dealer_accounts_temp RENAME TO dealer_accounts;
+
+2) ************************** BillingHistory ***********************
+
+-- 1. Create new table without foreign key
+CREATE TABLE billing_history_temp (
+    id INTEGER PRIMARY KEY,
+    billing_id INTEGER NOT NULL,
+    dealer_id VARCHAR(100) NOT NULL,
+    item_id INTEGER,  -- Still present, but without foreign key constraint
+    quantity INTEGER NOT NULL,
+    item_price FLOAT NOT NULL,
+    total_amount FLOAT NOT NULL,
+    gst_amount FLOAT NOT NULL,
+    grand_total FLOAT NOT NULL,
+    credit_balance FLOAT NOT NULL,
+    paid_amount_gpay FLOAT NOT NULL,
+    paid_amount_cash FLOAT NOT NULL,
+    remaining_balance FLOAT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    voided BOOLEAN DEFAULT 0
+);
+
+-- 2. Copy existing data
+INSERT INTO billing_history_temp (
+    id, billing_id, dealer_id, item_id, quantity, item_price, total_amount,
+    gst_amount, grand_total, credit_balance, paid_amount_gpay,
+    paid_amount_cash, remaining_balance, timestamp, voided
+)
+SELECT 
+    id, billing_id, dealer_id, item_id, quantity, item_price, total_amount,
+    gst_amount, grand_total, credit_balance, paid_amount_gpay,
+    paid_amount_cash, remaining_balance, timestamp, voided
+FROM billing_history;
+
+-- 3. Drop old table
+DROP TABLE billing_history;
+
+-- 4. Rename new table
+ALTER TABLE billing_history_temp RENAME TO billing_history;
+
+3) ************************** PaymentBillingHistory ***********************
+-- 1. Create new table with same structure but no foreign keys
+CREATE TABLE payment_billing_history_temp (
+    id INTEGER PRIMARY KEY,
+    dealer_id VARCHAR(100) NOT NULL,
+    credit_balance FLOAT NOT NULL,
+    paid_amount_gpay FLOAT NOT NULL,
+    paid_amount_cash FLOAT NOT NULL,
+    given_amount_gpay FLOAT NOT NULL,
+    given_amount_cash FLOAT NOT NULL,
+    remaining_balance FLOAT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    voided BOOLEAN DEFAULT 0
+);
+
+-- 2. Copy existing data
+INSERT INTO payment_billing_history_temp (
+    id, dealer_id, credit_balance, paid_amount_gpay, paid_amount_cash,
+    given_amount_gpay, given_amount_cash, remaining_balance, timestamp, voided
+)
+SELECT 
+    id, dealer_id, credit_balance, paid_amount_gpay, paid_amount_cash,
+    given_amount_gpay, given_amount_cash, remaining_balance, timestamp, voided
+FROM payment_billing_history;
+
+-- 3. Drop old table
+DROP TABLE payment_billing_history;
+
+-- 4. Rename new table
+ALTER TABLE payment_billing_history_temp RENAME TO payment_billing_history;
+
+
+------------------------------------------------------------------------------------------------------

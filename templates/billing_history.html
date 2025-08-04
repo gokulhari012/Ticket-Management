@@ -68,14 +68,14 @@
             </tr>
         </thead>
         <tbody>
-        {% for bill in bills %}
+        {% for dealer, item, bill in bills %}
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>{{ bill.id }}</td>
                 <td>{{ bill.billing_id }}</td>
                 <td>{{ bill.dealer_id }}</td>
-                <td>{{ bill.dealer.name }}</td>
-                <td>{{ bill.item.item_name }}</td>
+                <td>{{ dealer.name }}</td>
+                <td>{{ item.item_name }}</td>
                 <td>{{ bill.quantity }}</td>
                 <td>₹{{ bill.item_price }}</td>
                 <td>₹{{ "%0.2f"|format(bill.total_amount) }}</td>

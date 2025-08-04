@@ -119,11 +119,17 @@ class Dealer_details(db.Model):
 
 class DealerAccounts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    dealer_id = db.Column(db.String(100), db.ForeignKey('dealer_details.dealer_id'), nullable=False, unique=True)
+    dealer_id = db.Column(db.String(100), nullable=False, unique=True)
     current_balance = db.Column(db.Float, default=0.0)
     last_payment_date = db.Column(db.DateTime)
 
-    dealer = db.relationship('Dealer_details', backref='account')
+    #dealer = db.relationship('Dealer_details', backref='account')
+    # dealer = db.relationship(
+    #     'Dealer_details',
+    #     backref='account',
+    #     primaryjoin="foreign(DealerAccounts.dealer_id) == Dealer_details.dealer_id",
+    #     uselist=False
+    # )
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -144,8 +150,8 @@ class Material(db.Model):
 class BillingHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     billing_id = db.Column(db.Integer, nullable=False)
-    dealer_id = db.Column(db.String(100), db.ForeignKey('dealer_details.dealer_id'))
-    item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
+    dealer_id = db.Column(db.String(100), nullable=False)
+    item_id = db.Column(db.Integer)
     quantity = db.Column(db.Integer, nullable=False)
     item_price = db.Column(db.Float, nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
@@ -158,10 +164,22 @@ class BillingHistory(db.Model):
     remaining_balance = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now)
     voided = db.Column(db.Boolean, default=False)
-
-    dealer = db.relationship("Dealer_details", backref="billing_records")
-    item = db.relationship("Item", backref="billing_records")
     
+    #dealer = db.relationship("Dealer_details", backref="billing_records")
+    # dealer = db.relationship(
+    #     'Dealer_details',
+    #     backref='billing_records',
+    #     primaryjoin="foreign(BillingHistory.dealer_id) == Dealer_details.dealer_id",
+    #     uselist=False
+    # )
+    #item = db.relationship("Item", backref="billing_records")
+    # item = db.relationship(
+    #     'Item',
+    #     backref='billing_records',
+    #     primaryjoin="foreign(BillingHistory.item_id) == Item.item_id",
+    #     uselist=False
+    # )
+
     @property
     def formatted_date(self):
         return self.timestamp.strftime("%d/%m/%Y")  # Format the date
@@ -176,7 +194,7 @@ class BillingHistory(db.Model):
 
 class PaymentBillingHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    dealer_id = db.Column(db.String(100), db.ForeignKey('dealer_details.dealer_id'))
+    dealer_id = db.Column(db.String(100), nullable=False)
     credit_balance = db.Column(db.Float, nullable=False)
     paid_amount_gpay = db.Column(db.Float, nullable=False)
     paid_amount_cash = db.Column(db.Float, nullable=False)
@@ -184,8 +202,15 @@ class PaymentBillingHistory(db.Model):
     given_amount_cash = db.Column(db.Float, nullable=False)
     remaining_balance = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now)
-    dealer = db.relationship("Dealer_details", backref="payment_billing_records")
     voided = db.Column(db.Boolean, default=False)
+
+    #dealer = db.relationship("Dealer_details", backref="payment_billing_records")
+    # dealer = db.relationship(
+    #     'Dealer_details',
+    #     backref='payment_billing_records',
+    #     primaryjoin="foreign(PaymentBillingHistory.dealer_id) == Dealer_details.dealer_id",
+    #     uselist=False
+    # )
 
     @property
     def formatted_date(self):
@@ -316,11 +341,15 @@ def add_dealer_details():
         photo_file.save(os.path.join(app.config['UPLOAD_FOLDER'], photo_filename))
 
     new_dealer = Dealer_details(dealer_id=dealer_id, name=name, mobile=mobile, address=address, aadhaar_file=aadhaar_filename, photo_file=photo_filename)
-    new_account = DealerAccounts(dealer_id=new_dealer.dealer_id, current_balance=0.0)
-    db.session.add(new_account)
+    account = DealerAccounts.query.filter_by(dealer_id=dealer_id).first()
+    if not account:
+        # Create with default balance = 0
+        new_account = DealerAccounts(dealer_id=new_dealer.dealer_id, current_balance=0.0)
+        db.session.add(new_account)
+
     db.session.add(new_dealer)
     db.session.commit()
-    flash('Dealer added successfully!', 'success')
+    flash('Dealer Added successfully!', 'success')
     return redirect(url_for('dealer_details'))
 
 @app.route('/edit_dealer_details/<int:id>', methods=['POST'])
@@ -331,6 +360,7 @@ def edit_dealer_details(id):
     dealer.mobile = request.form['mobile']
     dealer.address = request.form['address']
     db.session.commit()
+    flash('Dealer Updated successfully!', 'success')
     return redirect(url_for('dealer_details'))
 
 @app.route('/delete_dealer_details/<int:id>')
@@ -338,6 +368,7 @@ def delete_dealer_details(id):
     dealer = Dealer_details.query.get_or_404(id)
     db.session.delete(dealer)
     db.session.commit()
+    flash('Dealer Deleted successfully!', 'success')
     return redirect(url_for('dealer_details'))
 
 
@@ -1123,7 +1154,8 @@ def  get_filtered_data_billing(request):
     date_to = request.args.get('date_to', '')
     filter_button = request.args.get('filter_button', '')
 
-    query = BillingHistory.query
+    #query = db.session.query(Dealer_details, Item, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).outerjoin(BillingHistory, Item.item_id == BillingHistory.item_id)  
+    query = db.session.query(Dealer_details, Item, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).outerjoin(Item, BillingHistory.item_id == Item.id)
 
     if filter_button:
         if dealer_id_filter:
@@ -1167,8 +1199,8 @@ def export_billing_history_data():
 @app.route('/print_bill/<int:id>/<path:return_path>')
 def print_bill(id, return_path):
     bill = BillingHistory.query.filter_by(id=id).first()
-    dealer = bill.dealer
-    item = bill.item
+    dealer = Dealer_details.query.filter_by(dealer_id=bill.dealer_id).first_or_404()
+    item = Item.query.filter_by(item_id=bill.item_id).first_or_404()
     return render_template('print_bill.html', bill=bill, dealer=dealer, item=item, return_path=return_path)
 
 @app.route('/void_bill/<int:bill_id>', methods=['POST'])
@@ -1191,7 +1223,7 @@ def  get_filtered_data_payment_billing(request):
     date_to = request.args.get('date_to', '')
     filter_button = request.args.get('filter_button', '')
 
-    query = PaymentBillingHistory.query
+    query = db.session.query(Dealer_details, PaymentBillingHistory).outerjoin(PaymentBillingHistory, Dealer_details.dealer_id == PaymentBillingHistory.dealer_id)
 
     if filter_button:
         if dealer_id_filter:
@@ -1235,7 +1267,7 @@ def export_payment_billing_history_data():
 @app.route('/print_payment_bill/<int:id>/<path:return_path>')
 def print_payment_bill(id,return_path):
     payment_bill = PaymentBillingHistory.query.filter_by(id=id).first()
-    dealer = payment_bill.dealer
+    dealer = Dealer_details.query.filter_by(dealer_id=payment_bill.dealer_id).first_or_404()
     return render_template('print_payment_bill.html', payment_bill=payment_bill, dealer=dealer, return_path=return_path)
 
 @app.route('/payment_void_bill/<int:bill_id>', methods=['POST'])
@@ -1257,24 +1289,59 @@ def bill_generated():
 
 
 # Function to generate Excel
-def generate_excel_billing_history(dealers):
-    # dealers = Dealer.query.all()
+def generate_excel_billing_history(filtered_data):
+
+    # Unpack each row into separate lists
+    dealer_ids = []
+    billing_ids = []
+    dealer_names = []
+    item_names = []
+    quantities = []
+    item_prices = []
+    total_amounts = []
+    gst_amounts = []
+    grand_totals = []
+    credit_amounts = []
+    paid_gpay = []
+    paid_cash = []
+    remaining_balances = []
+    timestamps = []
+    record_ids = []
+
+    for dealer, item, billing in filtered_data:
+        if billing:  # billing can be None due to outerjoin
+            record_ids.append(billing.id)
+            billing_ids.append(billing.billing_id)
+            dealer_ids.append(billing.dealer_id)
+            dealer_names.append(dealer.name if dealer else "")
+            item_names.append(item.item_name if item else "")
+            quantities.append(billing.quantity)
+            item_prices.append(billing.item_price)
+            total_amounts.append(billing.total_amount)
+            gst_amounts.append(billing.gst_amount)
+            grand_totals.append(billing.grand_total)
+            credit_amounts.append(billing.credit_balance)
+            paid_gpay.append(billing.paid_amount_gpay)
+            paid_cash.append(billing.paid_amount_cash)
+            remaining_balances.append(billing.remaining_balance)
+            timestamps.append(billing.timestamp.strftime("%d-%m-%Y %I:%M %p") if billing.timestamp else "")
+            
     data = {
-        "ID": [d.id for d in dealers],
-        "Billing Id": [d.billing_id for d in dealers],
-        "Dealer Id": [d.dealer_id for d in dealers],
-        "Dealer Name": [d.dealer.name  for d in dealers],
-        "Item Name": [d.item.item_name for d in dealers],
-        "Quantity": [d.quantity for d in dealers],
-        "Item price": [d.item_price for d in dealers],
-        "Total Amount": [d.total_amount for d in dealers],
-        "Gst Amount": [d.gst_amount for d in dealers],
-        "Grand Total": [d.grand_total for d in dealers],
-        "Credit Amount": [d.credit_amount for d in dealers],
-        "Paid Amount(Gpay)": [d.paid_amount_gpay for d in dealers],
-        "Paid Amount(Cash)": [d.paid_amount_cash for d in dealers],
-        "Remaining Balance": [d.remaining_balance for d in dealers],
-        "Time": [d.formatted_date_time for d in dealers],
+        "ID": record_ids,
+        "Billing Id": billing_ids,
+        "Dealer Id": dealer_ids,
+        "Dealer Name": dealer_names,
+        "Item Name": item_names,
+        "Quantity": quantities,
+        "Item price": item_prices,
+        "Total Amount": total_amounts,
+        "Gst Amount": gst_amounts,
+        "Grand Total": grand_totals,
+        "Credit Amount": credit_amounts,
+        "Paid Amount(Gpay)": paid_gpay,
+        "Paid Amount(Cash)": paid_cash,
+        "Remaining Balance": remaining_balances,
+        "Time": timestamps
     }
     
     df = pd.DataFrame(data)
@@ -1293,19 +1360,44 @@ def generate_excel_billing_history(dealers):
     return filepath, filename
 
 # Function to generate Excel
-def generate_excel_payment_billing_history(dealers):
+def generate_excel_payment_billing_history(filtered_data):
     # dealers = Dealer.query.all()
+    # Unpack each row into separate lists
+    record_ids = []
+    dealer_ids = []
+    dealer_names = []
+    credit_balance = []
+    paid_amount_gpay = []
+    paid_amount_cash = []
+    given_amount_gpay = []
+    given_amount_cash = []
+    remaining_balance = []
+    timestamps = []
+
+    for dealer, billing in filtered_data:
+        if billing:  # billing can be None due to outerjoin
+            record_ids.append(billing.id)
+            dealer_ids.append(billing.dealer_id)
+            dealer_names.append(dealer.name if dealer else "")
+            credit_balance.append(billing.credit_balance)
+            paid_amount_gpay.append(billing.paid_amount_gpay)
+            paid_amount_cash.append(billing.paid_amount_cash)
+            given_amount_gpay.append(billing.given_amount_gpay)
+            given_amount_cash.append(billing.given_amount_cash)
+            remaining_balance.append(billing.remaining_balance)
+            timestamps.append(billing.timestamp.strftime("%d-%m-%Y %I:%M %p") if billing.timestamp else "")
+            
     data = {
-        "ID": [d.id for d in dealers],
-        "Dealer Id": [d.dealer_id for d in dealers],
-        "Dealer Name": [d.dealer.name  for d in dealers],
-        "Credit Amount": [d.credit_balance for d in dealers],
-        "Paid Amount(Gpay)": [d.paid_amount_gpay for d in dealers],
-        "Paid Amount(Cash)": [d.paid_amount_cash for d in dealers],
-        "Given Amount(Gpay)": [d.given_amount_gpay for d in dealers],
-        "Given Amount(Cash)": [d.given_amount_cash for d in dealers],
-        "Remaining Balance": [d.remaining_balance for d in dealers],
-        "Time": [d.formatted_date_time for d in dealers],
+        "ID": record_ids,
+        "Dealer Id": dealer_ids,
+        "Dealer Name": dealer_names,
+        "Credit Amount": credit_balance,
+        "Paid Amount(Gpay)": paid_amount_gpay,
+        "Paid Amount(Cash)": paid_amount_cash,
+        "Given Amount(Gpay)": given_amount_gpay,
+        "Given Amount(Cash)": given_amount_cash,
+        "Remaining Balance": remaining_balance,
+        "Time": timestamps
     }
     
     df = pd.DataFrame(data)
