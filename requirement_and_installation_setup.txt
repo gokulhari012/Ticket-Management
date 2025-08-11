@@ -1,6 +1,7 @@
 Development commands
 1) restart -> sudo systemctl restart flaskapp.service
 2) status -> sudo systemctl status flaskapp.service
+3) stop -> sudo systemctl stop flaskapp.service
 
 Sql DB column update
 sqlite3 instance/dealers.db
