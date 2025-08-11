@@ -274,6 +274,21 @@ class DailyAccounts(db.Model):
     def formatted_date_time(self):
         return self.timestamp.strftime("%d-%m-%Y %I:%M %p")
 
+class DayExpenses(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    chit_amount = db.Column(db.Float, default=0)
+    diesel = db.Column(db.Float, default=0)
+    spares = db.Column(db.Float, default=0)
+    pooja_items = db.Column(db.Float, default=0)
+    milk_and_others = db.Column(db.Float, default=0)
+    salary_advance = db.Column(db.Float, default=0)
+    salary = db.Column(db.Float, default=0)
+    eb = db.Column(db.Float, default=0)
+    service_labour = db.Column(db.Float, default=0)
+    stationaries = db.Column(db.Float, default=0)
+    sunday_ots = db.Column(db.Float, default=0)
+    others_expenses = db.Column(db.Float, default=0)
+    notes = db.Column(db.String(100), default=0)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -835,78 +850,83 @@ def delete_material(material_id):
 @app.route('/daily_accounts', methods=['GET', 'POST'])
 def daily_accounts():
     if request.method == 'POST':
-        data = request.form
-        # Get all fields from form
-        date_str = request.form.get('date')
-        try:
-            entry_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        except (ValueError, TypeError):
-            entry_date = date.today()
+        if request.form.get('submit')=='generate':
+            data = request.form
+            # Get all fields from form
+            date_str = request.form.get('date')
+            try:
+                entry_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                entry_date = date.today()
 
-        one_can_price = float(data.get('one_can_price', 0))
-        total_can_filling = float(data.get('total_can_filling', 0))
-        total_amount = float(data.get('total_amount', 0))
-        total_can_filling = float(data.get('total_can_filling', 0))
-        total_credit_amount = float(data.get('total_credit_amount', 0))
-        today_credit_amount = float(data.get('today_credit_amount', 0))
-        amount_gpay = float(data.get('amount_gpay', 0))
-        amount_cash = float(data.get('amount_cash', 0))
-        net_recevied_amount = float(data.get('net_recevied_amount', 0))
-        credit_amount_received_gpay = float(data.get('credit_amount_received_gpay', 0))
-        credit_amount_received_cash = float(data.get('credit_amount_received_cash', 0))
-        net_credit_amount_received = float(data.get('net_credit_amount_received', 0))
-        chit_amount = float(data.get('chit_amount', 0))
-        diesel = float(data.get('diesel', 0))
-        spares = float(data.get('spares', 0))
-        pooja_items = float(data.get('pooja_items', 0))
-        milk_and_others = float(data.get('milk_and_others', 0))
-        salary_advance = float(data.get('salary_advance', 0))
-        salary = float(data.get('salary', 0))
-        eb = float(data.get('eb', 0))
-        service_labour = float(data.get('service_labour', 0))
-        stationaries = float(data.get('stationaries', 0))
-        sunday_ots = float(data.get('sunday_ots', 0))
-        others_expenses = float(data.get('others_expenses', 0))
-        notes = data.get('notes',"")
-        total_expenses = float(data.get('total_expenses_2', 0))
-        net_amount_remaining = float(data.get('net_amount_remaining', 0))
-        net_cash_remaining = float(data.get('net_cash_remaining', 0))
+            one_can_price = float(data.get('one_can_price', 0))
+            total_can_filling = float(data.get('total_can_filling', 0))
+            total_amount = float(data.get('total_amount', 0))
+            total_can_filling = float(data.get('total_can_filling', 0))
+            total_credit_amount = float(data.get('total_credit_amount', 0))
+            today_credit_amount = float(data.get('today_credit_amount', 0))
+            amount_gpay = float(data.get('amount_gpay', 0))
+            amount_cash = float(data.get('amount_cash', 0))
+            net_recevied_amount = float(data.get('net_recevied_amount', 0))
+            credit_amount_received_gpay = float(data.get('credit_amount_received_gpay', 0))
+            credit_amount_received_cash = float(data.get('credit_amount_received_cash', 0))
+            net_credit_amount_received = float(data.get('net_credit_amount_received', 0))
+            chit_amount = float(data.get('chit_amount', 0))
+            diesel = float(data.get('diesel', 0))
+            spares = float(data.get('spares', 0))
+            pooja_items = float(data.get('pooja_items', 0))
+            milk_and_others = float(data.get('milk_and_others', 0))
+            salary_advance = float(data.get('salary_advance', 0))
+            salary = float(data.get('salary', 0))
+            eb = float(data.get('eb', 0))
+            service_labour = float(data.get('service_labour', 0))
+            stationaries = float(data.get('stationaries', 0))
+            sunday_ots = float(data.get('sunday_ots', 0))
+            others_expenses = float(data.get('others_expenses', 0))
+            notes = data.get('notes',"")
+            total_expenses = float(data.get('total_expenses_2', 0))
+            net_amount_remaining = float(data.get('net_amount_remaining', 0))
+            net_cash_remaining = float(data.get('net_cash_remaining', 0))
 
-        record = DailyAccounts(
-            date=entry_date,
-            one_can_price=one_can_price,
-            total_can_filling=total_can_filling,
-            total_amount=total_amount,
-            total_credit_amount=total_credit_amount,
-            today_credit_amount=today_credit_amount,
-            amount_gpay=amount_gpay,
-            amount_cash=amount_cash,
-            net_recevied_amount=net_recevied_amount,
-            credit_amount_received_gpay=credit_amount_received_gpay,
-            credit_amount_received_cash=credit_amount_received_cash,
-            net_credit_amount_received=net_credit_amount_received,
-            chit_amount=chit_amount,
-            diesel=diesel,
-            spares=spares,
-            pooja_items=pooja_items,
-            milk_and_others=milk_and_others,
-            salary_advance=salary_advance,
-            salary=salary,
-            eb=eb,
-            service_labour=service_labour,
-            stationaries=stationaries,
-            sunday_ots=sunday_ots,
-            others_expenses=others_expenses,
-            notes=notes,
-            total_expenses=total_expenses,
-            net_amount_remaining=net_amount_remaining,
-            net_cash_remaining=net_cash_remaining
-        )
+            record = DailyAccounts(
+                date=entry_date,
+                one_can_price=one_can_price,
+                total_can_filling=total_can_filling,
+                total_amount=total_amount,
+                total_credit_amount=total_credit_amount,
+                today_credit_amount=today_credit_amount,
+                amount_gpay=amount_gpay,
+                amount_cash=amount_cash,
+                net_recevied_amount=net_recevied_amount,
+                credit_amount_received_gpay=credit_amount_received_gpay,
+                credit_amount_received_cash=credit_amount_received_cash,
+                net_credit_amount_received=net_credit_amount_received,
+                chit_amount=chit_amount,
+                diesel=diesel,
+                spares=spares,
+                pooja_items=pooja_items,
+                milk_and_others=milk_and_others,
+                salary_advance=salary_advance,
+                salary=salary,
+                eb=eb,
+                service_labour=service_labour,
+                stationaries=stationaries,
+                sunday_ots=sunday_ots,
+                others_expenses=others_expenses,
+                notes=notes,
+                total_expenses=total_expenses,
+                net_amount_remaining=net_amount_remaining,
+                net_cash_remaining=net_cash_remaining
+            )
+            
+            db.session.add(record)
+            DayExpenses.query.delete()
+            db.session.commit()
+            flash("Daily Statement saved!", "success")
         
-        db.session.add(record)
-        db.session.commit()
-        flash("Daily Statement saved!", "success")
-        return redirect(url_for('daily_accounts'))
+        else:
+            save_expense(request)
+            flash("Expense saved successfully!", "success")
         
     today_date = date.today().isoformat()
 
@@ -931,8 +951,46 @@ def daily_accounts():
 
     today_credit_amount = total_amount - net_recevied_amount
 
+    expenses = DayExpenses.query.first()
+
     return render_template('daily_accounts.html', today_date=today_date, one_can_price=one_can_price, total_can_filling=total_can_filling, total_amount=total_amount,
-                           total_credit_amount=total_credit_amount, amount_gpay=amount_gpay, amount_cash=amount_cash, net_recevied_amount=net_recevied_amount, credit_amount_received_gpay=credit_amount_received_gpay, credit_amount_received_cash=credit_amount_received_cash, net_credit_amount_received=net_credit_amount_received, today_credit_amount=today_credit_amount)
+                           total_credit_amount=total_credit_amount, amount_gpay=amount_gpay, amount_cash=amount_cash, net_recevied_amount=net_recevied_amount, credit_amount_received_gpay=credit_amount_received_gpay, credit_amount_received_cash=credit_amount_received_cash, net_credit_amount_received=net_credit_amount_received, today_credit_amount=today_credit_amount, expenses=expenses)
+
+def save_expense(request):
+    DayExpenses.query.delete()
+    db.session.commit()
+    chit_amount = request.form.get('chit_amount')
+    diesel = request.form.get('diesel')
+    spares = request.form.get('spares')
+    pooja_items = request.form.get('pooja_items')
+    milk_and_others = request.form.get('milk_and_others')
+    salary_advance = request.form.get('salary_advance')
+    salary = request.form.get('salary')
+    eb = request.form.get('eb')
+    service_labour = request.form.get('service_labour')
+    stationaries = request.form.get('stationaries')
+    sunday_ots = request.form.get('sunday_ots')
+    others_expenses = request.form.get('others_expenses')
+    notes = request.form.get('notes')
+
+    expense = DayExpenses(
+        chit_amount=chit_amount,
+        diesel=diesel,
+        spares=spares,
+        pooja_items=pooja_items,
+        milk_and_others=milk_and_others,
+        salary_advance=salary_advance,
+        salary=salary,
+        eb=eb,
+        service_labour=service_labour,
+        stationaries=stationaries,
+        sunday_ots=sunday_ots,
+        others_expenses=others_expenses,
+        notes=notes,
+    )
+    db.session.add(expense)
+    db.session.commit()
+
 
 def get_filtered_data_daily_accounts(request):
     # Retrieve filter values from the request arguments

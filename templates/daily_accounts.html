@@ -82,41 +82,42 @@
                 <h3>Expenses(-)</h3>
                 <div class="col-md-4">
                     <lable for="paid_amount"><strong>Chit Amount</strong></lable>
-                    <input type="number" step="0.01" name="chit_amount" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="chit_amount" value="{{ expenses.chit_amount or 0 }}" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Diesel</strong></lable>
-                    <input type="number" step="0.01" name="diesel" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="diesel" value="{{ expenses.diesel or 0 }}" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Spares</strong></lable>
-                    <input type="number" step="0.01" name="spares" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="spares" value="{{ expenses.spares or 0 }}" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Pooja Items</strong></lable>
-                    <input type="number" step="0.01" name="pooja_items" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="pooja_items" value="{{ expenses.pooja_items or 0 }}" onfocus="resetTargetInput(this)" required><br>
                 </div>
                 <div class="col-md-4">
                     <lable for="paid_amount"><strong>Milk and Others</strong></lable>
-                    <input type="number" step="0.01" name="milk_and_others" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="milk_and_others" value="{{ expenses.milk_and_others or 0 }}" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Salary Advance</strong></lable>
-                    <input type="number" step="0.01" name="salary_advance" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="salary_advance" value="{{ expenses.salary_advance or 0 }}" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Salary</strong></lable>
-                    <input type="number" step="0.01" name="salary" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="salary" value="{{ expenses.salary or 0 }}" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Eb</strong></lable>
-                    <input type="number" step="0.01" name="eb" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="eb" value="{{ expenses.eb or 0 }}" onfocus="resetTargetInput(this)" required><br>
                 </div>
                 <div class="col-md-4">
                     <lable for="paid_amount"><strong>Service Labour</strong></lable>
-                    <input type="number" step="0.01" name="service_labour" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="service_labour" value="{{ expenses.service_labour or 0 }}" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Stationaries</strong></lable>
-                    <input type="number" step="0.01" name="stationaries" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="stationaries" value="{{ expenses.stationaries or 0 }}" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong> </strong>Sunday Ots</lable>
-                    <input type="number" step="0.01" name="sunday_ots" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="sunday_ots" value="{{ expenses.sunday_ots or 0 }}" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Others Expenses</strong></lable>
-                    <input type="number" step="0.01" name="others_expenses" value="0" onfocus="resetTargetInput(this)" required ><br>
+                    <input type="number" step="0.01" name="others_expenses" value="{{ expenses.others_expenses or 0 }}" onfocus="resetTargetInput(this)" required ><br>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-12">
                         <lable for="paid_amount"><strong>Notes</strong></lable><br>
                         <!-- <input style="width: 100%; height: 50px;" type="text" step="0.01" name="notes" value=""><br> -->
-                        <textarea style="width: 100%;" rows="4" cols="30" name="notes"></textarea>
+                        <textarea style="width: 100%;" rows="4" cols="30" name="notes">{{ expenses.notes }}</textarea>
                     </div>
                 </div>
+                <button type="submit" name="submit" class="btn" value="save">Save</button>
                 <p><strong>Total Expenses:</strong> <span id="total_expenses">0</span></p>
             </div>
             <div class="row g-3 mt-4  p-3 mb-2 bg-success text-white">
@@ -144,7 +145,7 @@
 
                 </div>
             </div>
-            <button type="submit" class="btn">Generate Daily Statement</button>
+            <button type="submit" name="submit" class="btn" value="generate">Generate Daily Statement</button>
         </form>
     </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -316,11 +317,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // const form = this;
         // form.submit();
 
-        window.print(); 
-
+        let clickedButton = event.submitter; // the button that triggered submit
+        if(clickedButton.value=='generate'){
+            window.print(); 
+        }
         // setTimeout(() => {
         //     window.print(); 
         //     form.submit();// trigger print dialog
         // }, 500);
+    });
+
+    document.getElementById('saveExpense').addEventListener('submit', function(event) {
+    
     });
 </script>
