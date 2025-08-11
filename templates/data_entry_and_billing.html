@@ -1,0 +1,81 @@
+<!-- home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Can Management</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='lotus_aqua_logo.jpg') }}">
+    <script>
+
+    </script>
+</head>
+<body class="dashboard">
+    <div class="container billing data_entry_and_billing">
+        <h1>Water Can Ticketing System</h1>
+        <form action="/add_dealer" method="POST" class="form">
+            <div class="data_entry_form">
+                <div>
+                    <label for="token_no">Token No:</label>
+                    <input type="text" id="token_no" name="token_no" value="{{token_no}}" required >
+                </div>
+                
+                <div>
+                    <label for="dealer_id">Dealer ID:</label>
+                    <input type="text" id="dealer_id" name="dealer_id" required autofocus>
+                </div>
+                
+                <div>
+                    <label for="water_can_count">Water Can Count:</label>
+                    <input type="number" id="water_can_count" name="water_can_count" required>
+                </div>
+            </div>
+            
+                <input type="text" id="billing" name="billing" value="true" hidden>
+
+            <button type="submit" class="btn">Add Dealer</button>
+        </form>
+
+        <h2>Queue (Last 5 Entries)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>T No</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Water Cans</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Billing</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dealer, dealer_name, dealer_accounts_id in queue %}
+                <tr>
+                    <td>{{ dealer.token_id }}</td>
+                    <td>{{ dealer.dealer_id }}</td>
+                    <td>{{ dealer_name }}</td>
+                    <td>{{ dealer.water_can_count }}</td>
+                    <td>{{ dealer.formatted_date }}</td>
+                    <td>{{ dealer.formatted_time }}</td>
+                    <td><a class="{% if dealer_accounts_id %} generate_bill_disabled {% else %} generate_bill {% endif %}" href="{{ url_for('generate_bill', token_id=dealer.token_id, data_entry_call='yes') }}">{% if dealer_accounts_id %} Bill Generated {% else %} Generate Bill {% endif %}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Show total cans -->
+    <div class="total-cans-card total-cans-card-top total-cans-card-billing">
+        <h2>Total Cans</h2>
+        <div class="total-cans-number">{{ total_cans }}</div>
+    </div>
+    <a href="/" class="back">Back</a>        
+    {% if error_message %}
+        <script>
+            // Call the function to show the error message
+            showError("{{ error_message }}");
+        </script>
+    {% endif %}
+</body>
+</html>

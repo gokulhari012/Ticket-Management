@@ -29,8 +29,11 @@
         <button type="submit" class="btn">Generate Bill</button>
     </form>
 </div>
-    <a href="/billing" class="back">Back</a>        
-
+    {% if data_entry_call=='yes' %}
+        <a href="/data_entry_and_billing" class="back">Back</a>             
+    {% else %}
+        <a href="/billing" class="back">Back</a>                
+    {% endif %}
 </body>
 </html>
 

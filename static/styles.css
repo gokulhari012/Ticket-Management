@@ -141,6 +141,10 @@ table {
     right:80px;
 }
 
+.total-cans-card-billing{
+    height: 70px;
+}
+
 h2 {
     text-align: center;
     margin-bottom: 20px;
@@ -671,4 +675,17 @@ a {
 
 .login-container button:hover {
     background: #0056b3;
+}
+
+.data_entry_and_billing .data_entry_form {
+    display: flex;
+    gap: 10px; /* space between items */
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+.data_entry_and_billing .data_entry_form div{
+    padding: 10px;
+}
+.data_entry_and_billing .data_entry_form div input{
+    width: 250px;
 }

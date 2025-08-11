@@ -431,6 +431,7 @@ def add_dealer():
     dealer_id = request.form.get('dealer_id')
     water_can_count = request.form.get('water_can_count')
     token_no = request.form.get('token_no')
+    billing = request.form.get('billing')
     
     if dealer_id and water_can_count.isdigit() and token_no:
         water_can_count = int(water_can_count)
@@ -454,7 +455,10 @@ def add_dealer():
         if is_sms_required:
             threading.Thread(target=send_message,args=(dealer_id,water_can_count,)).start()
     threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start()
-    return redirect(url_for('data_entry'))
+    if billing:
+        return redirect(url_for('data_entry_and_billing'))
+    else:
+        return redirect(url_for('data_entry'))
 
 @app.route('/add_dealer_esp32', methods=['POST'])
 def add_dealer_esp32():
@@ -1106,8 +1110,45 @@ def billing():
 
     return render_template('billing.html', queue=dealer_queue, total_cans=get_total_can_today())
 
-@app.route('/generate_bill/<token_id>', methods=['GET', 'POST'])
-def generate_bill(token_id):
+
+@app.route('/data_entry_and_billing')
+def data_entry_and_billing(error_message=None):
+    # Show the main page for entering dealer data and queue
+    today = datetime.today().date()
+    dealer_queue = db.session.query(Dealer, Dealer_details.name).outerjoin(Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id).filter(func.date(Dealer.timestamp) == today).order_by(Dealer.timestamp.desc()).limit(5).all()
+    # for dealer in dealer_queue:
+    #     # Assuming `timestamp` is a datetime object, you can format it as required
+    #     dealer.timestamp = dealer.timestamp.strftime("%Y-%m-%d %H:%M:%S")  # Format as hour:minute
+    token_no = get_next_token_id()
+
+    billing_subquery = (
+        db.session.query(BillingHistory.id)
+        .filter(
+            BillingHistory.billing_id == Dealer.token_id,
+            func.date(BillingHistory.timestamp) == func.date(Dealer.timestamp),
+            BillingHistory.voided == False
+        )
+        .order_by(BillingHistory.timestamp.desc())
+        .limit(1)
+        .correlate(Dealer)
+        .scalar_subquery()
+    )
+    dealer_queue = db.session.query(
+        Dealer,
+        Dealer_details.name,
+        billing_subquery.label("billing_entry")
+    ).outerjoin(
+        Dealer_details, Dealer.dealer_id == Dealer_details.dealer_id
+    ).filter(
+        func.date(Dealer.timestamp) == today
+    ).order_by(
+        Dealer.timestamp.desc()
+    ).limit(5).all()
+
+    return render_template('data_entry_and_billing.html', queue=dealer_queue, token_no = token_no, error_message=error_message, total_cans=get_total_can_today())
+
+@app.route('/generate_bill/<token_id>/<data_entry_call>', methods=['GET', 'POST'])
+def generate_bill(token_id, data_entry_call):
     today = datetime.today().date()
     dealer = Dealer.query.filter(func.date(Dealer.timestamp)==today).filter_by(token_id=token_id).first()
     dealer_id = dealer.dealer_id
@@ -1143,9 +1184,12 @@ def generate_bill(token_id):
         db.session.add(bill)
         account.current_balance = remaining_balance
         db.session.commit()
-        return print_bill(bill.id, "/billing")
+        if data_entry_call=='yes':
+            return print_bill(bill.id, "/data_entry_and_billing")
+        else:
+            return print_bill(bill.id, "/billing")
 
-    return render_template('generate_bill.html', dealer=dealer, dealer_details=dealer_details, item=item, account=account)
+    return render_template('generate_bill.html', dealer=dealer, dealer_details=dealer_details, item=item, account=account, data_entry_call=data_entry_call)
 
 def  get_filtered_data_billing(request):
     # Retrieve filter values from the request arguments

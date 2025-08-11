@@ -32,7 +32,7 @@
                     <td>{{ dealer.water_can_count }}</td>
                     <td>{{ dealer.formatted_date }}</td>
                     <td>{{ dealer.formatted_time }}</td>
-                    <td><a class="{% if dealer_accounts_id %} generate_bill_disabled {% else %} generate_bill {% endif %}" href="{{ url_for('generate_bill', token_id=dealer.token_id) }}">{% if dealer_accounts_id %} Bill Generated {% else %} Generate Bill {% endif %}</a></td>
+                    <td><a class="{% if dealer_accounts_id %} generate_bill_disabled {% else %} generate_bill {% endif %}" href="{{ url_for('generate_bill', token_id=dealer.token_id, data_entry_call='no') }}">{% if dealer_accounts_id %} Bill Generated {% else %} Generate Bill {% endif %}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
