@@ -2,6 +2,9 @@ Development commands
 1) restart -> sudo systemctl restart flaskapp.service
 2) status -> sudo systemctl status flaskapp.service
 3) stop -> sudo systemctl stop flaskapp.service
+See logs -> sudo journalctl -u flaskapp.service
+See logs real time -> sudo journalctl -u flaskapp.service -f
+
 
 Sql DB column update
 sqlite3 instance/dealers.db
@@ -33,12 +36,12 @@ vncserver
 vncserver -kill :1
 Ip address for VNC client : ticketmanagement:1
 
-# 2-> python requirement
+# 2-> python requirement (dont put sudo just use pip and activate source venv/bin/activate python running in venv)
 sudo pip install flask-sqlalchemy
 sudo pip install keyboard
 sudo pip install rpi_ws281x
 sudo pip install pandas openpyxl flask-mail
-sudo pip install pydrive
+pip install pydrive
 
 ---------------trobelshoot(pandas not worked due to numpy. numpy not work due to libopenblas)-----
 python -c "import pandas as pd; print(pd.__version__)"
