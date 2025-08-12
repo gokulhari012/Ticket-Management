@@ -12,6 +12,9 @@ import requests
 from twilio.rest import Client
 import schedule
 import time
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+import shutil
 
 is_rashberrypi = False
 # is_rashberrypi = True
@@ -86,6 +89,17 @@ app.config['MAIL_USERNAME'] = email_id  # Update with your email
 app.config['MAIL_PASSWORD'] = email_password  # Use an app password if required
 
 mail = Mail(app)
+
+#Google backup
+# Path to your Flask DB
+DB_PATH = "instance/dealers.db"  # change this path to match your Flask app
+FOLDER_ID = "1sfoiiyb-JtL4k6mUM_nNB0PtLAwyCRJB"
+folder_path = "instance/backup/"
+client_json_file_path = "static/client_secrets.json" # the secert key in lotusaquaiot google drive and in keep notes(in github we not able to uplaod secrete key)
+daily_backup_schedule_time = "18:00"
+
+# Create folder if it doesn't exist
+os.makedirs(folder_path, exist_ok=True)
 
 # Database model for dealer data
 class Dealer(db.Model):
@@ -1740,13 +1754,70 @@ def send_to_blynk():
                 print(f"Error: {e}")
             time.sleep(10)
 
+def backup_to_googleDrive():
+    # Authenticate Google Drive
+    gauth = GoogleAuth()
+    gauth.LoadClientConfigFile(client_json_file_path)
+    gauth.LoadCredentialsFile("mycreds.txt")
+
+    if gauth.credentials is None:
+        # Authenticate if credentials not present
+        gauth.LocalWebserverAuth()
+    elif gauth.access_token_expired:
+        # Refresh credentials if expired
+        gauth.Refresh()
+    else:
+        # Initialize with saved creds
+        gauth.Authorize()
+
+    gauth.SaveCredentialsFile("mycreds.txt")
+    drive = GoogleDrive(gauth)
+
+    # Prepare backup file
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    backup_filename = f"flask_db_backup_{timestamp}.db"
+    backup_file_path = folder_path + backup_filename
+    # os.system(f"cp {DB_PATH} {backup_filename}")  # Copy DB
+    shutil.copy(DB_PATH, backup_file_path)
+
+    # Upload to Google Drive
+    # file = drive.CreateFile({'title': backup_filename})
+
+    # Upload to specific folder
+    file = drive.CreateFile({
+        'title': backup_filename,
+        'parents': [{'id': FOLDER_ID}]
+    })
+    file.SetContentFile(backup_file_path)
+    file.Upload()
+
+    print(f"✅ Backup uploaded to Google Drive as {backup_filename}")
+
+    # Explicitly close the file handle
+    file.content.close()
+
+    # Optionally remove local backup copy
+    # Delete local backup
+    # try:
+    #     if os.path.exists(backup_filename):
+    #         os.remove(backup_filename)
+    #         print("✅ Local backup deleted")
+    #     else:
+    #         print("⚠ Backup file not found")
+    # except PermissionError:
+    #     print(f"⚠ Could not delete {backup_filename} (still in use)")
+
+
+
 def schedule_task():
     # 🕒 Schedule the message
     if is_sms_required:
         schedule.every().day.at(schedule_time_1).do(send_daily_message_scheduled)
         schedule.every().day.at(schedule_time_2).do(send_daily_message_scheduled)
     schedule.every().day.at(daily_report_schedule_time).do(daily_mail_api)
-    print(f"Scheduled task at {schedule_time_1} and {schedule_time_2} and {daily_report_schedule_time}. Waiting...")
+    schedule.every().day.at(daily_backup_schedule_time).do(backup_to_googleDrive)
+    print(f"Scheduled task at {schedule_time_1} and {schedule_time_2} and {daily_report_schedule_time} and {daily_backup_schedule_time}. Waiting...")
     # Keep running
     while True:
         schedule.run_pending()

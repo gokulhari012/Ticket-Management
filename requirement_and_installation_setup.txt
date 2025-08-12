@@ -38,6 +38,7 @@ sudo pip install flask-sqlalchemy
 sudo pip install keyboard
 sudo pip install rpi_ws281x
 sudo pip install pandas openpyxl flask-mail
+sudo pip install pydrive
 
 ---------------trobelshoot(pandas not worked due to numpy. numpy not work due to libopenblas)-----
 python -c "import pandas as pd; print(pd.__version__)"
