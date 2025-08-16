@@ -316,14 +316,14 @@ def login():
             flash('Login successful!', 'success')
             return redirect(url_for('home'))
         else:
-            flash('Invalid username or password', 'danger')
+            flash('Invalid username or password', 'error')
             return redirect(url_for('login'))
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
     session.pop('user', None)
-    flash('Logged out successfully.', 'info')
+    flash('Logged out successfully.', 'success')
     return redirect(url_for('home'))
 
 @app.route('/')

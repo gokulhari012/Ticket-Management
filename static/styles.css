@@ -544,6 +544,7 @@ a {
     margin-bottom: 10px;
 }
 .flash.error {
+    border-left: 5px solid #f4cccf;
     background-color: #f8d7da;
     color: #721c24;
 }
@@ -555,6 +556,7 @@ a {
 /* .flash.success { background-color: #28a745; }
 .flash.error { background-color: #dc3545; } */
 .flash.warning { 
+    border-left: 5px solid #e4ae0a;
     background-color: #ffc107; 
     color: #333; 
 }
