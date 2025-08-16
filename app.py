@@ -16,8 +16,8 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import shutil
 
-is_rashberrypi = False
-# is_rashberrypi = True
+#is_rashberrypi = False
+is_rashberrypi = True
 
 debug_mode = not is_rashberrypi
 
@@ -97,6 +97,8 @@ FOLDER_ID = "1sfoiiyb-JtL4k6mUM_nNB0PtLAwyCRJB"
 folder_path = "instance/backup/"
 client_json_file_path = "static/client_secrets.json" # the secert key in lotusaquaiot google drive and in keep notes(in github we not able to uplaod secrete key)
 daily_backup_schedule_time = "18:00"
+
+init_programs_executed=False
 
 # Create folder if it doesn't exist
 os.makedirs(folder_path, exist_ok=True)
@@ -1862,6 +1864,8 @@ def backup_to_googleDrive():
 
 def schedule_task():
     # 🕒 Schedule the message
+    # Clear all old jobs first
+    schedule.clear()
     if is_sms_required:
         schedule.every().day.at(schedule_time_1).do(send_daily_message_scheduled)
         schedule.every().day.at(schedule_time_2).do(send_daily_message_scheduled)
@@ -1892,11 +1896,13 @@ if __name__ == '__main__':
     # Initialize the database (create tables)
     with app.app_context():
         db.create_all()
-        #generate_dealer_account_table() #Run to createa account for existing dealers
-        #backup_to_googleDrive()
-        threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start() #send the token on startup
-        threading.Thread(target=schedule_task).start() #send the token on startup
-        threading.Thread(target=send_to_blynk).start() #send the token on startup
+        if not init_programs_executed:
+            #generate_dealer_account_table() #Run to createa account for existing dealers
+            #backup_to_googleDrive()
+            threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start() #send the token on startup
+            threading.Thread(target=schedule_task).start() #send the token on startup
+            threading.Thread(target=send_to_blynk).start() #send the token on startup
+            init_programs_executed = True
 
     if is_rashberrypi: 
         pass
