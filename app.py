@@ -174,6 +174,7 @@ class BillingHistory(db.Model):
     credit_balance = db.Column(db.Float, nullable=False)
     paid_amount_gpay = db.Column(db.Float, nullable=False)
     paid_amount_cash = db.Column(db.Float, nullable=False)
+    credit_amount = db.Column(db.Float, nullable=False)
     # paid_amount = db.Column(db.Float, nullable=False)
     remaining_balance = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now)
@@ -1235,6 +1236,7 @@ def generate_bill(token_id, data_entry_call):
         grand_total = round(quantity * item.price, 2)
         total_amount = round(grand_total / (1 + gst_rate), 2)
         gst_amount = round(grand_total - total_amount, 2)
+        credit_amount = grand_total - paid_amount_cash - paid_amount_gpay
 
         remaining_balance = round((account.current_balance or 0) + grand_total - paid_amount_gpay - paid_amount_cash, 2)
 
@@ -1250,6 +1252,7 @@ def generate_bill(token_id, data_entry_call):
             credit_balance=account.current_balance,
             paid_amount_gpay=paid_amount_gpay,
             paid_amount_cash=paid_amount_cash,
+            credit_amount=credit_amount,
             remaining_balance=remaining_balance
         )
 
@@ -1417,9 +1420,10 @@ def generate_excel_billing_history(filtered_data):
     total_amounts = []
     gst_amounts = []
     grand_totals = []
-    credit_amounts = []
     paid_gpay = []
     paid_cash = []
+    credit_amounts = []
+    credit_balances = []
     remaining_balances = []
     timestamps = []
     record_ids = []
@@ -1436,7 +1440,8 @@ def generate_excel_billing_history(filtered_data):
             total_amounts.append(billing.total_amount)
             gst_amounts.append(billing.gst_amount)
             grand_totals.append(billing.grand_total)
-            credit_amounts.append(billing.credit_balance)
+            credit_amounts.append(billing.credit_amount)
+            credit_balances.append(billing.credit_balance)
             paid_gpay.append(billing.paid_amount_gpay)
             paid_cash.append(billing.paid_amount_cash)
             remaining_balances.append(billing.remaining_balance)
@@ -1454,6 +1459,7 @@ def generate_excel_billing_history(filtered_data):
         "Gst Amount": gst_amounts,
         "Grand Total": grand_totals,
         "Credit Amount": credit_amounts,
+        "Credit Balance": credit_balances,
         "Paid Amount(Gpay)": paid_gpay,
         "Paid Amount(Cash)": paid_cash,
         "Remaining Balance": remaining_balances,

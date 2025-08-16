@@ -44,64 +44,68 @@
             </div>
         </div>
         <h2>All Entries</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>S.No</th>
-                <th>Billing Id</th>
-                <th>Token Id</th>
-                <th>Dealer Id</th>
-                <th>Dealer Name</th>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Item Price</th>
-                <th>Total</th>
-                <th>Gst Amount</th>
-                <th>Grand Total</th>
-                <th>Credit Balance (Before payment)</th>
-                <th>Amount Paid(Gpay)</th>
-                <th>Amount Paid(Cash)</th>
-                <th>Credit Balance</th>
-                <th>Date Time</th>
-                <th class=" hide-on-print">Print Bill</th>
-                <th class=" hide-on-print">Void Bill</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for dealer, item, bill in bills %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ bill.id }}</td>
-                <td>{{ bill.billing_id }}</td>
-                <td>{{ bill.dealer_id }}</td>
-                <td>{{ dealer.name }}</td>
-                <td>{{ item.item_name }}</td>
-                <td>{{ bill.quantity }}</td>
-                <td>₹{{ bill.item_price }}</td>
-                <td>₹{{ "%0.2f"|format(bill.total_amount) }}</td>
-                <td>₹{{ "%0.2f"|format(bill.gst_amount) }}</td>
-                <td>₹{{ "%0.2f"|format(bill.grand_total) }}</td>
-                <td>₹{{ "%0.2f"|format(bill.credit_balance) }}</td>
-                <td>₹{{ "%0.2f"|format(bill.paid_amount_gpay) }}</td>
-                <td>₹{{ "%0.2f"|format(bill.paid_amount_cash) }}</td>
-                <td>₹{{ "%0.2f"|format(bill.remaining_balance) }}</td>
-                <td width="120px">{{ bill.formatted_date_time }}</td>
-                <td class=" hide-on-print">
-                    <a class="print-bill" href="{{ url_for('print_bill', id=bill.id, return_path='\/billing_history') }}" class="btn">Print Bill</a>
-                </td>
-                <td>
-                    {% if not bill.voided %}
-                    <form action="/void_bill/{{ bill.id }}" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to void this bill?')">Void</button>
-                    </form>
-                    {% else %}
-                        <span class="text-muted">Voided</span>
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div style="overflow-x:auto;overflow-y: hidden; width: 100%;">
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Billing Id</th>
+                    <th>Token Id</th>
+                    <th>Dealer Id</th>
+                    <th>Dealer Name</th>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Item Price</th>
+                    <th>Total</th>
+                    <th>Gst Amount</th>
+                    <th>Grand Total</th>
+                    <th>Credit Balance (Before payment)</th>
+                    <th>Amount Paid (Gpay)</th>
+                    <th>Amount Paid (Cash)</th>
+                    <th>Credit Amount (current payment)</th>
+                    <th>Credit Balance</th>
+                    <th>DateTime</th>
+                    <th class=" hide-on-print">Print Bill</th>
+                    <th class=" hide-on-print">Void Bill</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for dealer, item, bill in bills %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ bill.id }}</td>
+                    <td>{{ bill.billing_id }}</td>
+                    <td>{{ bill.dealer_id }}</td>
+                    <td>{{ dealer.name }}</td>
+                    <td>{{ item.item_name }}</td>
+                    <td>{{ bill.quantity }}</td>
+                    <td>₹{{ bill.item_price }}</td>
+                    <td>₹{{ "%0.2f"|format(bill.total_amount) }}</td>
+                    <td>₹{{ "%0.2f"|format(bill.gst_amount) }}</td>
+                    <td>₹{{ "%0.2f"|format(bill.grand_total) }}</td>
+                    <td>₹{{ "%0.2f"|format(bill.credit_balance) }}</td>
+                    <td>₹{{ "%0.2f"|format(bill.paid_amount_gpay) }}</td>
+                    <td>₹{{ "%0.2f"|format(bill.paid_amount_cash) }}</td>
+                    <td>₹{{ "%0.2f"|format(bill.credit_amount) }}</td>
+                    <td>₹{{ "%0.2f"|format(bill.remaining_balance) }}</td>
+                    <td width="120px">{{ bill.formatted_date_time }}</td>
+                    <td class=" hide-on-print">
+                        <a class="print-bill" href="{{ url_for('print_bill', id=bill.id, return_path='\/billing_history') }}" class="btn">Print Bill</a>
+                    </td>
+                    <td>
+                        {% if not bill.voided %}
+                        <form action="/void_bill/{{ bill.id }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to void this bill?')">Void</button>
+                        </form>
+                        {% else %}
+                            <span class="text-muted">Voided</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
     <a href="/" class="back">Back</a>        
     {% with messages = get_flashed_messages(with_categories=true) %}
