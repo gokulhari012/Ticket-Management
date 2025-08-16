@@ -1812,6 +1812,7 @@ def backup_to_googleDrive():
     if gauth.credentials is None:
         # Authenticate if credentials not present
         gauth.LocalWebserverAuth()
+        #gauth.CommandLineAuth()
     elif gauth.access_token_expired:
         # Refresh credentials if expired
         gauth.Refresh()
@@ -1870,7 +1871,7 @@ def schedule_task():
     # Keep running
     while True:
         schedule.run_pending()
-        time.sleep(1)
+        time.sleep(60)
 
 #the below is just one time run code to populate data
 def generate_dealer_account_table():
@@ -1892,6 +1893,7 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         #generate_dealer_account_table() #Run to createa account for existing dealers
+        #backup_to_googleDrive()
         threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start() #send the token on startup
         threading.Thread(target=schedule_task).start() #send the token on startup
         threading.Thread(target=send_to_blynk).start() #send the token on startup

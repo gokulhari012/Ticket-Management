@@ -5,6 +5,13 @@ Development commands
 See logs -> sudo journalctl -u flaskapp.service
 See logs real time -> sudo journalctl -u flaskapp.service -f
 
+backup mail id: lotusaquaiot@gmail.com
+For db backup to google drive -> 
+1) static\client_secrets.json remove "---gokul" from "client_secret"
+2) Uncomment this backup_to_googleDrive() method and run. (browerser open and login via lotusaquaiot@gmail.com)
+3) Generate mycreds.txt in my laptop and copy paste in rashberry pi-> ticketmanagement/ folder.
+4) don't push to git.
+
 
 Sql DB column update
 sqlite3 instance/dealers.db
