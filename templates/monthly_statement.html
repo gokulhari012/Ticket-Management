@@ -73,6 +73,7 @@
                     <th>Amount received (Gpay)(-) </th>
                     <th>Net Cash Remaining</th>
                     <th>TimeStamp</th>
+                    <th class=" hide-on-print">Print Bill</th>
                     <th class="action">Actions</th></tr>
             </thead>
             <tbody>
@@ -173,11 +174,14 @@
                             {{ statement.timestamp }}
                        </div>
                     </td>  
+                    <td class="hide-on-print">
+                        <a class="print-bill print-btn" href="{{ url_for('print_daily_account_statement', id=statement.id, return_path='\/monthly_statement') }}" class="btn">Print Statement</a>
+                    </td>
                     <td>
-                       <div style="width:230px;"">
+                       <div style="width:130px;"">
                             <!-- <button class="edit update-btn" type="submit">Update</button> -->
                             </form>
-                            <form class="delete-form" method="POST" action="{{ url_for('delete_monthly_statement', statement_id=statement.id) }}" onsubmit="return confirm('Are you sure?');">
+                            <form class="" method="POST" action="{{ url_for('delete_monthly_statement', statement_id=statement.id) }}" onsubmit="return confirm('Are you sure?');">
                                 <button class="edit delete delete-btn" type="submit">Delete</button>
                             </form>
                        </div>

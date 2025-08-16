@@ -430,6 +430,28 @@ a {
     width: 80px;
 }
 
+.monthly_statement .print-btn{
+    position: relative;
+    font-size: medium;
+    width: 70px;
+}
+
+.monthly_statement .delete-btn{
+    position: relative;
+    font-size: medium;
+    height: 65px;
+    /* width: 70px; */
+    left: 0px;
+    transition: transform 0.2s, background-color 0.2s;;
+    bottom: 0px;
+}
+.monthly_statement .delete-btn:hover{
+    transform: scale(1.20);
+}
+.monthly_statement .delete-btn:active{
+    transform: scale(0.95);
+}
+
 .add-dealer-btn{
     margin-top: 20px;
     margin-bottom: 50px;

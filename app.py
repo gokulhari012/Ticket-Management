@@ -874,71 +874,76 @@ def daily_accounts():
             except (ValueError, TypeError):
                 entry_date = date.today()
 
-            one_can_price = float(data.get('one_can_price', 0))
-            total_can_filling = float(data.get('total_can_filling', 0))
-            total_amount = float(data.get('total_amount', 0))
-            total_can_filling = float(data.get('total_can_filling', 0))
-            total_credit_amount = float(data.get('total_credit_amount', 0))
-            today_credit_amount = float(data.get('today_credit_amount', 0))
-            amount_gpay = float(data.get('amount_gpay', 0))
-            amount_cash = float(data.get('amount_cash', 0))
-            net_recevied_amount = float(data.get('net_recevied_amount', 0))
-            credit_amount_received_gpay = float(data.get('credit_amount_received_gpay', 0))
-            credit_amount_received_cash = float(data.get('credit_amount_received_cash', 0))
-            net_credit_amount_received = float(data.get('net_credit_amount_received', 0))
-            chit_amount = float(data.get('chit_amount', 0))
-            diesel = float(data.get('diesel', 0))
-            spares = float(data.get('spares', 0))
-            pooja_items = float(data.get('pooja_items', 0))
-            milk_and_others = float(data.get('milk_and_others', 0))
-            salary_advance = float(data.get('salary_advance', 0))
-            salary = float(data.get('salary', 0))
-            eb = float(data.get('eb', 0))
-            service_labour = float(data.get('service_labour', 0))
-            stationaries = float(data.get('stationaries', 0))
-            sunday_ots = float(data.get('sunday_ots', 0))
-            others_expenses = float(data.get('others_expenses', 0))
-            notes = data.get('notes',"")
-            total_expenses = float(data.get('total_expenses_2', 0))
-            net_amount_remaining = float(data.get('net_amount_remaining', 0))
-            net_cash_remaining = float(data.get('net_cash_remaining', 0))
-
-            record = DailyAccounts(
-                date=entry_date,
-                one_can_price=one_can_price,
-                total_can_filling=total_can_filling,
-                total_amount=total_amount,
-                total_credit_amount=total_credit_amount,
-                today_credit_amount=today_credit_amount,
-                amount_gpay=amount_gpay,
-                amount_cash=amount_cash,
-                net_recevied_amount=net_recevied_amount,
-                credit_amount_received_gpay=credit_amount_received_gpay,
-                credit_amount_received_cash=credit_amount_received_cash,
-                net_credit_amount_received=net_credit_amount_received,
-                chit_amount=chit_amount,
-                diesel=diesel,
-                spares=spares,
-                pooja_items=pooja_items,
-                milk_and_others=milk_and_others,
-                salary_advance=salary_advance,
-                salary=salary,
-                eb=eb,
-                service_labour=service_labour,
-                stationaries=stationaries,
-                sunday_ots=sunday_ots,
-                others_expenses=others_expenses,
-                notes=notes,
-                total_expenses=total_expenses,
-                net_amount_remaining=net_amount_remaining,
-                net_cash_remaining=net_cash_remaining
-            )
+            daily_accounts = DailyAccounts.query.filter_by(date=entry_date).first()
             
-            db.session.add(record)
-            DayExpenses.query.delete()
-            db.session.commit()
-            flash("Daily Statement saved!", "success")
-        
+            if not daily_accounts:
+                one_can_price = float(data.get('one_can_price', 0))
+                total_can_filling = float(data.get('total_can_filling', 0))
+                total_amount = float(data.get('total_amount', 0))
+                total_can_filling = float(data.get('total_can_filling', 0))
+                total_credit_amount = float(data.get('total_credit_amount', 0))
+                today_credit_amount = float(data.get('today_credit_amount', 0))
+                amount_gpay = float(data.get('amount_gpay', 0))
+                amount_cash = float(data.get('amount_cash', 0))
+                net_recevied_amount = float(data.get('net_recevied_amount', 0))
+                credit_amount_received_gpay = float(data.get('credit_amount_received_gpay', 0))
+                credit_amount_received_cash = float(data.get('credit_amount_received_cash', 0))
+                net_credit_amount_received = float(data.get('net_credit_amount_received', 0))
+                chit_amount = float(data.get('chit_amount', 0))
+                diesel = float(data.get('diesel', 0))
+                spares = float(data.get('spares', 0))
+                pooja_items = float(data.get('pooja_items', 0))
+                milk_and_others = float(data.get('milk_and_others', 0))
+                salary_advance = float(data.get('salary_advance', 0))
+                salary = float(data.get('salary', 0))
+                eb = float(data.get('eb', 0))
+                service_labour = float(data.get('service_labour', 0))
+                stationaries = float(data.get('stationaries', 0))
+                sunday_ots = float(data.get('sunday_ots', 0))
+                others_expenses = float(data.get('others_expenses', 0))
+                notes = data.get('notes',"")
+                total_expenses = float(data.get('total_expenses_2', 0))
+                net_amount_remaining = float(data.get('net_amount_remaining', 0))
+                net_cash_remaining = float(data.get('net_cash_remaining', 0))
+
+                record = DailyAccounts(
+                    date=entry_date,
+                    one_can_price=one_can_price,
+                    total_can_filling=total_can_filling,
+                    total_amount=total_amount,
+                    total_credit_amount=total_credit_amount,
+                    today_credit_amount=today_credit_amount,
+                    amount_gpay=amount_gpay,
+                    amount_cash=amount_cash,
+                    net_recevied_amount=net_recevied_amount,
+                    credit_amount_received_gpay=credit_amount_received_gpay,
+                    credit_amount_received_cash=credit_amount_received_cash,
+                    net_credit_amount_received=net_credit_amount_received,
+                    chit_amount=chit_amount,
+                    diesel=diesel,
+                    spares=spares,
+                    pooja_items=pooja_items,
+                    milk_and_others=milk_and_others,
+                    salary_advance=salary_advance,
+                    salary=salary,
+                    eb=eb,
+                    service_labour=service_labour,
+                    stationaries=stationaries,
+                    sunday_ots=sunday_ots,
+                    others_expenses=others_expenses,
+                    notes=notes,
+                    total_expenses=total_expenses,
+                    net_amount_remaining=net_amount_remaining,
+                    net_cash_remaining=net_cash_remaining
+                )
+                
+                db.session.add(record)
+                DayExpenses.query.delete()
+                db.session.commit()
+                flash("Daily Statement saved!", "success")
+                return print_daily_account_statement(record.id, "/daily_accounts")
+            else:
+                flash("Daily Statement Addition Failed - Statement Already Added!", "error")
         else:
             save_expense(request)
             flash("Expense saved successfully!", "success")
@@ -1036,6 +1041,44 @@ def get_filtered_data_daily_accounts(request):
     filtered_data = query.order_by(DailyAccounts.timestamp.desc()).all()
 
     return filtered_data
+
+@app.route('/print_daily_account_statement/<int:id>/<path:return_path>')
+def print_daily_account_statement(id, return_path):
+    daily_accounts = DailyAccounts.query.filter_by(id=id).first()
+
+    #Payment details
+    payment_billing_history_details = db.session.query(Dealer_details, PaymentBillingHistory).outerjoin(PaymentBillingHistory, Dealer_details.dealer_id == PaymentBillingHistory.dealer_id).filter(func.date(PaymentBillingHistory.timestamp)==daily_accounts.date).filter(or_(PaymentBillingHistory.voided == False, PaymentBillingHistory.voided == None)).order_by(PaymentBillingHistory.timestamp.asc()).all()
+    paymentBillingHistory = PaymentBillingHistory.query.filter(func.date(PaymentBillingHistory.timestamp)==daily_accounts.date).filter(or_(PaymentBillingHistory.voided == False, PaymentBillingHistory.voided == None)).all()
+    credit_amount_received_gpay = sum([row.paid_amount_gpay for row in paymentBillingHistory])
+    credit_amount_received_cash = sum([row.paid_amount_cash for row in paymentBillingHistory])
+    net_credit_amount_received = credit_amount_received_gpay + credit_amount_received_cash
+
+    #Credits dealer details for billing
+    billing_history_details = db.session.query(Dealer_details, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).filter(func.date(BillingHistory.timestamp)==daily_accounts.date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.credit_amount!=0).order_by(BillingHistory.timestamp.asc()).all()
+    billingHistory = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==daily_accounts.date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.credit_amount!=0).all()
+    total_credit_amount = sum([row.credit_amount for row in billingHistory])
+
+    #Gpay Details 
+    #Payment Billing
+    payment_billing_history_details_gpay = db.session.query(Dealer_details, PaymentBillingHistory).outerjoin(PaymentBillingHistory, Dealer_details.dealer_id == PaymentBillingHistory.dealer_id).filter(func.date(PaymentBillingHistory.timestamp)==daily_accounts.date).filter(or_(PaymentBillingHistory.voided == False, PaymentBillingHistory.voided == None)).filter(PaymentBillingHistory.paid_amount_gpay!=0).order_by(PaymentBillingHistory.timestamp.asc()).all()
+    paymentBillingHistory_gpay = PaymentBillingHistory.query.filter(func.date(PaymentBillingHistory.timestamp)==daily_accounts.date).filter(or_(PaymentBillingHistory.voided == False, PaymentBillingHistory.voided == None)).all()
+    credit_amount_received_gpay_gpay = sum([row.paid_amount_gpay for row in paymentBillingHistory_gpay])
+
+    #Billing
+    billing_history_details_gpay = db.session.query(Dealer_details, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).filter(func.date(BillingHistory.timestamp)==daily_accounts.date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.credit_amount!=0).filter(BillingHistory.paid_amount_gpay!=0).order_by(BillingHistory.timestamp.asc()).all()
+    billingHistory_gpay = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==daily_accounts.date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.credit_amount!=0).all()
+    amount_received_gpay = sum([row.paid_amount_gpay for row in billingHistory_gpay])
+
+    total_amount_received_gpay = credit_amount_received_gpay_gpay + amount_received_gpay
+
+    # dealer = Dealer_details.query.filter_by(dealer_id=bill.dealer_id).first_or_404()
+    return render_template('print_daily_account_statement.html', daily_accounts=daily_accounts, 
+                           payment_billing_history_details=payment_billing_history_details, credit_amount_received_cash=credit_amount_received_cash, credit_amount_received_gpay=credit_amount_received_gpay, net_credit_amount_received=net_credit_amount_received,
+                           billing_history_details=billing_history_details,total_credit_amount=total_credit_amount,
+                           payment_billing_history_details_gpay=payment_billing_history_details_gpay, credit_amount_received_gpay_gpay=credit_amount_received_gpay_gpay,
+                           billing_history_details_gpay=billing_history_details_gpay, amount_received_gpay=amount_received_gpay,
+                           total_amount_received_gpay=total_amount_received_gpay,
+                           return_path=return_path)
 
 @app.route('/monthly_statement', methods=['GET', 'POST'])
 def monthly_statement():

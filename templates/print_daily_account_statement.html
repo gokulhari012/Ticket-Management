@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Day End Statement</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* ---- Print setup (Chrome) ---- */
+    @page { size: A4; margin: 12mm;}
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      margin-top: 20%;
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      color: #111;
+    }
+
+    /* Canvas centered on page */
+    .sheet {
+      box-sizing: border-box;
+      padding: 12mm; 
+      max-width: 190mm;          /* 210 - (12+12) mm */
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    /* Main table mimicking the layout */
+    table.statement {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #000;
+    }
+    .statement th,
+    .statement td {
+      border: 1px solid #000;
+      padding: 10px 12px;
+      font-size: 12pt;
+    }
+
+    /* Header row */
+    .title-row {
+      font-weight: 700;
+      text-align: center;
+      font-size: 14pt;
+    }
+    .title-row td {
+      border-bottom: 1px solid #000;
+    }
+
+    /* Two-column value rows (label / value) */
+    .k { width: 60%; font-weight: 700; letter-spacing: 0.5px; }
+    .v { width: 40%; text-align: right; }
+
+    /* Empty spacer row between totals and signature area */
+    .spacer td { height: 14mm; border-left: 1px solid #000; border-right: 1px solid #000; }
+
+    /* Signature block: two cells */
+    .sign-row td { height: 28mm; vertical-align: bottom; font-size: 11pt; }
+    .sign-label { text-align: center; padding-bottom: 6mm; font-weight: 600; }
+
+    /* Subtle fix so outer border looks thicker like in image */
+    .statement { border-width: 1.2px; }
+    .statement th, .statement td { border-width: 1px; }
+     .page-break {
+      page-break-after: always;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 50px;
+      border-collapse: collapse;
+      border: 1px solid #000;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 6px 10px;
+      font-size: 11pt;
+      text-align: left;
+    }
+    .dealer-id-column{
+      width: 50px;
+    }
+    .title-row {
+      font-weight: 700;
+      text-align: center;
+      font-size: 14pt;
+    }
+    .k { width: 60%; font-weight: 700; }
+    .v { width: 40%; text-align: right; }
+    .sign-row td {
+      height: 28mm;
+      vertical-align: bottom;
+      text-align: center;
+      font-weight: 600;
+      font-size: 11pt;
+    }
+    .section-title {
+      font-weight: bold;
+      text-align: center;
+      padding: 6px;
+      font-size: 12pt;
+    }
+
+    /* 🔹 KEY: Auto page breaks for long tables */
+    
+    /* table, tr, td, th {
+      page-break-inside: avoid;  prevent row cutting 
+    }
+
+    table {
+      page-break-after: auto;
+    }
+
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+     */
+  </style>
+</head>
+<body onload="printAndRedirect()">
+
+  <!-- PAGE 1 -->
+  <div class="sheet page-break">
+    <table class="statement">
+      <!-- Header row -->
+      <tr class="title-row">
+        <td colspan="2">
+          DATE : {{ daily_accounts.formatted_date or "00.00.2000" }} &nbsp;&nbsp;&nbsp;&nbsp; <span>Day End statement</span>
+        </td>
+      </tr>
+
+      <!-- Values -->
+      <tr>
+        <td class="k">TOTAL FILLING</td>
+        <td class="v">{{ daily_accounts.total_can_filling or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">EXPECTED AMOUNT FOR TOTAL FILLING</td>
+        <td class="v">{{ daily_accounts.total_amount or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">+ TOTAL SALES (Gpay)(Cash)</td>
+        <td class="v">{{ daily_accounts.net_recevied_amount or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">+ CREDIT AMOUNT PAYMENTS (Gpay)(Cash)</td>
+        <td class="v">{{ daily_accounts.net_credit_amount_received or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">- EXPENSES</td>
+        <td class="v">{{ daily_accounts.total_expenses or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">NET Amount (Gpay)(Cash)</td>
+        <td class="v">{{ daily_accounts.net_cash_remaining or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">- TOTAL SALES (Gpay)</td>
+        <td class="v">{{ daily_accounts.amount_gpay or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">- CREDIT AMOUNT PAYMENTS (Gpay)</td>
+        <td class="v">{{ daily_accounts.credit_amount_received_gpay or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">NET CASH</td>
+        <td class="v">{{ daily_accounts.net_cash_remaining or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">TODAY CREDITS</td>
+        <td class="v">{{ daily_accounts.today_credit_amount or 0 }}</td>
+      </tr>
+
+      <!-- Spacer like in the image -->
+      <tr class="spacer">
+        <td colspan="2"></td>
+      </tr>
+
+      <!-- Signature labels -->
+      <tr class="sign-row">
+        <td class="sign-label">ACCOUNTS CLOSING MANAGER SIGN</td>
+        <td class="sign-label">RECEIVER SIGN</td>
+      </tr>
+
+      <!-- Bottom spacer line (optional) -->
+      <tr>
+        <td style="height: 10mm;"></td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+  
+  
+  <!-- PAGE 2 -->
+  <div class="sheet">
+    <p style="text-align:center; font-size:12pt; font-weight:600; margin-bottom:6mm;">
+      Date : {{ daily_accounts.formatted_date or "00.00.2000" }} &nbsp; - &nbsp; FINAL BILL &nbsp; - &nbsp; PRINT
+    </p>
+
+    <!-- PAYMENTS -->
+    <table>
+      <tr><td colspan="7" class="section-title">CREDITS PAYMENTS</td></tr>
+      <tr>
+        <th>BILL NO</th><th class="dealer-id-column">DEALER ID</th><th>NAME</th><th>CASH</th><th>GPAY</th><th>TOTAL</th><th>REMARKS</th>
+      </tr>
+      {% for dealers, payment_billing_history in payment_billing_history_details %}
+      <tr>
+        <td>{{ payment_billing_history.id }}</td>
+        <td>{{ dealers.dealer_id }}</td>
+        <td>{{ dealers.name }}</td>
+        <td>{{ payment_billing_history.paid_amount_cash }}</td>
+        <td>{{ payment_billing_history.paid_amount_gpay }}</td>
+        <td>{{ payment_billing_history.paid_amount_cash + payment_billing_history.paid_amount_gpay }}</td>
+        <td></td>
+      </tr>
+      {% endfor %}
+      <tr><td colspan="3"><b>TOTAL</b></td><td colspan="1">{{ credit_amount_received_cash }}</td><td colspan="1">{{ credit_amount_received_gpay }}</td><td colspan="1">{{ net_credit_amount_received }}</td></tr>
+    </table>
+
+    <!-- CREDIT DETAILS -->
+    <table>
+      <tr><td colspan="6" class="section-title">CREDIT DETAILS</td></tr>
+      <tr>
+        <th>BILL NO</th><th class="dealer-id-column">DEALER ID</th><th>NAME</th><th>QUANTITY</th><th>CREDIT AMOUNT</th><th>REMARKS</th>
+      </tr>
+      {% for dealers, billing_history in billing_history_details %}
+      <tr>
+        <td>{{ billing_history.id }}</td>
+        <td>{{ dealers.dealer_id }}</td>
+        <td>{{ dealers.name }}</td>
+        <td>{{ billing_history.quantity }}</td>
+        <td>{{ billing_history.credit_amount }}</td>
+        <td></td>
+      </tr>
+      {% endfor %}
+      <tr><td colspan="4"><b>TOTAL</b></td><td colspan="2">{{ total_credit_amount }}</td></tr>
+    </table>
+
+    <!-- GPAY DETAILS -->
+    <table>
+      <tr><td colspan="6" class="section-title">GPAY DETAILS</td></tr>
+      <tr><td colspan="6" class="section-title">PAYMENT GPAY DETAILS</td></tr>
+      <tr>
+        <th>BILL NO</th><th class="dealer-id-column">DEALER ID</th><th>NAME</th><th>QUANTITY</th><th>GPAY AMOUNT</th><th>REMARKS</th>
+      </tr>
+      {% for dealers, payment_billing_history in payment_billing_history_details_gpay %}
+      <tr>
+        <td>{{ payment_billing_history.id }}</td>
+        <td>{{ dealers.dealer_id }}</td>
+        <td>{{ dealers.name }}</td>
+        <td>-</td>
+        <td>{{ payment_billing_history.paid_amount_gpay }}</td>
+        <td></td>
+      </tr>
+      {% endfor %}
+      <tr><td colspan="4"><b>PAYMENT GPAY TOTAL</b></td><td colspan="2">{{ credit_amount_received_gpay_gpay }}</td></tr>
+
+      <tr><td colspan="6" class="section-title">BILLING GPAY DETAILS</td></tr>
+      {% for dealers, billing_history in billing_history_details_gpay %}
+      <tr>
+        <td>{{ billing_history.id }}</td>
+        <td>{{ dealers.dealer_id }}</td>
+        <td>{{ dealers.name }}</td>
+        <td>{{ billing_history.quantity }}</td>
+        <td>{{ billing_history.paid_amount_gpay }}</td>
+        <td></td>
+      </tr>
+      {% endfor %}
+      <tr><td colspan="4"><b>BILLING GPAY TOTAL</b></td><td colspan="2">{{ amount_received_gpay }}</td></tr>
+      <tr><td colspan="4"><b>TOTAL GPAY AMOUNT</b></td><td colspan="2">{{ total_amount_received_gpay }}</td></tr>
+  
+    </table>
+
+    <!-- EXPENSE DETAILS -->
+    <table>
+      <tr><td colspan="3" class="section-title">Total EXPENSE DETAILS</td></tr>
+      <tr><th>Details</th><th>AMOUNT</th><th>REMARKS</th></tr>
+      <tr>
+        <td>Chit Amount</td>
+        <td>{{ daily_accounts.chit_amount or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Diesel</td>
+        <td>{{ daily_accounts.diesel or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Spares</td>
+        <td>{{ daily_accounts.spares or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Pooja Items</td>
+        <td>{{ daily_accounts.pooja_items or 0 }}</td>
+        <td></td>
+      </tr>
+     <tr>
+        <td>Milk and Others</td>
+        <td>{{ daily_accounts.milk_and_others or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Salary Advance</td>
+        <td>{{ daily_accounts.salary_advance or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Salary</td>
+        <td>{{ daily_accounts.salary or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Eb</td>
+        <td>{{ daily_accounts.eb or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Service Labour</td>
+        <td>{{ daily_accounts.service_labour or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Stationaries</td>
+        <td>{{ daily_accounts.stationaries or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Sunday Ots</td>
+        <td>{{ daily_accounts.sunday_ots or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Others Expenses</td>
+        <td>{{ daily_accounts.others_expenses or 0 }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Notes</td>
+        <td>{{ daily_accounts.notes}}</td>
+        <td></td>
+      </tr>
+      <tr><td><b>Total</b></td><td>{{daily_accounts.total_expenses }}</td><td></td></tr>
+    </table>
+  </div>
+      <script>
+    function printAndRedirect() {
+        window.print();
+        setTimeout(function() {
+            // console.log("{{return_path}}");
+            window.location.href = "{{return_path}}";
+        }, 1000);  // wait 3 seconds before redirect
+    }
+</script>
+</body>
+</html>
