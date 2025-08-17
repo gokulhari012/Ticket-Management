@@ -138,40 +138,48 @@
         <td class="v">{{ daily_accounts.total_can_filling or 0 }}</td>
       </tr>
       <tr>
-        <td class="k">EXPECTED AMOUNT FOR TOTAL FILLING</td>
+        <td class="k">TOTAL SALE VALUE</td>
         <td class="v">{{ daily_accounts.total_amount or 0 }}</td>
       </tr>
       <tr>
-        <td class="k">+ TOTAL SALES (Gpay)(Cash)</td>
-        <td class="v">{{ daily_accounts.net_recevied_amount or 0 }}</td>
-      </tr>
-      <tr>
-        <td class="k">+ CREDIT AMOUNT PAYMENTS (Gpay)(Cash)</td>
+        <td class="k">OLD PAYMENT (CASH + GPAY)</td>
         <td class="v">{{ daily_accounts.net_credit_amount_received or 0 }}</td>
       </tr>
       <tr>
-        <td class="k">- EXPENSES</td>
+        <td class="k"></td>
+        <td class="v">= {{ (daily_accounts.total_amount or 0) + (daily_accounts.net_credit_amount_received or 0) }}</td>
+      </tr>
+      <tr>
+        <td class="k">CREDIT (-)</td>
+        <td class="v">{{ total_credit_amount or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k"></td>
+        <td class="v">= {{ (daily_accounts.total_amount or 0) + (daily_accounts.net_credit_amount_received or 0) - (total_credit_amount or 0) }}</td>
+      </tr>
+      <tr>
+        <td class="k">EXPENSES (-)</td>
         <td class="v">{{ daily_accounts.total_expenses or 0 }}</td>
       </tr>
       <tr>
-        <td class="k">NET Amount (Gpay)(Cash)</td>
-        <td class="v">{{ daily_accounts.net_cash_remaining or 0 }}</td>
+        <td class="k"></td>
+        <td class="v">= {{ (daily_accounts.total_amount or 0) + (daily_accounts.net_credit_amount_received or 0) - (total_credit_amount or 0) - (daily_accounts.total_expenses or 0) }}</td>
       </tr>
       <tr>
-        <td class="k">- TOTAL SALES (Gpay)</td>
+        <td class="k">SALES GPAY (-)</td>
         <td class="v">{{ daily_accounts.amount_gpay or 0 }}</td>
       </tr>
       <tr>
-        <td class="k">- CREDIT AMOUNT PAYMENTS (Gpay)</td>
+        <td class="k"></td>
+        <td class="v">= {{ (daily_accounts.total_amount or 0) + (daily_accounts.net_credit_amount_received or 0) - (total_credit_amount or 0) - (daily_accounts.total_expenses or 0) - (daily_accounts.amount_gpay or 0) }}</td>
+      </tr>
+      <tr>
+        <td class="k">OLD PAYMENT GPAY (-)</td>
         <td class="v">{{ daily_accounts.credit_amount_received_gpay or 0 }}</td>
       </tr>
       <tr>
-        <td class="k">NET CASH</td>
-        <td class="v">{{ daily_accounts.net_cash_remaining or 0 }}</td>
-      </tr>
-      <tr>
-        <td class="k">TODAY CREDITS</td>
-        <td class="v">{{ daily_accounts.today_credit_amount or 0 }}</td>
+        <td class="k">NET CARRY</td>
+        <td class="v">= {{ (daily_accounts.total_amount or 0) + (daily_accounts.net_credit_amount_received or 0) - (total_credit_amount or 0) - (daily_accounts.total_expenses or 0) - (daily_accounts.amount_gpay or 0) - (daily_accounts.credit_amount_received_gpay or 0) }}</td>
       </tr>
 
       <!-- Spacer like in the image -->
@@ -202,7 +210,7 @@
 
     <!-- PAYMENTS -->
     <table>
-      <tr><td colspan="7" class="section-title">CREDITS PAYMENTS</td></tr>
+      <tr><td colspan="7" class="section-title">OLD PAYMENTS DETAILS</td></tr>
       <tr>
         <th>BILL NO</th><th class="dealer-id-column">DEALER ID</th><th>NAME</th><th>CASH</th><th>GPAY</th><th>TOTAL</th><th>REMARKS</th>
       </tr>
@@ -278,66 +286,90 @@
     <table>
       <tr><td colspan="3" class="section-title">Total EXPENSE DETAILS</td></tr>
       <tr><th>Details</th><th>AMOUNT</th><th>REMARKS</th></tr>
-      <tr>
-        <td>Chit Amount</td>
-        <td>{{ daily_accounts.chit_amount or 0 }}</td>
-        <td></td>
-      </tr>
+      {% if (daily_accounts.chit_amount or 0) != 0 %}
+        <tr>
+          <td>Chit Amount</td>
+          <td>{{ daily_accounts.chit_amount or 0 }}</td>
+          <td></td>
+        </tr>
+      {% endif %}
+      {% if (daily_accounts.diesel or 0) != 0 %}
       <tr>
         <td>Diesel</td>
         <td>{{ daily_accounts.diesel or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
+      {% if (daily_accounts.spares or 0) != 0 %}
       <tr>
         <td>Spares</td>
         <td>{{ daily_accounts.spares or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
+      {% if (daily_accounts.pooja_items or 0) != 0 %}
       <tr>
         <td>Pooja Items</td>
         <td>{{ daily_accounts.pooja_items or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
+      {% if (daily_accounts.milk_and_others or 0) != 0 %}
      <tr>
         <td>Milk and Others</td>
         <td>{{ daily_accounts.milk_and_others or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
+      {% if (daily_accounts.salary_advance or 0) != 0 %}
       <tr>
         <td>Salary Advance</td>
         <td>{{ daily_accounts.salary_advance or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
+      {% if (daily_accounts.salary or 0) != 0 %}
       <tr>
         <td>Salary</td>
         <td>{{ daily_accounts.salary or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
+      {% if (daily_accounts.eb or 0) != 0 %}
       <tr>
         <td>Eb</td>
         <td>{{ daily_accounts.eb or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
+      {% if (daily_accounts.service_labour or 0) != 0 %}
       <tr>
         <td>Service Labour</td>
         <td>{{ daily_accounts.service_labour or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
+      {% if (daily_accounts.stationaries or 0) != 0 %}
       <tr>
         <td>Stationaries</td>
         <td>{{ daily_accounts.stationaries or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
+      {% if (daily_accounts.sunday_ots or 0) != 0 %}
       <tr>
         <td>Sunday Ots</td>
         <td>{{ daily_accounts.sunday_ots or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
+      {% if (daily_accounts.others_expenses or 0) != 0 %}
       <tr>
         <td>Others Expenses</td>
         <td>{{ daily_accounts.others_expenses or 0 }}</td>
         <td></td>
       </tr>
+      {% endif %}
       <tr>
         <td>Notes</td>
         <td>{{ daily_accounts.notes}}</td>

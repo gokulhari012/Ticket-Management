@@ -24,7 +24,7 @@ debug_mode = not is_rashberrypi
 edit_password = "00000"
 # Login credentials
 USERNAME = "admin"
-PASSWORD = "admin"
+PASSWORD = "lotusgopi"
 
 daily_mail_email_id = "lotusaquafarms@yahoo.com"
 daily_report_schedule_time = "19:00"  # 24-hour format (HH:MM)
@@ -1067,7 +1067,7 @@ def print_daily_account_statement(id, return_path):
     credit_amount_received_gpay_gpay = sum([row.paid_amount_gpay for row in paymentBillingHistory_gpay])
 
     #Billing
-    billing_history_details_gpay = db.session.query(Dealer_details, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).filter(func.date(BillingHistory.timestamp)==daily_accounts.date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.credit_amount!=0).filter(BillingHistory.paid_amount_gpay!=0).order_by(BillingHistory.timestamp.asc()).all()
+    billing_history_details_gpay = db.session.query(Dealer_details, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).filter(func.date(BillingHistory.timestamp)==daily_accounts.date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.paid_amount_gpay!=0).order_by(BillingHistory.timestamp.asc()).all()
     billingHistory_gpay = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==daily_accounts.date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.credit_amount!=0).all()
     amount_received_gpay = sum([row.paid_amount_gpay for row in billingHistory_gpay])
 
