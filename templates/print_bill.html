@@ -44,6 +44,9 @@
         .top{
             margin-top: 0px;
         }
+        .number-bold{
+            font-weight: bold;
+        }
         @page {
             /* size: 80mm 290mm; */
             size: 80mm 290mm;
@@ -120,22 +123,22 @@
             <table style="margin-left: 0px;margin-top: 0px;">
                 <tr>
                     <td>PAID AMOUNT (GPAY):</td>
-                    <td>{{ bill.paid_amount_gpay }}</td>
+                    <td class="number-bold">{{ bill.paid_amount_gpay }}</td>
                 </tr>
                 <tr>
                     <td>PAID AMOUNT (CASH):</td>
-                    <td>{{ bill.paid_amount_cash }}</td>
+                    <td class="number-bold">{{ bill.paid_amount_cash }}</td>
                 </tr>
                 <tr>
                     <td>CREDIT AMOUNT:</td>
-                    <td>{{ bill.grand_total - bill.paid_amount_gpay - bill.paid_amount_cash }}</td>
+                    <td class="number-bold">{{ bill.grand_total - bill.paid_amount_gpay - bill.paid_amount_cash }}</td>
                 </tr>
             </table>
                 <div class="line"></div>
             <table style="margin-left: 0px;margin-top: 0px;">
                 <tr>
                     <td>CURRENT BALANCE DUE:</td>
-                    <td>{{ bill.remaining_balance }}</td>
+                    <td class="number-bold">{{ bill.remaining_balance }}</td>
                 </tr>
                 <tr>
                     <td>SIGN</td>
@@ -214,22 +217,22 @@
             <table style="margin-left: 0px;margin-top: 0px;">
                 <tr>
                     <td>PAID AMOUNT (GPAY):</td>
-                    <td>{{ bill.paid_amount_gpay }}</td>
+                    <td class="number-bold">{{ bill.paid_amount_gpay }}</td>
                 </tr>
                 <tr>
                     <td>PAID AMOUNT (CASH):</td>
-                    <td>{{ bill.paid_amount_cash }}</td>
+                    <td class="number-bold">{{ bill.paid_amount_cash }}</td>
                 </tr>
                 <tr>
                     <td>CREDIT AMOUNT:</td>
-                    <td>{{ bill.grand_total - bill.paid_amount_gpay - bill.paid_amount_cash  }}</td>
+                    <td class="number-bold">{{ bill.grand_total - bill.paid_amount_gpay - bill.paid_amount_cash  }}</td>
                 </tr>
             </table>
                 <div class="line"></div>
             <table style="margin-left: 0px;margin-top: 0px;">
                 <tr>
                     <td>CURRENT BALANCE DUE:</td>
-                    <td>{{ bill.remaining_balance }}</td>
+                    <td class="number-bold">{{ bill.remaining_balance }}</td>
                 </tr>
                 <tr>
                     <td>SIGN</td>
