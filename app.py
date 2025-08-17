@@ -1063,12 +1063,12 @@ def print_daily_account_statement(id, return_path):
     #Gpay Details 
     #Payment Billing
     payment_billing_history_details_gpay = db.session.query(Dealer_details, PaymentBillingHistory).outerjoin(PaymentBillingHistory, Dealer_details.dealer_id == PaymentBillingHistory.dealer_id).filter(func.date(PaymentBillingHistory.timestamp)==daily_accounts.date).filter(or_(PaymentBillingHistory.voided == False, PaymentBillingHistory.voided == None)).filter(PaymentBillingHistory.paid_amount_gpay!=0).order_by(PaymentBillingHistory.timestamp.asc()).all()
-    paymentBillingHistory_gpay = PaymentBillingHistory.query.filter(func.date(PaymentBillingHistory.timestamp)==daily_accounts.date).filter(or_(PaymentBillingHistory.voided == False, PaymentBillingHistory.voided == None)).all()
+    paymentBillingHistory_gpay = PaymentBillingHistory.query.filter(func.date(PaymentBillingHistory.timestamp)==daily_accounts.date).filter(or_(PaymentBillingHistory.voided == False, PaymentBillingHistory.voided == None)).filter(PaymentBillingHistory.paid_amount_gpay!=0).all()
     credit_amount_received_gpay_gpay = sum([row.paid_amount_gpay for row in paymentBillingHistory_gpay])
 
     #Billing
     billing_history_details_gpay = db.session.query(Dealer_details, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).filter(func.date(BillingHistory.timestamp)==daily_accounts.date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.paid_amount_gpay!=0).order_by(BillingHistory.timestamp.asc()).all()
-    billingHistory_gpay = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==daily_accounts.date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.credit_amount!=0).all()
+    billingHistory_gpay = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==daily_accounts.date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.paid_amount_gpay!=0).all()
     amount_received_gpay = sum([row.paid_amount_gpay for row in billingHistory_gpay])
 
     total_amount_received_gpay = credit_amount_received_gpay_gpay + amount_received_gpay
@@ -1806,59 +1806,65 @@ def send_to_blynk():
             time.sleep(10)
 
 def backup_to_googleDrive():
-    # Authenticate Google Drive
-    gauth = GoogleAuth()
-    gauth.LoadClientConfigFile(client_json_file_path)
-    gauth.LoadCredentialsFile("mycreds.txt")
+    try:
+        # Authenticate Google Drive
+        gauth = GoogleAuth()
+        gauth.LoadClientConfigFile(client_json_file_path)
+        gauth.LoadCredentialsFile("mycreds.txt")
 
-    if gauth.credentials is None:
-        # Authenticate if credentials not present
-        gauth.LocalWebserverAuth()
-        #gauth.CommandLineAuth()
-    elif gauth.access_token_expired:
-        # Refresh credentials if expired
-        gauth.Refresh()
-    else:
-        # Initialize with saved creds
-        gauth.Authorize()
+        if gauth.credentials is None:
+            # Authenticate if credentials not present
+            gauth.LocalWebserverAuth()
+            gauth.LocalWebserverAuth()  
+            gauth.settings['oauth_scope'] = ['https://www.googleapis.com/auth/drive']  
+            gauth.settings['get_refresh_token'] = True
+            #gauth.CommandLineAuth()
+        elif gauth.access_token_expired:
+            # Refresh credentials if expired
+            gauth.Refresh()
+        else:
+            # Initialize with saved creds
+            gauth.Authorize()
 
-    gauth.SaveCredentialsFile("mycreds.txt")
-    drive = GoogleDrive(gauth)
+        gauth.SaveCredentialsFile("mycreds.txt")
+        drive = GoogleDrive(gauth)
 
-    # Prepare backup file
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        # Prepare backup file
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    backup_filename = f"flask_db_backup_{timestamp}.db"
-    backup_file_path = folder_path + backup_filename
-    # os.system(f"cp {DB_PATH} {backup_filename}")  # Copy DB
-    shutil.copy(DB_PATH, backup_file_path)
+        backup_filename = f"flask_db_backup_{timestamp}.db"
+        backup_file_path = folder_path + backup_filename
+        # os.system(f"cp {DB_PATH} {backup_filename}")  # Copy DB
+        shutil.copy(DB_PATH, backup_file_path)
 
-    # Upload to Google Drive
-    # file = drive.CreateFile({'title': backup_filename})
+        # Upload to Google Drive
+        # file = drive.CreateFile({'title': backup_filename})
 
-    # Upload to specific folder
-    file = drive.CreateFile({
-        'title': backup_filename,
-        'parents': [{'id': FOLDER_ID}]
-    })
-    file.SetContentFile(backup_file_path)
-    file.Upload()
+        # Upload to specific folder
+        file = drive.CreateFile({
+            'title': backup_filename,
+            'parents': [{'id': FOLDER_ID}]
+        })
+        file.SetContentFile(backup_file_path)
+        file.Upload()
 
-    print(f"✅ Backup uploaded to Google Drive as {backup_filename}")
+        print(f"✅ Backup uploaded to Google Drive as {backup_filename}")
 
-    # Explicitly close the file handle
-    file.content.close()
+        # Explicitly close the file handle
+        file.content.close()
 
-    # Optionally remove local backup copy
-    # Delete local backup
-    # try:
-    #     if os.path.exists(backup_filename):
-    #         os.remove(backup_filename)
-    #         print("✅ Local backup deleted")
-    #     else:
-    #         print("⚠ Backup file not found")
-    # except PermissionError:
-    #     print(f"⚠ Could not delete {backup_filename} (still in use)")
+        # Optionally remove local backup copy
+        # Delete local backup
+        # try:
+        #     if os.path.exists(backup_filename):
+        #         os.remove(backup_filename)
+        #         print("✅ Local backup deleted")
+        #     else:
+        #         print("⚠ Backup file not found")
+        # except PermissionError:
+        #     print(f"⚠ Could not delete {backup_filename} (still in use)")
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 
@@ -1898,7 +1904,7 @@ if __name__ == '__main__':
         db.create_all()
         if not init_programs_executed:
             #generate_dealer_account_table() #Run to createa account for existing dealers
-            #backup_to_googleDrive()
+            backup_to_googleDrive()
             threading.Thread(target=token_updated_send_to_esp32,args=(get_next_token_id(),)).start() #send the token on startup
             threading.Thread(target=schedule_task).start() #send the token on startup
             threading.Thread(target=send_to_blynk).start() #send the token on startup
