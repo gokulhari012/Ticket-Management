@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Day End Statement</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* ---- Print setup (Chrome) ---- */
+    @page { size: A4; margin: 12mm;}
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      margin-top: 20%;
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      color: #111;
+    }
+
+    /* Canvas centered on page */
+    .sheet {
+      box-sizing: border-box;
+      padding: 12mm; 
+      max-width: 190mm;          /* 210 - (12+12) mm */
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    /* Main table mimicking the layout */
+    table.statement {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #000;
+    }
+    .statement th,
+    .statement td {
+      border: 1px solid #000;
+      padding: 10px 12px;
+      font-size: 12pt;
+    }
+
+    /* Header row */
+    .title-row {
+      font-weight: 700;
+      text-align: center;
+      font-size: 14pt;
+    }
+    .title-row td {
+      border-bottom: 1px solid #000;
+    }
+
+    /* Two-column value rows (label / value) */
+    .k { width: 60%; font-weight: 700; letter-spacing: 0.5px; }
+    .v { width: 40%; text-align: right; }
+
+    /* Empty spacer row between totals and signature area */
+    .spacer td { height: 14mm; border-left: 1px solid #000; border-right: 1px solid #000; }
+
+    /* Signature block: two cells */
+    .sign-row td { height: 28mm; vertical-align: bottom; font-size: 11pt; }
+    .sign-label { text-align: center; padding-bottom: 6mm; font-weight: 600; }
+
+    /* Subtle fix so outer border looks thicker like in image */
+    .statement { border-width: 1.2px; }
+    .statement th, .statement td { border-width: 1px; }
+     .page-break {
+      page-break-after: always;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 50px;
+      border-collapse: collapse;
+      border: 1px solid #000;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 6px 10px;
+      font-size: 11pt;
+      text-align: left;
+    }
+    .dealer-id-column{
+      width: 50px;
+    }
+    .title-row {
+      font-weight: 700;
+      text-align: center;
+      font-size: 14pt;
+    }
+    .k { width: 60%; font-weight: 700; }
+    .v { width: 40%; text-align: right; }
+    .sign-row td {
+      height: 28mm;
+      vertical-align: bottom;
+      text-align: center;
+      font-weight: 600;
+      font-size: 11pt;
+    }
+    .section-title {
+      font-weight: bold;
+      text-align: center;
+      padding: 6px;
+      font-size: 12pt;
+    }
+
+    /* 🔹 KEY: Auto page breaks for long tables */
+    
+    /* table, tr, td, th {
+      page-break-inside: avoid;  prevent row cutting 
+    }
+
+    table {
+      page-break-after: auto;
+    }
+
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+     */
+  </style>
+</head>
+<body onload="printAndRedirect()">
+
+ 
+  <!-- PAGE 2 -->
+  <div class="sheet">
+    <p style="text-align:center; font-size:12pt; font-weight:600; margin-bottom:6mm;">
+      Date : {{ date or "00.00.2000" }} &nbsp; - &nbsp; FINAL BILL &nbsp; - &nbsp; PRINT
+    </p>
+
+    <!-- CREDIT DETAILS -->
+    <table>
+      <tr><td colspan="6" class="section-title">CREDIT DETAILS</td></tr>
+      <tr>
+        <th>BILL NO</th><th class="dealer-id-column">DEALER ID</th><th>NAME</th><th>QUANTITY</th><th>CREDIT AMOUNT</th><th>REMARKS</th>
+      </tr>
+      {% for dealers, billing_history in billing_history_details %}
+      <tr>
+        <td>{{ billing_history.id }}</td>
+        <td>{{ dealers.dealer_id }}</td>
+        <td>{{ dealers.name }}</td>
+        <td>{{ billing_history.quantity }}</td>
+        <td>{{ billing_history.credit_amount }}</td>
+        <td></td>
+      </tr>
+      {% endfor %}
+      <tr><td colspan="4"><b>TOTAL</b></td><td colspan="2">{{ total_credit_amount }}</td></tr>
+    </table>
+
+  </div>
+      <script>
+    function printAndRedirect() {
+        window.print();
+        setTimeout(function() {
+            // console.log("{{return_path}}");
+            window.location.href = "{{return_path}}";
+        }, 1000);  // wait 3 seconds before redirect
+    }
+</script>
+</body>
+</html>

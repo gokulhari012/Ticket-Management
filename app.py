@@ -16,7 +16,7 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import shutil
 
-#is_rashberrypi = False
+# is_rashberrypi = False
 is_rashberrypi = True
 
 debug_mode = not is_rashberrypi
@@ -1081,6 +1081,50 @@ def print_daily_account_statement(id, return_path):
                            billing_history_details_gpay=billing_history_details_gpay, amount_received_gpay=amount_received_gpay,
                            total_amount_received_gpay=total_amount_received_gpay,
                            return_path=return_path)
+
+@app.route('/print_daily_credit_dealers_details')
+def print_daily_credit_dealers_details():
+    date = datetime.now().date()
+
+    #Credits dealer details for billing
+    billing_history_details = db.session.query(Dealer_details, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).filter(func.date(BillingHistory.timestamp)==date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.credit_amount!=0).order_by(BillingHistory.timestamp.asc()).all()
+    billingHistory = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.credit_amount!=0).all()
+    total_credit_amount = sum([row.credit_amount for row in billingHistory])
+
+    return_path = "/"
+    # dealer = Dealer_details.query.filter_by(dealer_id=bill.dealer_id).first_or_404()
+    return render_template('print_daily_credit_dealers_details.html',
+                           billing_history_details=billing_history_details,total_credit_amount=total_credit_amount,
+                            date=date,
+                            return_path=return_path)
+
+@app.route('/print_daily_gpay_dealers_details')
+def print_daily_gpay_dealers_details():
+    date = datetime.now().date()
+
+    #Gpay Details 
+    #Payment Billing
+    payment_billing_history_details_gpay = db.session.query(Dealer_details, PaymentBillingHistory).outerjoin(PaymentBillingHistory, Dealer_details.dealer_id == PaymentBillingHistory.dealer_id).filter(func.date(PaymentBillingHistory.timestamp)==date).filter(or_(PaymentBillingHistory.voided == False, PaymentBillingHistory.voided == None)).filter(PaymentBillingHistory.paid_amount_gpay!=0).order_by(PaymentBillingHistory.timestamp.asc()).all()
+    paymentBillingHistory_gpay = PaymentBillingHistory.query.filter(func.date(PaymentBillingHistory.timestamp)==date).filter(or_(PaymentBillingHistory.voided == False, PaymentBillingHistory.voided == None)).filter(PaymentBillingHistory.paid_amount_gpay!=0).all()
+    credit_amount_received_gpay_gpay = sum([row.paid_amount_gpay for row in paymentBillingHistory_gpay])
+
+    #Billing
+    billing_history_details_gpay = db.session.query(Dealer_details, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).filter(func.date(BillingHistory.timestamp)==date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.paid_amount_gpay!=0).order_by(BillingHistory.timestamp.asc()).all()
+    billingHistory_gpay = BillingHistory.query.filter(func.date(BillingHistory.timestamp)==date).filter(or_(BillingHistory.voided == False, BillingHistory.voided == None)).filter(BillingHistory.paid_amount_gpay!=0).all()
+    amount_received_gpay = sum([row.paid_amount_gpay for row in billingHistory_gpay])
+
+    total_amount_received_gpay = credit_amount_received_gpay_gpay + amount_received_gpay
+
+    return_path = "/"
+
+    # dealer = Dealer_details.query.filter_by(dealer_id=bill.dealer_id).first_or_404()
+    return render_template('print_daily_gpay_dealers_details.html',
+                           payment_billing_history_details_gpay=payment_billing_history_details_gpay, credit_amount_received_gpay_gpay=credit_amount_received_gpay_gpay,
+                           billing_history_details_gpay=billing_history_details_gpay, amount_received_gpay=amount_received_gpay,
+                           total_amount_received_gpay=total_amount_received_gpay,
+                           date=date,
+                           return_path=return_path)
+
 
 @app.route('/monthly_statement', methods=['GET', 'POST'])
 def monthly_statement():
