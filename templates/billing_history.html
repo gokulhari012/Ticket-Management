@@ -8,7 +8,7 @@
 <body>
 <div class="container billing-history">
     <h1>Billing History</h1>
-     <form method="GET" class="form">
+     <form method="GET" class="form hide-on-print">
             <label for="dealer_id">Filter by Dealer ID:</label>
             <input type="text" id="dealer_id" name="dealer_id" value="{{ dealer_id }}">
         
@@ -17,15 +17,26 @@
         
             <label for="date_to">To Date:</label>
             <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+            
+            <input type="hidden" name="filter_type" value="{{ filter_type }}">
         
             <button type="submit" name="filter_button" value="submit" class="btn">Filter</button>
     </form>
+    <!-- Filter buttons -->
+    <div class="filter-buttons hide-on-print">
+        <a href="/billing_history?filter_type=all" class="filter-button {{ 'active' if filter_type == 'all' else '' }}">All</a>
+        <a href="/billing_history?filter_type=credit" class="filter-button {{ 'active' if filter_type == 'credit' else '' }}">Credit</a>
+        <a href="/billing_history?filter_type=gpay" class="filter-button {{ 'active' if filter_type == 'gpay' else '' }}">Gpay</a>
+        <!-- <a href="/history?filter_type=all" class="filter-button {{ 'active' if filter_type == 'all' else '' }}">All</a> -->
+        <!-- <a href="/history?filter_type=all" class="filter-button">All</a> -->
+    </div>
     <div class="export-options hide-on-print">
             <form action="/export_billing_history" method="get">
                 <input type="hidden" name="dealer_id" value="{{ request.args.get('dealer_id', '') }}">
                 <input type="hidden" name="date_from" value="{{ request.args.get('date_from', '') }}">
                 <input type="hidden" name="date_to" value="{{ request.args.get('date_to', '') }}">
                 <input type="hidden" name="filter_button" value="{{ request.args.get('filter_button', '') }}">
+                <input type="hidden" name="filter_type" value="{{ filter_type }}">
                 <button type="submit" class="export-button">Export to Excel</button>
             </form>
             <!-- <form action="{{ url_for('send_email') }}" method="get" style="display: inline;">
@@ -43,56 +54,56 @@
                 </button>
             </div>
         </div>
-        <h2>All Entries</h2>
+        <h2 class="hide-on-print">All Entries</h2>
     <div style="overflow-x:auto;overflow-y: hidden; width: 100%;">
         <table>
             <thead>
                 <tr>
-                    <th>S.No</th>
-                    <th>Billing Id</th>
-                    <th>Token Id</th>
+                    <th class="hide-on-print">S.No</th>
+                    <th class="hide-on-print">Billing Id</th>
+                    <th class="hide-on-print">Token Id</th>
                     <th>Dealer Id</th>
                     <th>Dealer Name</th>
-                    <th>Item</th>
+                    <th class="hide-on-print">Item</th>
                     <th>Qty</th>
-                    <th>Item Price</th>
-                    <th>Total</th>
-                    <th>Gst Amount</th>
+                    <th class="hide-on-print">Item Price</th>
+                    <th class="hide-on-print">Total</th>
+                    <th class="hide-on-print">Gst Amount</th>
                     <th>Grand Total</th>
                     <th>Credit Balance (Before payment)</th>
                     <th>Amount Paid (Gpay)</th>
                     <th>Amount Paid (Cash)</th>
                     <th>Credit Amount (current payment)</th>
                     <th>Credit Balance</th>
-                    <th>DateTime</th>
-                    <th class=" hide-on-print">Print Bill</th>
-                    <th class=" hide-on-print">Void Bill</th>
+                    <th class="hide-on-print">DateTime</th>
+                    <th class="hide-on-print">Print Bill</th>
+                    <th class="hide-on-print">Void Bill</th>
                 </tr>
             </thead>
             <tbody>
             {% for dealer, item, bill in bills %}
                 <tr>
-                    <td>{{ loop.index }}</td>
-                    <td>{{ bill.id }}</td>
-                    <td>{{ bill.billing_id }}</td>
+                    <td class="hide-on-print">{{ loop.index }}</td>
+                    <td class="hide-on-print">{{ bill.id }}</td>
+                    <td class="hide-on-print">{{ bill.billing_id }}</td>
                     <td>{{ bill.dealer_id }}</td>
                     <td>{{ dealer.name }}</td>
-                    <td>{{ item.item_name }}</td>
+                    <td class="hide-on-print">{{ item.item_name }}</td>
                     <td>{{ bill.quantity }}</td>
-                    <td>₹{{ bill.item_price }}</td>
-                    <td>₹{{ "%0.2f"|format(bill.total_amount) }}</td>
-                    <td>₹{{ "%0.2f"|format(bill.gst_amount) }}</td>
+                    <td class="hide-on-print">₹{{ bill.item_price }}</td>
+                    <td class="hide-on-print">₹{{ "%0.2f"|format(bill.total_amount) }}</td>
+                    <td class="hide-on-print">₹{{ "%0.2f"|format(bill.gst_amount) }}</td>
                     <td>₹{{ "%0.2f"|format(bill.grand_total) }}</td>
                     <td>₹{{ "%0.2f"|format(bill.credit_balance) }}</td>
                     <td>₹{{ "%0.2f"|format(bill.paid_amount_gpay) }}</td>
                     <td>₹{{ "%0.2f"|format(bill.paid_amount_cash) }}</td>
                     <td>₹{{ "%0.2f"|format(bill.credit_amount) }}</td>
                     <td>₹{{ "%0.2f"|format(bill.remaining_balance) }}</td>
-                    <td width="120px">{{ bill.formatted_date_time }}</td>
+                    <td width="120px" class="hide-on-print">{{ bill.formatted_date_time }}</td>
                     <td class=" hide-on-print">
                         <a class="print-bill" href="{{ url_for('print_bill', id=bill.id, return_path='\/billing_history') }}" class="btn">Print Bill</a>
                     </td>
-                    <td>
+                    <td class="hide-on-print">
                         {% if not bill.voided %}
                         <form action="/void_bill/{{ bill.id }}" method="POST" style="display:inline;">
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to void this bill?')">Void</button>

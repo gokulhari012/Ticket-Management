@@ -1317,7 +1317,8 @@ def  get_filtered_data_billing(request):
     date_from = request.args.get('date_from', '')
     date_to = request.args.get('date_to', '')
     filter_button = request.args.get('filter_button', '')
-
+    filter_type = request.args.get('filter_type', 'all')  # Options: 'all', 'credit', or 'gpay'
+    
     #query = db.session.query(Dealer_details, Item, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).outerjoin(BillingHistory, Item.item_id == BillingHistory.item_id)  
     query = db.session.query(Dealer_details, Item, BillingHistory).outerjoin(BillingHistory, Dealer_details.dealer_id == BillingHistory.dealer_id).outerjoin(Item, BillingHistory.item_id == Item.id)
 
@@ -1333,29 +1334,36 @@ def  get_filtered_data_billing(request):
             date_to_dt = datetime.strptime(date_to, '%Y-%m-%d')
             query = query.filter(BillingHistory.timestamp <= date_to_dt+timedelta(days=1))
             # query = query.filter(BillingHistory.timestamp <= date_to_dt)
+
     else:
         # Get today's start time (midnight)
         start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         # Filter data from today only
         query = query.filter(BillingHistory.timestamp >= start_of_today)
+    
+    if filter_type=='credit':
+        query = query.filter(BillingHistory.credit_amount > 0)
+    elif filter_type=='gpay':
+        query = query.filter(BillingHistory.paid_amount_gpay > 0)
+     
 
     filtered_data = query.order_by(BillingHistory.timestamp.desc()).all()
 
-    return filtered_data
+    return filtered_data, filter_type
 
 @app.route('/billing_history')
 def billing_history():
     if 'user' not in session:
         return redirect(url_for("login"))
-    filtered_data = get_filtered_data_billing(request)
+    filtered_data, filter_type = get_filtered_data_billing(request)
     dealer_id = request.args.get('dealer_id', '')  # Default is an empty string
     date_from = request.args.get('date_from', '')
     date_to = request.args.get('date_to', '')
-    return render_template('billing_history.html', dealer_id=dealer_id, date_from=date_from, date_to=date_to, filtered_data=filtered_data, bills=filtered_data)
+    return render_template('billing_history.html', dealer_id=dealer_id, date_from=date_from, date_to=date_to, filtered_data=filtered_data, bills=filtered_data, filter_type=filter_type)
 
 @app.route('/export_billing_history')
 def export_billing_history_data():
-    filtered_data = get_filtered_data_billing(request)
+    filtered_data, filter_type = get_filtered_data_billing(request)
     output, filename = generate_excel_billing_history(filtered_data)
 
     return send_file(output, download_name=filename, as_attachment=True, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -1503,10 +1511,10 @@ def generate_excel_billing_history(filtered_data):
         "Total Amount": total_amounts,
         "Gst Amount": gst_amounts,
         "Grand Total": grand_totals,
-        "Credit Amount": credit_amounts,
-        "Credit Balance": credit_balances,
+        "Credit Balance (Before payment)": credit_balances,
         "Paid Amount(Gpay)": paid_gpay,
         "Paid Amount(Cash)": paid_cash,
+        "Credit Amount (current payment)": credit_amounts,
         "Remaining Balance": remaining_balances,
         "Time": timestamps
     }
