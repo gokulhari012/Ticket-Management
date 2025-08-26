@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Daily Credit Dealers Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='lotus_aqua_logo.jpg') }}">
+  <style>
+  
+  </style>
+</head>
+<body onload="">
+  <div class="container history_container">
+    <h1>Daily Credit Dealers Details</h1>
+  
+    <div style="position: relative; text-align: right; top: 40px;">
+        <button class="print_btn" onclick="print()">
+            🖨️ Print
+        </button>
+    </div>
+    <a href="/" class="back">Back</a>        
+
+    <!-- PAGE 2 -->
+    <div class="sheet">
+      <p style="text-align:center; font-size:12pt; font-weight:600; margin-bottom:6mm;">
+        Date : {{ date or "00.00.2000" }} &nbsp; - &nbsp; CREDIT DETAILS &nbsp;
+      </p>
+
+      <!-- CREDIT DETAILS -->
+      <table class="history_data">
+        <tr><td colspan="6" class="section-title">CREDIT DETAILS</td></tr>
+        <tr>
+          <th>BILL NO</th><th class="dealer-id-column">DEALER ID</th><th>NAME</th><th>QUANTITY</th><th>CREDIT AMOUNT</th><th>REMARKS</th>
+        </tr>
+        {% for dealers, billing_history in billing_history_details %}
+        <tr>
+          <td>{{ billing_history.id }}</td>
+          <td>{{ dealers.dealer_id }}</td>
+          <td>{{ dealers.name }}</td>
+          <td>{{ billing_history.quantity }}</td>
+          <td>{{ billing_history.credit_amount }}</td>
+          <td></td>
+        </tr>
+        {% endfor %}
+        <tr><td colspan="4"><b>TOTAL</b></td><td colspan="2">{{ total_credit_amount }}</td></tr>
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <script>
+    function print() {
+        setTimeout(function() {
+            // console.log("{{return_path}}");
+            window.location.href = "{{return_path}}";
+        }, 0);  // wait 3 seconds before redirect
+    }
+</script>
+</body>
+</html>

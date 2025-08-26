@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+
+  <title>Daily Gpay Dealers Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='lotus_aqua_logo.jpg') }}">
+  <style>
+    
+  </style>
+</head>
+<body onload="">
+
+  <div class="container history_container">
+
+    <h1>Daily Gpay Dealers Details</h1>
+
+    <div style="position: relative; text-align: right; top: 40px;">
+        <button class="print_btn" onclick="print()">
+            🖨️ Print
+        </button>
+    </div>
+    <a href="/" class="back">Back</a>  
+      
+    <!-- PAGE 2 -->
+    <div class="sheet">
+      <p style="text-align:center; font-size:12pt; font-weight:600; margin-bottom:6mm;">
+        Date : {{ date or "00.00.2000" }} &nbsp; - &nbsp; GPAY DETAILS &nbsp;
+      </p>
+
+      <!-- GPAY DETAILS -->
+      <table class="history_data">
+        <tr><td colspan="6" class="section-title">GPAY DETAILS</td></tr>
+        <tr><td colspan="6" class="section-title">PAYMENT GPAY DETAILS</td></tr>
+        <tr>
+          <th>BILL NO</th><th class="dealer-id-column">DEALER ID</th><th>NAME</th><th>QUANTITY</th><th>GPAY AMOUNT</th><th>REMARKS</th>
+        </tr>
+        {% for dealers, payment_billing_history in payment_billing_history_details_gpay %}
+        <tr>
+          <td>{{ payment_billing_history.id }}</td>
+          <td>{{ dealers.dealer_id }}</td>
+          <td>{{ dealers.name }}</td>
+          <td>-</td>
+          <td>{{ payment_billing_history.paid_amount_gpay }}</td>
+          <td></td>
+        </tr>
+        {% endfor %}
+        <tr><td colspan="4"><b>PAYMENT GPAY TOTAL</b></td><td colspan="2">{{ credit_amount_received_gpay_gpay }}</td></tr>
+
+        <tr><td colspan="6" class="section-title">BILLING GPAY DETAILS</td></tr>
+        {% for dealers, billing_history in billing_history_details_gpay %}
+        <tr>
+          <td>{{ billing_history.id }}</td>
+          <td>{{ dealers.dealer_id }}</td>
+          <td>{{ dealers.name }}</td>
+          <td>{{ billing_history.quantity }}</td>
+          <td>{{ billing_history.paid_amount_gpay }}</td>
+          <td></td>
+        </tr>
+        {% endfor %}
+        <tr><td colspan="4"><b>BILLING GPAY TOTAL</b></td><td colspan="2">{{ amount_received_gpay }}</td></tr>
+        <tr><td colspan="4"><b>TOTAL GPAY AMOUNT</b></td><td colspan="2">{{ total_amount_received_gpay }}</td></tr>
+      </table>
+
+    </div>
+  </div>
+      <script>
+    function print() {
+        setTimeout(function() {
+            // console.log("{{return_path}}");
+            window.location.href = "{{return_path}}";
+        }, 0);  // wait 3 seconds before redirect
+    }
+</script>
+</body>
+</html>
