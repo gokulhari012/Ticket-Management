@@ -280,6 +280,18 @@ class DailyAccounts(db.Model):
     notes = db.Column(db.String(100), default=0)
     total_expenses = db.Column(db.Float, default=0)
 
+    count_500 = db.Column(db.Integer, default=0)
+    count_200 = db.Column(db.Integer, default=0)
+    count_100 = db.Column(db.Integer, default=0)
+    count_50 = db.Column(db.Integer, default=0)
+    count_20 = db.Column(db.Integer, default=0)
+    count_10 = db.Column(db.Integer, default=0)
+    count_5 = db.Column(db.Integer, default=0)
+    count_2 = db.Column(db.Integer, default=0)
+    count_1 = db.Column(db.Integer, default=0)
+    count_others = db.Column(db.Integer, default=0)
+    count_total = db.Column(db.Integer, default=0)
+
     net_amount_remaining = db.Column(db.Float, default=0)
     net_cash_remaining = db.Column(db.Float, default=0)
 
@@ -905,6 +917,17 @@ def daily_accounts():
                 others_expenses = float(data.get('others_expenses', 0))
                 notes = data.get('notes',"")
                 total_expenses = float(data.get('total_expenses_2', 0))
+                count_500 = float(data.get('count_500', 0))
+                count_200 = float(data.get('count_200', 0))
+                count_100 = float(data.get('count_100', 0))
+                count_50 = float(data.get('count_50', 0))
+                count_20 = float(data.get('count_20', 0))
+                count_10 = float(data.get('count_10', 0))
+                count_5 = float(data.get('count_5', 0))
+                count_2 = float(data.get('count_2', 0))
+                count_1 = float(data.get('count_1', 0))
+                count_others = float(data.get('count_others', 0))
+                count_total = float(data.get('count_total', 0))
                 net_amount_remaining = float(data.get('net_amount_remaining', 0))
                 net_cash_remaining = float(data.get('net_cash_remaining', 0))
 
@@ -935,6 +958,17 @@ def daily_accounts():
                     others_expenses=others_expenses,
                     notes=notes,
                     total_expenses=total_expenses,
+                    count_500=count_500,
+                    count_200=count_200,
+                    count_100=count_100,
+                    count_50=count_50,
+                    count_20=count_20,
+                    count_10=count_10,
+                    count_5=count_5,
+                    count_2=count_2,
+                    count_1=count_1,
+                    count_others=count_others,
+                    count_total=count_total,
                     net_amount_remaining=net_amount_remaining,
                     net_cash_remaining=net_cash_remaining
                 )
@@ -1248,7 +1282,18 @@ def generate_excel_monthly_statement(data):
         "Sunday Ots": [d.sunday_ots for d in data],
         "Others Expenses": [d.others_expenses for d in data],
         "Notes": [d.notes for d in data],
-        "Total Expense": [d.total_expenses for d in data],
+        "Count 500": [d.count_500 for d in data],
+        "Count 200": [d.count_200 for d in data],
+        "Count 100": [d.count_100 for d in data],
+        "Count 50": [d.count_50 for d in data],
+        "Count 20": [d.count_20 for d in data],
+        "Count 10": [d.count_10 for d in data],
+        "Count 5": [d.count_5 for d in data],
+        "Count 2": [d.count_2 for d in data],
+        "Count 1": [d.count_1 for d in data],
+        "Count Others": [d.count_others for d in data],
+        "Count Total": [d.count_total for d in data],
+
         "Net Amount Remaining": [d.net_amount_remaining for d in data],
         "Amount received (Gpay)(-)": [d.amount_gpay for d in data],
         "Net Cash Remaining": [d.net_cash_remaining for d in data],

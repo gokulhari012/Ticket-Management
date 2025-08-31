@@ -203,7 +203,7 @@
   
   
   <!-- PAGE 2 -->
-  <div class="sheet">
+  <div class="sheet page-break">
     <p style="text-align:center; font-size:12pt; font-weight:600; margin-bottom:6mm;">
       Date : {{ daily_accounts.formatted_date or "00.00.2000" }} &nbsp; - &nbsp; FINAL BILL &nbsp; - &nbsp; PRINT
     </p>
@@ -378,6 +378,71 @@
       <tr><td><b>Total</b></td><td>{{daily_accounts.total_expenses }}</td><td></td></tr>
     </table>
   </div>
+
+    <!-- PAGE 3 -->
+  <div class="sheet page-break">
+    <table class="statement">
+      <!-- Header row -->
+      <tr class="title-row">
+        <td colspan="2">
+          <span>Cash Count statement</span>
+        </td>
+      </tr>
+
+      <!-- Values -->
+      <tr>
+        <td class="k">500 X</td>
+        <td class="v">{{ daily_accounts.count_500 or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">200 X</td>
+        <td class="v">{{ daily_accounts.count_200 or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">100 X</td>
+        <td class="v">{{ daily_accounts.count_100 or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">50 X</td>
+        <td class="v">{{ daily_accounts.count_50 or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">20 X</td>
+        <td class="v">{{ daily_accounts.count_20 or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">10 X</td>
+        <td class="v">{{ daily_accounts.count_10 or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">5 X</td>
+        <td class="v">{{ daily_accounts.count_5 or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">2 X</td>
+        <td class="v">{{ daily_accounts.count_2 or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">1 X</td>
+        <td class="v">{{ daily_accounts.count_1 or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">Others</td>
+        <td class="v">{{ daily_accounts.count_others or 0 }}</td>
+      </tr>
+      <tr>
+        <td class="k">Total Cash</td>
+        <td class="v">{{ daily_accounts.count_total or 0 }}</td>
+      </tr>
+      <!-- Bottom spacer line (optional) -->
+      <tr>
+        <td style="height: 10mm;"></td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+
+
       <script>
     function printAndRedirect() {
         window.print();

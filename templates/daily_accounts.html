@@ -142,8 +142,38 @@
 
                     <lable for="paid_amount"><strong>Net Cash Remaining (Cash)(=)</strong></lable>
                     <input type="number" step="0.01" name="net_cash_remaining" value="0" required readonly><br>
-
                 </div>
+            </div>
+             <div class="row g-3 mt-4  p-3 mb-2 text-white bg-danger">
+                <h3>Cash Count</h3>
+                <div class="col-md-4">
+                    <lable for="paid_amount"><strong>500 X</strong></lable>
+                    <input type="number" step="0.01" name="count_500" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <lable for="paid_amount"><strong>200 X</strong></lable>
+                    <input type="number" step="0.01" name="count_200" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <lable for="paid_amount"><strong>100 X</strong></lable>
+                    <input type="number" step="0.01" name="count_100" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <lable for="paid_amount"><strong>50 X</strong></lable>
+                    <input type="number" step="0.01" name="count_50" value="0" onfocus="resetTargetInput(this)" required><br>
+                </div>
+                <div class="col-md-4">
+                    <lable for="paid_amount"><strong>20 X</strong></lable>
+                    <input type="number" step="0.01" name="count_20" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
+                    <lable for="paid_amount"><strong>10 X</strong></lable>
+                    <input type="number" step="0.01" name="count_10" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
+                    <lable for="paid_amount"><strong>5 X</strong></lable>
+                    <input type="number" step="0.01" name="count_5" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
+                    <lable for="paid_amount"><strong>2 X</strong></lable>
+                    <input type="number" step="0.01" name="count_2" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
+                </div>
+                <div class="col-md-4">
+                    <lable for="paid_amount"><strong>1 X</strong></lable>
+                    <input type="number" step="0.01" name="count_1" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
+                    <lable for="paid_amount"><strong>Others</strong></lable>
+                    <input type="number" step="0.01" name="count_others" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
+                </div>
+                <p><strong>Total Cash Amount:</strong> <span id="count_total">0</span></p>
+                <input type="number" step="0.01" name="count_total" value="{{ 0 }}" hidden><br>
             </div>
             <button type="submit" name="submit" class="btn" value="generate">Generate Daily Statement</button>
         </form>
@@ -171,13 +201,22 @@ document.addEventListener('DOMContentLoaded', function() {
         'milk_and_others', 'salary_advance', 'salary', 'eb',
         'service_labour', 'stationaries', 'sunday_ots', 'others_expenses',
         'one_can_price', 'total_can_filling', 'amount_gpay', 'amount_cash', 
-        'credit_amount_received_gpay','credit_amount_received_cash'
+        'credit_amount_received_gpay','credit_amount_received_cash',
+        'count_500', 'count_200', 'count_100', 'count_50',
+        'count_20', 'count_10', 'count_5', 'count_2',
+        'count_1', 'count_others'
     ];
 
     const expenseFields = [
         'chit_amount', 'diesel', 'spares', 'pooja_items',
         'milk_and_others', 'salary_advance', 'salary', 'eb',
         'service_labour', 'stationaries', 'sunday_ots', 'others_expenses'
+    ];
+
+    const cashCountFields = [
+        'count_500', 'count_200', 'count_100', 'count_50',
+        'count_20', 'count_10', 'count_5', 'count_2',
+        'count_1', 'count_others'
     ];
 
     // Attach input listeners
@@ -194,7 +233,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const val = parseFloat(document.querySelector(`input[name="${fieldName}"]`).value) || 0;
             totalExpenses += val;
         });
-
+        let totalcashCount = 0;
+        cashCountFields.forEach(fieldName => {
+            const val = parseFloat(document.querySelector(`input[name="${fieldName}"]`).value) || 0;
+            if (fieldName=='count_others'){
+                totalcashCount += val;
+            }
+            else{
+                let value = parseInt(fieldName.split("_")[1], 10);
+                totalcashCount += ( value * val ) ;
+            }
+        });
         //First Tab Receiced Amount
         //Total Expected amount calculation
         const one_can_price = parseFloat(document.querySelector(`input[name="one_can_price"]`).value) || 0;
@@ -223,12 +272,21 @@ document.addEventListener('DOMContentLoaded', function() {
             net_credit_amount_received.value = total_amount_credit.toFixed(2);
         }
 
-
         //Second Tab Expense
         // Update total expenses display
         const totalExpensesSpan = document.getElementById('total_expenses');
         if (totalExpensesSpan) {
             totalExpensesSpan.textContent = totalExpenses.toFixed(2);
+        }
+
+         // Update total Cash Count display
+        const totalCashCountSpan = document.getElementById('count_total');
+        if (totalCashCountSpan) {
+            totalCashCountSpan.textContent = totalcashCount.toFixed(2);
+        }
+        const totalCashCountInput = document.querySelector(`input[name="count_total"]`);
+        if (totalCashCountInput) {
+            totalCashCountInput.value = totalcashCount.toFixed(2);
         }
 
         //Bottom Tab Calculation 
