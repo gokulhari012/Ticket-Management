@@ -721,3 +721,13 @@ a {
 .data_entry_and_billing .data_entry_form div input{
     width: 250px;
 }
+
+.denom-class{
+   margin-top: 15px;
+}
+.denom-class-head{
+   
+}
+.denom-class-body{
+   margin-left: 10px;
+}

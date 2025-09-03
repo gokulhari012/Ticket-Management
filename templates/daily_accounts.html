@@ -146,7 +146,7 @@
             </div>
              <div class="row g-3 mt-4  p-3 mb-2 text-white bg-danger">
                 <h3>Cash Denomination</h3>
-                <div class="col-md-4">
+                <!-- <div class="col-md-4">
                     <lable for="paid_amount"><strong>500 X</strong></lable>
                     <input type="number" step="0.01" name="count_500" value="0" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>200 X</strong></lable>
@@ -171,9 +171,193 @@
                     <input type="number" step="0.01" name="count_1" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
                     <lable for="paid_amount"><strong>Others</strong></lable>
                     <input type="number" step="0.01" name="count_others" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
+                </div> -->
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="denom-class denom-class-head">
+                            <lable for="paid_amount"><strong>500 X</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" name="count_500" value="0" onfocus="resetTargetInput(this)" required><br>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="denom-class denom-class-body">
+                            <lable for="paid_amount"><strong>=</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="count_500_total" value="0" required readonly><br>
+                    </div>
                 </div>
-                <p><strong>Total Cash Amount:</strong> <span id="count_total">0</span></p>
-                <input type="number" step="0.01" name="count_total" value="{{ 0 }}" hidden><br>
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="denom-class denom-class-head">
+                            <lable for="paid_amount"><strong>200 X</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" name="count_200" value="0" onfocus="resetTargetInput(this)" required><br>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="denom-class denom-class-body">
+                            <lable for="paid_amount"><strong>=</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="count_200_total" value="0" required readonly><br>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="denom-class denom-class-head">
+                            <lable for="paid_amount"><strong>100 X</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" name="count_100" value="0" onfocus="resetTargetInput(this)" required><br>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="denom-class denom-class-body">
+                            <lable for="paid_amount"><strong>=</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="count_100_total" value="0" required readonly><br>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="denom-class denom-class-head">
+                            <lable for="paid_amount"><strong>50 X</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" name="count_50" value="0" onfocus="resetTargetInput(this)" required><br>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="denom-class denom-class-body">
+                            <lable for="paid_amount"><strong>=</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="count_50_total" value="0" required readonly><br>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="denom-class denom-class-head">
+                            <lable for="paid_amount"><strong>20 X</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" name="count_20" value="0" onfocus="resetTargetInput(this)" required><br>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="denom-class denom-class-body">
+                            <lable for="paid_amount"><strong>=</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="count_20_total" value="0" required readonly><br>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="denom-class denom-class-head">
+                            <lable for="paid_amount"><strong>10 X</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" name="count_10" value="0" onfocus="resetTargetInput(this)" required><br>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="denom-class denom-class-body">
+                            <lable for="paid_amount"><strong>=</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="count_10_total" value="0" required readonly><br>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="denom-class denom-class-head">
+                            <lable for="paid_amount"><strong>5 X</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" name="count_5" value="0" onfocus="resetTargetInput(this)" required><br>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="denom-class denom-class-body">
+                            <lable for="paid_amount"><strong>=</strong></lable><br>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="count_5_total" value="0" required readonly><br>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="denom-class denom-class-head">
+                            <strong>Total Cash Amount:</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="count_total" value="0" required readonly><br>
+                    </div>
+                </div>
+
+                <!-- <div class="col-md-4">
+                    <div class="denom-class">
+                        <lable for="paid_amount"><strong>500 X</strong></lable><br>
+                    </div>
+                    <div class="denom-class">
+                        <lable for="paid_amount"><strong>200 X</strong></lable><br>
+                    </div>
+                    <div class="denom-class">
+                        <lable for="paid_amount"><strong>100 X</strong></lable><br>
+                    </div>
+                    <div class="denom-class">
+                        <lable for="paid_amount"><strong>50 X</strong></lable><br>
+                    </div>
+                    <div class="denom-class">
+                        <lable for="paid_amount"><strong>20 X</strong></lable><br>
+                    </div>
+                    <div class="denom-class">
+                        <lable for="paid_amount"><strong>10 X</strong></lable><br>
+                    </div>
+                    <div class="denom-class">
+                        <lable for="paid_amount"><strong>5 X</strong></lable><br>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" step="0.01" name="count_200" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="count_100" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="count_50" value="0" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="count_20" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="count_10" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
+                    <input type="number" step="0.01" name="count_5" value="{{ 0 }}" onfocus="resetTargetInput(this)" required><br>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" step="0.01" name="count_200_total" value="0" required readonly><br>
+                    <input type="number" step="0.01" name="count_100_total" value="0" required readonly><br>
+                    <input type="number" step="0.01" name="count_50_total" value="0" required readonly><br>
+                    <input type="number" step="0.01" name="count_20_total" value="0" required readonly><br>
+                    <input type="number" step="0.01" name="count_10_total" value="0" required readonly><br>
+                    <input type="number" step="0.01" name="count_5_total" value="0" required readonly><br>
+                </div> -->
+
+                <!-- <p"><strong>Total Cash Amount:</strong> <span id="count_total">0</span></p>
+                <input type="number" step="0.01" name="count_total" value="{{ 0 }}" hidden><br> -->
             </div>
             <button type="submit" name="submit" class="btn" value="generate">Generate Daily Statement</button>
         </form>
@@ -203,8 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'one_can_price', 'total_can_filling', 'amount_gpay', 'amount_cash', 
         'credit_amount_received_gpay','credit_amount_received_cash',
         'count_500', 'count_200', 'count_100', 'count_50',
-        'count_20', 'count_10', 'count_5', 'count_2',
-        'count_1', 'count_others'
+        'count_20', 'count_10', 'count_5'
     ];
 
     const expenseFields = [
@@ -213,10 +396,15 @@ document.addEventListener('DOMContentLoaded', function() {
         'service_labour', 'stationaries', 'sunday_ots', 'others_expenses'
     ];
 
+    // const cashCountFields = [
+    //     'count_500', 'count_200', 'count_100', 'count_50',
+    //     'count_20', 'count_10', 'count_5', 'count_2',
+    //     'count_1', 'count_others'
+    // ];
+
     const cashCountFields = [
         'count_500', 'count_200', 'count_100', 'count_50',
-        'count_20', 'count_10', 'count_5', 'count_2',
-        'count_1', 'count_others'
+        'count_20', 'count_10', 'count_5'
     ];
 
     // Attach input listeners
@@ -332,6 +520,44 @@ document.addEventListener('DOMContentLoaded', function() {
         if (net_cash_remaining) {
             net_cash_remaining.value = remaining.toFixed(2) - amount_gpay.toFixed(2) - credit_amount_received_gpay.toFixed(2);
         }
+
+        //Denomination Values
+        const count_500 = parseFloat(document.querySelector(`input[name="count_500"]`).value) || 0;
+        const count_500_total = document.querySelector(`input[name="count_500_total"]`);
+        if (count_500_total) {
+            count_500_total.value = count_500.toFixed(2) * 500;
+        }
+        const count_200 = parseFloat(document.querySelector(`input[name="count_200"]`).value) || 0;
+        const count_200_total = document.querySelector(`input[name="count_200_total"]`);
+        if (count_200_total) {
+            count_200_total.value = count_200.toFixed(2) * 200;
+        }
+        const count_100 = parseFloat(document.querySelector(`input[name="count_100"]`).value) || 0;
+        const count_100_total = document.querySelector(`input[name="count_100_total"]`);
+        if (count_100_total) {
+            count_100_total.value = count_100.toFixed(2) * 100;
+        }
+        const count_50 = parseFloat(document.querySelector(`input[name="count_50"]`).value) || 0;
+        const count_50_total = document.querySelector(`input[name="count_50_total"]`);
+        if (count_50_total) {
+            count_50_total.value = count_50.toFixed(2) * 50;
+        }
+        const count_20 = parseFloat(document.querySelector(`input[name="count_20"]`).value) || 0;
+        const count_20_total = document.querySelector(`input[name="count_20_total"]`);
+        if (count_20_total) {
+            count_20_total.value = count_20.toFixed(2) * 20;
+        }
+        const count_10 = parseFloat(document.querySelector(`input[name="count_10"]`).value) || 0;
+        const count_10_total = document.querySelector(`input[name="count_10_total"]`);
+        if (count_10_total) {
+            count_10_total.value = count_10.toFixed(2) * 10;
+        }
+        const count_5 = parseFloat(document.querySelector(`input[name="count_5"]`).value) || 0;
+        const count_5_total = document.querySelector(`input[name="count_5_total"]`);
+        if (count_5_total) {
+            count_5_total.value = count_5.toFixed(2) * 5;
+        }
+
     }
     window.onload = function() {
         calculateNetRemaining();
