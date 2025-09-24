@@ -49,7 +49,8 @@ twilio_number = "+12317902355"
 is_sms_required = False
 
 default_item_id = 1 # water Bottol
-gst_rate = 0.12        
+#gst_rate = 0.12       
+gst_rate = 0.05        
 
 # below for testing
 # account_sid = 'AC47072dc2d5361ca5cab0e1a4f7efd369fgokul'  #remove the gokul postfix
